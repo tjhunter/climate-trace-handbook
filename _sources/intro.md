@@ -11,16 +11,20 @@ Even if we are going to analyze hundreds of millions of sources of GHG gases on 
 The technical sections that also explain the how the code is running will be clearly marked with a `Technical` label. You can skip them if you are just interested in the results.
 
 After reading this handbook, you should be able to do the following:
-- access and manipulate the Climate Trace dataset with Python and Jupyter
+- access and manipulate the Climate TRACE dataset with Python and Jupyter
 - derive basic insights about emissions from this dataset: which countries emit the most, the least, which sorts of gas, etc.
-- where our knowledge is the most uncertain
-- where independent measurements of the same sources gives inconsistent values
+- understand which sectors and countries present the most uncertainty
+- compare and combine multiple measurements of the same emission sector into a more precise estimate, using Bayesian techniques
 
 ```{warning}
-
 This handbook is still a draft. Numbers are still being checked with experts.
-
 ```
+
+```{warning}
+This work not affiliated with the Climate TRACE consortium. The Climate TRACE consortium does not sponsor or endorse any content in this handbook.
+Any analysis, error, conclusion contained in these pages should not be attributed to the Climate TRACE project but to the author.
+```
+
 
 ```{tableofcontents}
 ```
