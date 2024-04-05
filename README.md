@@ -19,9 +19,6 @@ poetry shell
 set -x PYTHONPATH $PWD:$PWD/src/ ; jupyter notebook
 
 set -x PYTHONPATH $PWD:$PWD/src/ ; jupyter-book build ct_book
+
+ghp-import -n -p -f _build/html
 ```
-https://github.com/scikit-learn/scikit-learn/blob/f07e0138b/sklearn/datasets/_openml.py#L753
-
-https://github.com/awesomedata/awesome-public-datasets
-
-https://alexgude.com/blog/where-to-host-public-datasets/
