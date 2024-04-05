@@ -1,0 +1,95 @@
+Traceback (most recent call last):
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1314, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
+    return future.result()
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 709, in async_execute
+    await self.async_execute_cell(
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+year = 2022
+gas = "co2e_100yr"
+sdf = ct.read_source_emissions(year=year)
+sdf_gy = sdf.filter(c_gas == gas)
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
+Cell [0;32mIn[3], line 3[0m
+[1;32m      1[0m year [38;5;241m=[39m [38;5;241m2022[39m
+[1;32m      2[0m gas [38;5;241m=[39m [38;5;124m"[39m[38;5;124mco2e_100yr[39m[38;5;124m"[39m
+[0;32m----> 3[0m sdf [38;5;241m=[39m [43mct[49m[38;5;241;43m.[39;49m[43mread_source_emissions[49m[43m([49m[43myear[49m[38;5;241;43m=[39;49m[43myear[49m[43m)[49m
+[1;32m      4[0m sdf_gy [38;5;241m=[39m sdf[38;5;241m.[39mfilter(c_gas [38;5;241m==[39m gas)
+
+File [0;32m~/work/carbonmap/science/tutorials/src/ctrace/data.py:54[0m, in [0;36mread_source_emissions[0;34m(year, p)[0m
+[1;32m     52[0m [38;5;28;01massert[39;00m year [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m [38;5;28;01mNone[39;00m, [38;5;124m"[39m[38;5;124mYear must be specified[39m[38;5;124m"[39m
+[1;32m     53[0m p [38;5;241m=[39m p [38;5;129;01mor[39;00m Path(_ct_data_source)
+[0;32m---> 54[0m [38;5;28;01mreturn[39;00m [43mpl[49m[38;5;241;43m.[39;49m[43mscan_parquet[49m[43m([49m[38;5;124;43mf[39;49m[38;5;124;43m"[39;49m[38;5;132;43;01m{[39;49;00m[43mp[49m[38;5;132;43;01m}[39;49;00m[38;5;124;43m/ct_data_[39;49m[38;5;132;43;01m{[39;49;00m[43myear[49m[38;5;132;43;01m}[39;49;00m[38;5;124;43m.parquet[39;49m[38;5;124;43m"[39;49m[43m)[49m[38;5;241m.[39mpipe(recast_parquet)
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/polars/_utils/deprecation.py:134[0m, in [0;36mdeprecate_renamed_parameter.<locals>.decorate.<locals>.wrapper[0;34m(*args, **kwargs)[0m
+[1;32m    129[0m [38;5;129m@wraps[39m(function)
+[1;32m    130[0m [38;5;28;01mdef[39;00m [38;5;21mwrapper[39m([38;5;241m*[39margs: P[38;5;241m.[39margs, [38;5;241m*[39m[38;5;241m*[39mkwargs: P[38;5;241m.[39mkwargs) [38;5;241m-[39m[38;5;241m>[39m T:
+[1;32m    131[0m     _rename_keyword_argument(
+[1;32m    132[0m         old_name, new_name, kwargs, function[38;5;241m.[39m[38;5;18m__name__[39m, version
+[1;32m    133[0m     )
+[0;32m--> 134[0m     [38;5;28;01mreturn[39;00m [43mfunction[49m[43m([49m[38;5;241;43m*[39;49m[43margs[49m[43m,[49m[43m [49m[38;5;241;43m*[39;49m[38;5;241;43m*[39;49m[43mkwargs[49m[43m)[49m
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/polars/_utils/deprecation.py:134[0m, in [0;36mdeprecate_renamed_parameter.<locals>.decorate.<locals>.wrapper[0;34m(*args, **kwargs)[0m
+[1;32m    129[0m [38;5;129m@wraps[39m(function)
+[1;32m    130[0m [38;5;28;01mdef[39;00m [38;5;21mwrapper[39m([38;5;241m*[39margs: P[38;5;241m.[39margs, [38;5;241m*[39m[38;5;241m*[39mkwargs: P[38;5;241m.[39mkwargs) [38;5;241m-[39m[38;5;241m>[39m T:
+[1;32m    131[0m     _rename_keyword_argument(
+[1;32m    132[0m         old_name, new_name, kwargs, function[38;5;241m.[39m[38;5;18m__name__[39m, version
+[1;32m    133[0m     )
+[0;32m--> 134[0m     [38;5;28;01mreturn[39;00m [43mfunction[49m[43m([49m[38;5;241;43m*[39;49m[43margs[49m[43m,[49m[43m [49m[38;5;241;43m*[39;49m[38;5;241;43m*[39;49m[43mkwargs[49m[43m)[49m
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/polars/io/parquet/functions.py:311[0m, in [0;36mscan_parquet[0;34m(source, n_rows, row_index_name, row_index_offset, parallel, use_statistics, hive_partitioning, rechunk, low_memory, cache, storage_options, retries)[0m
+[1;32m    308[0m [38;5;28;01melse[39;00m:
+[1;32m    309[0m     source [38;5;241m=[39m [normalize_filepath(source) [38;5;28;01mfor[39;00m source [38;5;129;01min[39;00m source]
+[0;32m--> 311[0m [38;5;28;01mreturn[39;00m [43mpl[49m[38;5;241;43m.[39;49m[43mLazyFrame[49m[38;5;241;43m.[39;49m[43m_scan_parquet[49m[43m([49m
+[1;32m    312[0m [43m    [49m[43msource[49m[43m,[49m
+[1;32m    313[0m [43m    [49m[43mn_rows[49m[38;5;241;43m=[39;49m[43mn_rows[49m[43m,[49m
+[1;32m    314[0m [43m    [49m[43mcache[49m[38;5;241;43m=[39;49m[43mcache[49m[43m,[49m
+[1;32m    315[0m [43m    [49m[43mparallel[49m[38;5;241;43m=[39;49m[43mparallel[49m[43m,[49m
+[1;32m    316[0m [43m    [49m[43mrechunk[49m[38;5;241;43m=[39;49m[43mrechunk[49m[43m,[49m
+[1;32m    317[0m [43m    [49m[43mrow_index_name[49m[38;5;241;43m=[39;49m[43mrow_index_name[49m[43m,[49m
+[1;32m    318[0m [43m    [49m[43mrow_index_offset[49m[38;5;241;43m=[39;49m[43mrow_index_offset[49m[43m,[49m
+[1;32m    319[0m [43m    [49m[43mstorage_options[49m[38;5;241;43m=[39;49m[43mstorage_options[49m[43m,[49m
+[1;32m    320[0m [43m    [49m[43mlow_memory[49m[38;5;241;43m=[39;49m[43mlow_memory[49m[43m,[49m
+[1;32m    321[0m [43m    [49m[43muse_statistics[49m[38;5;241;43m=[39;49m[43muse_statistics[49m[43m,[49m
+[1;32m    322[0m [43m    [49m[43mhive_partitioning[49m[38;5;241;43m=[39;49m[43mhive_partitioning[49m[43m,[49m
+[1;32m    323[0m [43m    [49m[43mretries[49m[38;5;241;43m=[39;49m[43mretries[49m[43m,[49m
+[1;32m    324[0m [43m[49m[43m)[49m
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/polars/lazyframe/frame.py:458[0m, in [0;36mLazyFrame._scan_parquet[0;34m(cls, source, n_rows, cache, parallel, rechunk, row_index_name, row_index_offset, storage_options, low_memory, use_statistics, hive_partitioning, retries)[0m
+[1;32m    452[0m [38;5;66;03m# try fsspec scanner[39;00m
+[1;32m    453[0m [38;5;28;01mif[39;00m (
+[1;32m    454[0m     can_use_fsspec
+[1;32m    455[0m     [38;5;129;01mand[39;00m [38;5;129;01mnot[39;00m _is_local_file(source)  [38;5;66;03m# type: ignore[arg-type][39;00m
+[1;32m    456[0m     [38;5;129;01mand[39;00m [38;5;129;01mnot[39;00m _is_supported_cloud(source)  [38;5;66;03m# type: ignore[arg-type][39;00m
+[1;32m    457[0m ):
+[0;32m--> 458[0m     scan [38;5;241m=[39m [43m_scan_parquet_fsspec[49m[43m([49m[43msource[49m[43m,[49m[43m [49m[43mstorage_options[49m[43m)[49m  [38;5;66;03m# type: ignore[arg-type][39;00m
+[1;32m    459[0m     [38;5;28;01mif[39;00m n_rows:
+[1;32m    460[0m         scan [38;5;241m=[39m scan[38;5;241m.[39mhead(n_rows)
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/polars/io/parquet/anonymous_scan.py:21[0m, in [0;36m_scan_parquet_fsspec[0;34m(source, storage_options)[0m
+[1;32m     18[0m func [38;5;241m=[39m partial(_scan_parquet_impl, source, storage_options[38;5;241m=[39mstorage_options)
+[1;32m     20[0m [38;5;28;01mwith[39;00m _prepare_file_arg(source, storage_options[38;5;241m=[39mstorage_options) [38;5;28;01mas[39;00m data:
+[0;32m---> 21[0m     schema [38;5;241m=[39m [43mpolars[49m[38;5;241;43m.[39;49m[43mio[49m[38;5;241;43m.[39;49m[43mparquet[49m[38;5;241;43m.[39;49m[43mread_parquet_schema[49m[43m([49m[43mdata[49m[43m)[49m
+[1;32m     23[0m [38;5;28;01mreturn[39;00m pl[38;5;241m.[39mLazyFrame[38;5;241m.[39m_scan_python_function(schema, func)
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/polars/io/parquet/functions.py:213[0m, in [0;36mread_parquet_schema[0;34m(source)[0m
+[1;32m    210[0m [38;5;28;01mif[39;00m [38;5;28misinstance[39m(source, ([38;5;28mstr[39m, Path)):
+[1;32m    211[0m     source [38;5;241m=[39m normalize_filepath(source)
+[0;32m--> 213[0m [38;5;28;01mreturn[39;00m [43m_read_parquet_schema[49m[43m([49m[43msource[49m[43m)[49m
+
+[0;31mFileNotFoundError[0m: No such file or directory (os error 2): /home/tjhunter/Downloads/ct_data_2022.parquet
+
