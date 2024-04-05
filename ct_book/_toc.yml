@@ -1,0 +1,13 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: intro
+chapters:
+- file: initial_analysis
+- file: sce_diffs
+- file: uncertainty_drilldown
+- file: ingestion
+# - file: markdown
+# - file: notebooks
+# - file: markdown-notebooks
