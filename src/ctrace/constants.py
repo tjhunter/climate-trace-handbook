@@ -7,11 +7,11 @@ c_emissions_quantity_units = C("emissions_quantity_units")
 
 # Extra columns for the climate trace metadata:
 # TODO: rename to ct_sector and ct_subsector. This is how it is called in the CT documentation.
-CT_PACKAGE = "ct_package"
-CT_FILE = "ct_file"
+SECTOR = "sector"
+SUBSECTOR = "subsector"
 
-c_ct_package = C("ct_package")
-c_ct_file = C("ct_file")
+c_sector = C("sector")
+c_subsector = C("subsector")
 
 # Gas names:
 CO2 = "co2"

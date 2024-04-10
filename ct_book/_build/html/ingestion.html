@@ -388,7 +388,7 @@ document.write(`
 <p>This section is relevant for data engineers, or data scientists who want to understand how the data
 has been prepared. Skip if you just want to access the final, prepared data.</p>
 </div>
-<p>The original data from Climate TRACE is offered as a series of CSV files bundled in ZIP archives. That format is universally understood, but it is not the most effective for effective analysis.</p>
+<p>The original data from Climate TRACE is offered as a series of CSV files bundled in ZIP archives. That format is universally understood, but it is not the most effective for effective analysis with data science tools.</p>
 <p>Instead, we are going to use the Parquet format. This format has a number of advantages:</p>
 <ul class="simple">
 <li><p>it is <em>column-based</em> : data systems can process big chunks of data at once, rather than line by line. Also, depending on the information requested, systems will read only the relevant columns and skip the rest very effectively</p></li>
@@ -398,6 +398,1508 @@ has been prepared. Skip if you just want to access the final, prepared data.</p>
 <div class="admonition-todo admonition">
 <p class="admonition-title">TODO</p>
 <p>complete this notebook and publish the source code.</p>
+</div>
+<p>Looking at the code, we are performing a few tricks:</p>
+<p><em>Compacting the data</em> We minimize the size of the files by taking advantage of its structures. In particular, we know in many cases that values are part of known enumerations (sectors, …). We replace all these by <code class="docutils literal notranslate"><span class="pre">polars.Enumeration</span></code>s. Not only this makes files smaller, but it also allows data systems to make clever optimization for complex operations such as joining.</p>
+<p><em>Lazy reading</em> If we were to read all the source data using a traditional system such as Excel or Pandas, we would require a serious amount of memory. The files themselves are more than 5GB. Polars is capable of reading straight from the zip file in a streaming fashion. This is what Polars calls a Lazy dataframe, or LazyFrame. Even when doing complicated operations such as joining the source files with the confidence information, Polars only uses 3GB of memory on my machine. In fact, this way of working is so fast that the <code class="docutils literal notranslate"><span class="pre">ctrace</span></code> package directly reads all the country emissions data from the zip files in less than a second.</p>
+<p><em>Using known enumerations</em> You will see in the source code that nearly all the variables such as column names, names of gas and sectors, etc. are replaced CONSTANT_NAMES such as <code class="docutils literal notranslate"><span class="pre">CH4</span></code>,…. You can use that to autocomplete</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">polars</span> <span class="k">as</span> <span class="nn">pl</span>
+
+<span class="kn">from</span> <span class="nn">ctrace.constants</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">ctrace</span> <span class="k">as</span> <span class="nn">ct</span>
+<span class="kn">from</span> <span class="nn">dds</span> <span class="kn">import</span> <span class="n">data_function</span>
+<span class="kn">import</span> <span class="nn">dds</span>
+<span class="n">dds</span><span class="o">.</span><span class="n">accept_module</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In this notebook, another trick is to define the transformations as <em>data functions</em>. In short, this code will only run if the source code changes. This makes rerunning the notebooks very fast, and only updating when something has changed in the source code.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/data_sources&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_sources</span><span class="p">():</span>
+    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load_source_compact</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">files</span>
+
+<span class="n">load_sources</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: local_vars: [&#39;ACTIVITY&#39;, &#39;ACTIVITY_UNITS&#39;, &#39;AGRICULTURE&#39;, &#39;ALUMINUM&#39;, &#39;BAUXITE_MINING&#39;, &#39;BIOLOGICAL_TREATMENT_OF_SOLID_WASTE_AND_BIOGENIC&#39;, &#39;BUILDINGS&#39;, &#39;C&#39;, &#39;CAPACITY&#39;, &#39;CAPACITY_FACTOR&#39;, &#39;CAPACITY_UNITS&#39;, &#39;CEMENT&#39;, &#39;CH4&#39;, &#39;CH4_EMISSIONS&#39;, &#39;CH4_EMISSIONS_FACTOR&#39;, &#39;CHEMICALS&#39;, &#39;CO2&#39;, &#39;CO2E_100YR&#39;, &#39;CO2E_20YR&#39;, &#39;CO2_EMISSIONS&#39;, &#39;CO2_EMISSIONS_FACTOR&#39;, &#39;COAL_MINING&#39;, &#39;CONFIDENCES&#39;, &#39;CONF_CH4_EMISSIONS&#39;, &#39;CONF_CH4_EMISSIONS_FACTOR&#39;, &#39;CONF_CO2_EMISSIONS&#39;, &#39;CONF_CO2_EMISSIONS_FACTOR&#39;, &#39;CONF_N2O_EMISSIONS&#39;, &#39;CONF_N2O_EMISSIONS_FACTOR&#39;, &#39;CONF_TOTAL_CO2E_100YRGWP&#39;, &#39;CONF_TOTAL_CO2E_20YRGWP&#39;, &#39;COPPER_MINING&#39;, &#39;CREATED_DATE&#39;, &#39;CROPLAND_FIRES&#39;, &#39;Confidence&#39;, &#39;DOMESTIC_AVIATION&#39;, &#39;DOMESTIC_SHIPPING&#39;, &#39;ELECTRICITY_GENERATION&#39;, &#39;EMISSIONS_FACTOR&#39;, &#39;EMISSIONS_FACTOR_UNITS&#39;, &#39;EMISSIONS_QUANTITY&#39;, &#39;EMISSIONS_QUANTITY_UNITS&#39;, &#39;END_TIME&#39;, &#39;ENTERIC_FERMENTATION_CATTLE_FEEDLOT&#39;, &#39;ENTERIC_FERMENTATION_CATTLE_PASTURE&#39;, &#39;ENTERIC_FERMENTATION_OTHER&#39;, &#39;FLUORINATED_GASES&#39;, &#39;FORESTRY_AND_LAND_USE&#39;, &#39;FOREST_LAND_CLEARING&#39;, &#39;FOREST_LAND_DEGRADATION&#39;, &#39;FOREST_LAND_FIRES&#39;, &#39;FOSSIL_FUEL_OPERATIONS&#39;, &#39;GAS&#39;, &#39;GAS_LIST&#39;, &#39;GEOMETRY_REF&#39;, &#39;Gas&#39;, &#39;HIGH&#39;, &#39;INCINERATION_AND_OPEN_BURNING_OF_WASTE&#39;, &#39;INTERNATIONAL_AVIATION&#39;, &#39;INTERNATIONAL_SHIPPING&#39;, &#39;IRON_MINING&#39;, &#39;ISO3_COUNTRY&#39;, &#39;In&#39;, &#39;LAT&#39;, &#39;LON&#39;, &#39;LOW&#39;, &#39;Literal&#39;, &#39;MANUFACTURING&#39;, &#39;MANURE_LEFT_ON_PASTURE_CATTLE&#39;, &#39;MANURE_MANAGEMENT_CATTLE_FEEDLOT&#39;, &#39;MANURE_MANAGEMENT_OTHER&#39;, &#39;MEDIUM&#39;, &#39;MINERAL_EXTRACTION&#39;, &#39;MODIFIED_DATE&#39;, &#39;N2O&#39;, &#39;N2O_EMISSIONS&#39;, &#39;N2O_EMISSIONS_FACTOR&#39;, &#39;NET_FOREST_LAND&#39;, &#39;NET_SHRUBGRASS&#39;, &#39;NET_WETLAND&#39;, &#39;OIL_AND_GAS_PRODUCTION_AND_TRANSPORT&#39;, &#39;OIL_AND_GAS_REFINING&#39;, &#39;ORIGINAL_INVENTORY_SECTOR&#39;, &#39;ORIGINAL_INVENTORY_SECTORS&#39;, &#39;OTHER1&#39;, &#39;OTHER10&#39;, &#39;OTHER10_DEF&#39;, &#39;OTHER11&#39;, &#39;OTHER11_DEF&#39;, &#39;OTHER12&#39;, &#39;OTHER12_DEF&#39;, &#39;OTHER1_DEF&#39;, &#39;OTHER2&#39;, &#39;OTHER2_DEF&#39;, &#39;OTHER3&#39;, &#39;OTHER3_DEF&#39;, &#39;OTHER4&#39;, &#39;OTHER4_DEF&#39;, &#39;OTHER5&#39;, &#39;OTHER5_DEF&#39;, &#39;OTHER6&#39;, &#39;OTHER6_DEF&#39;, &#39;OTHER7&#39;, &#39;OTHER7_DEF&#39;, &#39;OTHER8&#39;, &#39;OTHER8_DEF&#39;, &#39;OTHER9&#39;, &#39;OTHER9_DEF&#39;, &#39;OTHER_AGRICULTURAL_SOIL_EMISSIONS&#39;, &#39;OTHER_ENERGY_USE&#39;, &#39;OTHER_FOSSIL_FUEL_OPERATIONS&#39;, &#39;OTHER_MANUFACTURING&#39;, &#39;OTHER_ONSITE_FUEL_USAGE&#39;, &#39;OTHER_TRANSPORT&#39;, &#39;OriginalInventorySector&#39;, &#39;Out&#39;, &#39;PETROCHEMICALS&#39;, &#39;POWER&#39;, &#39;PULP_AND_PAPER&#39;, &#39;RAILWAYS&#39;, &#39;REMOVALS&#39;, &#39;RESIDENTIAL_AND_COMMERCIAL_ONSITE_FUEL_USAGE&#39;, &#39;RICE_CULTIVATION&#39;, &#39;ROAD_TRANSPORTATION&#39;, &#39;ROCK_QUARRYING&#39;, &#39;SAND_QUARRYING&#39;, &#39;SECTOR&#39;, &#39;SECTORS&#39;, &#39;SHRUBGRASS_FIRES&#39;, &#39;SOLID_FUEL_TRANSFORMATION&#39;, &#39;SOLID_WASTE_DISPOSAL&#39;, &#39;SOURCE_ID&#39;, &#39;SOURCE_NAME&#39;, &#39;SOURCE_TYPE&#39;, &#39;START_TIME&#39;, &#39;STEEL&#39;, &#39;SUBSECTOR&#39;, &#39;SUBSECTORS&#39;, &#39;SYNTHETIC_FERTILIZER_APPLICATION&#39;, &#39;Sector&#39;, &#39;SubSector&#39;, &#39;TEMPORAL_GRANULARITY&#39;, &#39;TOTAL_CO2E_100YRGWP&#39;, &#39;TOTAL_CO2E_20YRGWP&#39;, &#39;TRANSPORTATION&#39;, &#39;VERY_HIGH&#39;, &#39;VERY_LOW&#39;, &#39;WASTE&#39;, &#39;WASTEWATER_TREATMENT_AND_DISCHARGE&#39;, &#39;WATER_RESERVOIRS&#39;, &#39;WETLAND_FIRES&#39;, &#39;_&#39;, &#39;__&#39;, &#39;___&#39;, &#39;__builtin__&#39;, &#39;__builtins__&#39;, &#39;__doc__&#39;, &#39;__loader__&#39;, &#39;__name__&#39;, &#39;__package__&#39;, &#39;__spec__&#39;, &#39;_dh&#39;, &#39;_i&#39;, &#39;_i1&#39;, &#39;_i2&#39;, &#39;_i3&#39;, &#39;_i4&#39;, &#39;_ih&#39;, &#39;_ii&#39;, &#39;_iii&#39;, &#39;_oh&#39;, &#39;all_columns&#39;, &#39;c_activity&#39;, &#39;c_activity_units&#39;, &#39;c_capacity&#39;, &#39;c_capacity_factor&#39;, &#39;c_capacity_units&#39;, &#39;c_ch4_emissions&#39;, &#39;c_ch4_emissions_factor&#39;, &#39;c_co2_emissions&#39;, &#39;c_co2_emissions_factor&#39;, &#39;c_conf_ch4_emissions&#39;, &#39;c_conf_ch4_emissions_factor&#39;, &#39;c_conf_co2_emissions&#39;, &#39;c_conf_co2_emissions_factor&#39;, &#39;c_conf_n2o_emissions&#39;, &#39;c_conf_n2o_emissions_factor&#39;, &#39;c_conf_total_co2e_100yrgwp&#39;, &#39;c_conf_total_co2e_20yrgwp&#39;, &#39;c_created_date&#39;, &#39;c_emissions_factor&#39;, &#39;c_emissions_factor_units&#39;, &#39;c_emissions_quantity&#39;, &#39;c_emissions_quantity_units&#39;, &#39;c_end_time&#39;, &#39;c_gas&#39;, &#39;c_geometry_ref&#39;, &#39;c_iso3_country&#39;, &#39;c_lat&#39;, &#39;c_lon&#39;, &#39;c_modified_date&#39;, &#39;c_n2o_emissions&#39;, &#39;c_n2o_emissions_factor&#39;, &#39;c_original_inventory_sector&#39;, &#39;c_other1&#39;, &#39;c_other10&#39;, &#39;c_other10_def&#39;, &#39;c_other11&#39;, &#39;c_other11_def&#39;, &#39;c_other12&#39;, &#39;c_other12_def&#39;, &#39;c_other1_def&#39;, &#39;c_other2&#39;, &#39;c_other2_def&#39;, &#39;c_other3&#39;, &#39;c_other3_def&#39;, &#39;c_other4&#39;, &#39;c_other4_def&#39;, &#39;c_other5&#39;, &#39;c_other5_def&#39;, &#39;c_other6&#39;, &#39;c_other6_def&#39;, &#39;c_other7&#39;, &#39;c_other7_def&#39;, &#39;c_other8&#39;, &#39;c_other8_def&#39;, &#39;c_other9&#39;, &#39;c_other9_def&#39;, &#39;c_sector&#39;, &#39;c_source_id&#39;, &#39;c_source_name&#39;, &#39;c_source_type&#39;, &#39;c_start_time&#39;, &#39;c_subsector&#39;, &#39;c_temporal_granularity&#39;, &#39;c_total_co2e_100yrgwp&#39;, &#39;c_total_co2e_20yrgwp&#39;, &#39;ct&#39;, &#39;data_function&#39;, &#39;dds&#39;, &#39;exit&#39;, &#39;get_ipython&#39;, &#39;load_sources&#39;, &#39;logging&#39;, &#39;open&#39;, &#39;pl&#39;, &#39;quit&#39;]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:arg_ctx: FunctionArgContext(named_args=OrderedDict(), inner_call_key=None)
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/_files&gt;: &lt;class &#39;list&#39;&gt; 18208f73cf71c63f20e0ecead16b80debf3cb427efdcc12ffff91d3e2c22c165
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/SECTOR&gt;: &lt;class &#39;str&#39;&gt; 9d5d7fcf3aa35a4809f92551aed1f26e3beb8532c2ddcb279e07f0e3d410251a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/SUBSECTOR&gt;: &lt;class &#39;str&#39;&gt; 826e9ccb75fca0ecbd7965b3c36be69580a692be64ce59dc21acba9cc5321599
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/START_TIME&gt;: &lt;class &#39;str&#39;&gt; 8cb8863d0820d03a3e64d0f15203d129c78034830efb9832ebc8eab687c8e320
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/END_TIME&gt;: &lt;class &#39;str&#39;&gt; 02a1a6b5b874b92c21f18dd6f5b6d3fa46d97e39d4fa03517c816cd68198b0ac
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/ISO3_COUNTRY&gt;: &lt;class &#39;str&#39;&gt; b9ff63f00ca96cecb36a0560af183f451f344db284ea30e2f22057cefe14a333
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/SOURCE_ID&gt;: &lt;class &#39;str&#39;&gt; d9fb5c0ef20e45aeca3aee61dcf116d70f6fa8fac8a935131bafb89fa63c915a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CREATED_DATE&gt;: &lt;class &#39;str&#39;&gt; 96ac4e16e556fea843c7484a405367f32e45bf42adbd7a4e036cf792bc05fd07
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/MODIFIED_DATE&gt;: &lt;class &#39;str&#39;&gt; 1008cc54e7ed956e21bc5fcaf8d6576b31cecc05f493e983cf4f3a5e5e2e45e8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/EMISSIONS_QUANTITY&gt;: &lt;class &#39;str&#39;&gt; 837dcd5cc5178973422cd19693ac5348bd9d7e852af771030a377da892a64009
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/EMISSIONS_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 6463d0238250ab15e671356b672d0d0c8afed7eb968c77f129965b45448a7c69
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CAPACITY&gt;: &lt;class &#39;str&#39;&gt; ec21b3b973a3a0e7050392031862848f7a19272ca8a820aed64c56d1d26e8db1
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CAPACITY_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 2bc08268c235056c28a4580a21db591cd25c208bf4ce457069eb708e334ece44
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/ACTIVITY&gt;: &lt;class &#39;str&#39;&gt; 0651863bf5d902262b17c4621ec340544ff016752543d99a92d7d22872d8a455
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/LAT&gt;: &lt;class &#39;str&#39;&gt; 473c3cba6f0b66454d766555166e4829100f26a13f3a0a01019233e0c39c785b
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/LON&gt;: &lt;class &#39;str&#39;&gt; 33975037706d6b6cde528f56aba33c4004f03cddfebc31bfb7cde1ceaba77c4a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/ACTIVITY_UNITS&gt;: &lt;class &#39;str&#39;&gt; 99faba98e9a68e37c30968403dc712b7c871411f684ace184963abd7381d6517
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/EMISSIONS_FACTOR_UNITS&gt;: &lt;class &#39;str&#39;&gt; 2c05b5cddcf1f95bdefbe96d74b9ef9d5ebc9ef04fe5169d5db43427d5c4fafa
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CAPACITY_UNITS&gt;: &lt;class &#39;str&#39;&gt; 0fa985ff6c75067f3a7bd8eeda9c42e89abf8c5c5c0f73077964034dbc53c9cf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/GEOMETRY_REF&gt;: &lt;class &#39;str&#39;&gt; b0e13b0bcba8e18fe2af8e310fbd00131c20e55da61f1ca23a86958bbc5742f9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/ORIGINAL_INVENTORY_SECTOR&gt;: &lt;class &#39;str&#39;&gt; bc33a7a072eeee34a6e752d10acdbd751f53ea5d5728a5805583407d30ffa942
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/all_columns&gt;: &lt;class &#39;list&#39;&gt; 71442adb36903fd1906e79608b714be5329226f0853ccd86728bbaa616e06fd1
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/GAS&gt;: &lt;class &#39;str&#39;&gt; 2fe840e13244a9d748883574c1f1b7b1d7020eb39d0735b8f91ef5cf6f35173e
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/TEMPORAL_GRANULARITY&gt;: &lt;class &#39;str&#39;&gt; bed248e1115f7855049c4c4052dd9129f0fb65db0d3e1afdea0434ed49f8e4bf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/SOURCE_TYPE&gt;: &lt;class &#39;str&#39;&gt; 70369caca4d85df35385c66cba1454932f082856963c08216497ff468dfb25bd
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CO2_EMISSIONS_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 6c14df6730cd317a990b80d4e4ae9161ccf04826d72e117e4a890e616180cd7a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CH4_EMISSIONS_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 024bb8fa459f9033c97e823c7b857fe86451ae0c6f7f0cac4de31a352a050c46
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/N2O_EMISSIONS_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 7df8be046d70164c594ca3356aa973e3126252702b012f7d583714b8cb93eba8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CO2_EMISSIONS&gt;: &lt;class &#39;str&#39;&gt; fa91c09f733da3bd599cb590d5f469a6681fefd5683dccbc00443ac9a9cac975
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CH4_EMISSIONS&gt;: &lt;class &#39;str&#39;&gt; 73042da3d9e6682bb71e435027d9e53ffa067c377f59b444362e424496b4d4f2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/N2O_EMISSIONS&gt;: &lt;class &#39;str&#39;&gt; 598857035745f1b3d8bac46323781a4e2932adc211a2f8d963f79fdf7691bddc
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/TOTAL_CO2E_20YRGWP&gt;: &lt;class &#39;str&#39;&gt; 1c8e777bcf1fde80f92e98f7bae46684da4c82ce7ecdae7034c76624e783143f
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/TOTAL_CO2E_100YRGWP&gt;: &lt;class &#39;str&#39;&gt; 4ea011a14ca5d64b337174f2ab6a6c29c2574b9191545c5403eba697d898d89a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/EMISSIONS_QUANTITY_UNITS&gt;: &lt;class &#39;str&#39;&gt; 31c5f76e48cf61c7856bfc28e863272f203aeb4fe7fec2afe111cc565a7fe843
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: introspect_indirect completed
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: introspect_indirect: 0 loads detected
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: introspect_indirect: 0 loads and 1 detected
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.introspect:visit_name: &lt;ast.Name object at 0x798f25b4c9a0&gt; Name(lineno=37, col_offset=23, end_lineno=37, end_col_offset=37, id=&#39;recast_parquet&#39;, ctx=Load()) {&#39;SUBSECTOR&#39;, &#39;_&#39;, &#39;tmp_name&#39;, &#39;subsector_enum&#39;, &#39;n&#39;, &#39;data_files&#39;, &#39;sname&#39;, &#39;_get_zip&#39;, &#39;source_names&#39;, &#39;sector_enum&#39;, &#39;_files&#39;, &#39;tmp_dir&#39;, &#39;_logger&#39;, &#39;c_name&#39;, &#39;fname&#39;, &#39;recast_parquet&#39;, &#39;_load_source_conf&#39;, &#39;zf&#39;, &#39;pl&#39;, &#39;tempfile&#39;, &#39;SECTOR&#39;, &#39;load_source_compact&#39;, &#39;List&#39;, &#39;Path&#39;, &#39;df&#39;, &#39;df_&#39;}
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: introspect completed
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: assigning OrderedDict([(&#39;/data_sources&#39;, &#39;494e87dc9c77c8d5fc059c3d8566999072f1f4c25dad1126da845b472acefd15&#39;)]) store path(s) to context
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: assigning [] store path(s) to context
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: assigning 1 store path(s) to context
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Initializing default store. store dir: /tmp/dds/store data dir: /tmp/dds/data
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: 1 present blobs
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Interaction tree:
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:`- Fun &lt;__main__/load_sources&gt; /data_sources &lt;-- 494e87dc9c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   |- Ctx None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   `- Fun &lt;ctrace/data/load_source_compact&gt; @ 59304d058b
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ctx 870c8118e5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Arg p: 1434fd84d5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Dep SECTOR -&gt; &lt;ctrace/data/SECTOR&gt;: 9d5d7fcf3a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Dep SUBSECTOR -&gt; &lt;ctrace/data/SUBSECTOR&gt;: 826e9ccb75
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Dep _files -&gt; &lt;ctrace/data/_files&gt;: 18208f73cf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ext List -&gt; &lt;ctrace/data/List&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ext Path -&gt; &lt;pathlib/Path&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ext _logger -&gt; &lt;ctrace/data/_logger&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ext sector_enum -&gt; &lt;ctrace/data/sector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ext subsector_enum -&gt; &lt;ctrace/data/subsector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ext tempfile -&gt; &lt;tempfile&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Fun &lt;ctrace/data/_get_zip&gt; @ 9de54fbcc5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Ctx b5fb91f0c9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Arg p: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Arg name: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Ext ZipFile -&gt; &lt;zipfile/ZipFile&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  `- Ext _ct_dset -&gt; &lt;ctrace/data/_ct_dset&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Fun &lt;ctrace/data/_load_source_conf&gt; @ e1c0cb4775
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Ctx f0bf802ad7
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Arg s_fp: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Arg c_fp: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Dep END_TIME -&gt; &lt;ctrace/data/END_TIME&gt;: 02a1a6b5b8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Dep ISO3_COUNTRY -&gt; &lt;ctrace/data/ISO3_COUNTRY&gt;: b9ff63f00c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Dep SOURCE_ID -&gt; &lt;ctrace/data/SOURCE_ID&gt;: d9fb5c0ef2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Dep START_TIME -&gt; &lt;ctrace/data/START_TIME&gt;: 8cb8863d08
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |- Fun &lt;ctrace/data/_load_sources&gt; @ 27435bbba5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ctx 24b7883dfb
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Arg fp: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep ACTIVITY -&gt; &lt;ctrace/data/ACTIVITY&gt;: 0651863bf5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep ACTIVITY_UNITS -&gt; &lt;ctrace/data/ACTIVITY_UNITS&gt;: 99faba98e9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep CAPACITY -&gt; &lt;ctrace/data/CAPACITY&gt;: ec21b3b973
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep CAPACITY_FACTOR -&gt; &lt;ctrace/data/CAPACITY_FACTOR&gt;: 2bc08268c2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep CAPACITY_UNITS -&gt; &lt;ctrace/data/CAPACITY_UNITS&gt;: 0fa985ff6c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep CREATED_DATE -&gt; &lt;ctrace/data/CREATED_DATE&gt;: 96ac4e16e5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep EMISSIONS_FACTOR -&gt; &lt;ctrace/data/EMISSIONS_FACTOR&gt;: 6463d02382
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep EMISSIONS_FACTOR_UNITS -&gt; &lt;ctrace/data/EMISSIONS_FACTOR_UNITS&gt;: 2c05b5cddc
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep EMISSIONS_QUANTITY -&gt; &lt;ctrace/data/EMISSIONS_QUANTITY&gt;: 837dcd5cc5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep END_TIME -&gt; &lt;ctrace/data/END_TIME&gt;: 02a1a6b5b8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep GAS -&gt; &lt;ctrace/data/GAS&gt;: 2fe840e132
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep GEOMETRY_REF -&gt; &lt;ctrace/data/GEOMETRY_REF&gt;: b0e13b0bcb
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep ISO3_COUNTRY -&gt; &lt;ctrace/data/ISO3_COUNTRY&gt;: b9ff63f00c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep LAT -&gt; &lt;ctrace/data/LAT&gt;: 473c3cba6f
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep LON -&gt; &lt;ctrace/data/LON&gt;: 3397503770
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep MODIFIED_DATE -&gt; &lt;ctrace/data/MODIFIED_DATE&gt;: 1008cc54e7
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep ORIGINAL_INVENTORY_SECTOR -&gt; &lt;ctrace/data/ORIGINAL_INVENTORY_SECTOR&gt;: bc33a7a072
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep SOURCE_ID -&gt; &lt;ctrace/data/SOURCE_ID&gt;: d9fb5c0ef2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep START_TIME -&gt; &lt;ctrace/data/START_TIME&gt;: 8cb8863d08
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep TEMPORAL_GRANULARITY -&gt; &lt;ctrace/data/TEMPORAL_GRANULARITY&gt;: bed248e111
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Dep all_columns -&gt; &lt;ctrace/data/all_columns&gt;: 71442adb36
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext C -&gt; &lt;polars/functions/col/ColumnFactory&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext c_gas -&gt; &lt;ctrace/data/c_gas&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext c_iso3_country -&gt; &lt;ctrace/data/c_iso3_country&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext c_original_inventory_sector -&gt; &lt;ctrace/data/c_original_inventory_sector&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext c_temporal_granularity -&gt; &lt;ctrace/data/c_temporal_granularity&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext gas_enum -&gt; &lt;ctrace/data/gas_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext iso3_enum -&gt; &lt;ctrace/data/iso3_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext original_inventory_sector_enum -&gt; &lt;ctrace/data/original_inventory_sector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  |- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  |  `- Ext temporal_granularity_enum -&gt; &lt;ctrace/data/temporal_granularity_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |  `- Fun &lt;ctrace/data/_load_source_confidence&gt; @ b872283c7c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Ctx 3c7dcfe26d
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Arg fp: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep ACTIVITY -&gt; &lt;ctrace/data/ACTIVITY&gt;: 0651863bf5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep CAPACITY -&gt; &lt;ctrace/data/CAPACITY&gt;: ec21b3b973
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep CAPACITY_FACTOR -&gt; &lt;ctrace/data/CAPACITY_FACTOR&gt;: 2bc08268c2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep CH4_EMISSIONS -&gt; &lt;ctrace/data/CH4_EMISSIONS&gt;: 73042da3d9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep CH4_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/CH4_EMISSIONS_FACTOR&gt;: 024bb8fa45
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep CO2_EMISSIONS -&gt; &lt;ctrace/data/CO2_EMISSIONS&gt;: fa91c09f73
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep CO2_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/CO2_EMISSIONS_FACTOR&gt;: 6c14df6730
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep CREATED_DATE -&gt; &lt;ctrace/data/CREATED_DATE&gt;: 96ac4e16e5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep END_TIME -&gt; &lt;ctrace/data/END_TIME&gt;: 02a1a6b5b8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep ISO3_COUNTRY -&gt; &lt;ctrace/data/ISO3_COUNTRY&gt;: b9ff63f00c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep MODIFIED_DATE -&gt; &lt;ctrace/data/MODIFIED_DATE&gt;: 1008cc54e7
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep N2O_EMISSIONS -&gt; &lt;ctrace/data/N2O_EMISSIONS&gt;: 5988570357
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep N2O_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/N2O_EMISSIONS_FACTOR&gt;: 7df8be046d
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep SOURCE_ID -&gt; &lt;ctrace/data/SOURCE_ID&gt;: d9fb5c0ef2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep SOURCE_TYPE -&gt; &lt;ctrace/data/SOURCE_TYPE&gt;: 70369caca4
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep START_TIME -&gt; &lt;ctrace/data/START_TIME&gt;: 8cb8863d08
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep TOTAL_CO2E_100YRGWP -&gt; &lt;ctrace/data/TOTAL_CO2E_100YRGWP&gt;: 4ea011a14c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Dep TOTAL_CO2E_20YRGWP -&gt; &lt;ctrace/data/TOTAL_CO2E_20YRGWP&gt;: 1c8e777bcf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Ext C -&gt; &lt;polars/functions/col/ColumnFactory&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Ext c_iso3_country -&gt; &lt;ctrace/data/c_iso3_country&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Ext c_source_id -&gt; &lt;ctrace/data/c_source_id&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Ext confidence_level_enum -&gt; &lt;ctrace/data/confidence_level_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     |- Ext iso3_enum -&gt; &lt;ctrace/data/iso3_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |     `- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      `- Fun &lt;ctrace/data/recast_parquet&gt; @ fa59bf5eb0
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ctx 2aa9b8befb
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Arg df: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Arg conf: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep ACTIVITY -&gt; &lt;ctrace/data/ACTIVITY&gt;: 0651863bf5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep CAPACITY -&gt; &lt;ctrace/data/CAPACITY&gt;: ec21b3b973
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep CAPACITY_FACTOR -&gt; &lt;ctrace/data/CAPACITY_FACTOR&gt;: 2bc08268c2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep CH4_EMISSIONS -&gt; &lt;ctrace/data/CH4_EMISSIONS&gt;: 73042da3d9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep CH4_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/CH4_EMISSIONS_FACTOR&gt;: 024bb8fa45
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep CO2_EMISSIONS -&gt; &lt;ctrace/data/CO2_EMISSIONS&gt;: fa91c09f73
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep CO2_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/CO2_EMISSIONS_FACTOR&gt;: 6c14df6730
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep EMISSIONS_QUANTITY_UNITS -&gt; &lt;ctrace/data/EMISSIONS_QUANTITY_UNITS&gt;: 31c5f76e48
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep GAS -&gt; &lt;ctrace/data/GAS&gt;: 2fe840e132
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep ISO3_COUNTRY -&gt; &lt;ctrace/data/ISO3_COUNTRY&gt;: b9ff63f00c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep N2O_EMISSIONS -&gt; &lt;ctrace/data/N2O_EMISSIONS&gt;: 5988570357
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep N2O_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/N2O_EMISSIONS_FACTOR&gt;: 7df8be046d
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep ORIGINAL_INVENTORY_SECTOR -&gt; &lt;ctrace/data/ORIGINAL_INVENTORY_SECTOR&gt;: bc33a7a072
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep SECTOR -&gt; &lt;ctrace/data/SECTOR&gt;: 9d5d7fcf3a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep SOURCE_TYPE -&gt; &lt;ctrace/data/SOURCE_TYPE&gt;: 70369caca4
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep SUBSECTOR -&gt; &lt;ctrace/data/SUBSECTOR&gt;: 826e9ccb75
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep TEMPORAL_GRANULARITY -&gt; &lt;ctrace/data/TEMPORAL_GRANULARITY&gt;: bed248e111
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep TOTAL_CO2E_100YRGWP -&gt; &lt;ctrace/data/TOTAL_CO2E_100YRGWP&gt;: 4ea011a14c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep TOTAL_CO2E_20YRGWP -&gt; &lt;ctrace/data/TOTAL_CO2E_20YRGWP&gt;: 1c8e777bcf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext C -&gt; &lt;polars/functions/col/ColumnFactory&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext c_emissions_quantity_units -&gt; &lt;ctrace/data/c_emissions_quantity_units&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext c_gas -&gt; &lt;ctrace/data/c_gas&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext c_iso3_country -&gt; &lt;ctrace/data/c_iso3_country&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext c_original_inventory_sector -&gt; &lt;ctrace/data/c_original_inventory_sector&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext c_sector -&gt; &lt;ctrace/data/c_sector&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext c_subsector -&gt; &lt;ctrace/data/c_subsector&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext c_temporal_granularity -&gt; &lt;ctrace/data/c_temporal_granularity&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext confidence_level_enum -&gt; &lt;ctrace/data/confidence_level_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext gas_enum -&gt; &lt;ctrace/data/gas_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext iso3_enum -&gt; &lt;ctrace/data/iso3_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext original_inventory_sector_enum -&gt; &lt;ctrace/data/original_inventory_sector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext sector_enum -&gt; &lt;ctrace/data/sector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext subsector_enum -&gt; &lt;ctrace/data/subsector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         `- Ext temporal_granularity_enum -&gt; &lt;ctrace/data/temporal_granularity_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Stage analysis completed
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Updating path: /data_sources -&gt; 494e87dc9c77c8d5fc059c3d8566999072f1f4c25dad1126da845b472acefd15
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx:current_sig: 494e87dc9c77c8d5fc059c3d8566999072f1f4c25dad1126da845b472acefd15
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx:Return cached signature 494e87dc9c77c8d5fc059c3d8566999072f1f4c25dad1126da845b472acefd15
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Starting stage path_commit
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.store:Link /tmp/dds/data/data_sources up to date
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Stage path_commit done
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage analysis: 0.073 sec 89.74%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage store_inspect: 0.000 sec 0.00%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage eval: 0.000 sec 0.00%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage store_commit: 0.008 sec 9.61%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage path_commit: 0.001 sec 0.66%
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[PosixPath(&#39;/tmp/enteric-fermentation-cattle-feedlot_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/manure-management-cattle-feedlot_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/rice-cultivation_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/synthetic-fertilizer-application_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/enteric-fermentation-cattle-pasture_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/cropland-fires_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/manure-left-on-pasture-cattle_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/water-reservoirs_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/removals_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/forest-land-fires_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/forest-land-degradation_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/forest-land-clearing_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/net-wetland_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/net-forest-land_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/net-shrubgrass_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/wetland-fires_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/shrubgrass-fires_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/oil-and-gas-refining_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/oil-and-gas-production-and-transport_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/coal-mining_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/petrochemicals_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/other-manufacturing_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/pulp-and-paper_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/aluminum_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/chemicals_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/steel_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/cement_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/bauxite-mining_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/iron-mining_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/copper-mining_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/electricity-generation_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/road-transportation_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/domestic-aviation_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/international-aviation_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/international-shipping_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/domestic-shipping_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/solid-waste-disposal_emissions-sources.parquet&#39;),
+ PosixPath(&#39;/tmp/wastewater-treatment-and-discharge_emissions-sources.parquet&#39;)]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Because the data is loaded lazily, this step takes only 300MB of memory on my machine. Not bad for producing 2GB of data!</p>
+<p>To help with the loading, the data is partitioned by year. This is the most relevant for most users: most people are expected to look at specific years and sectors (especially the latest year). This reduces the amount of data to load.</p>
+<div class="admonition-ctodo admonition">
+<p class="admonition-title">CTODO</p>
+<p>The year of a data record is defined by its start time. This may be different than the convention used by Climate Trace. To check.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">write_directory</span> <span class="o">=</span> <span class="s2">&quot;/tmp&quot;</span>
+<span class="n">years</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">2023</span><span class="p">))</span>
+<span class="n">version</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">version</span>
+
+<span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/write_data&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">write_data</span><span class="p">():</span>
+    <span class="n">data_files</span> <span class="o">=</span> <span class="n">load_sources</span><span class="p">()</span>
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">tmp_name</span> <span class="ow">in</span> <span class="n">data_files</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span><span class="n">tmp_name</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">recast_parquet</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">ldf</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span>
+    <span class="c1"># Using snappy because it is more broadly compatible with parquet readers</span>
+    <span class="c1"># Polars 0.20 does not support statistics</span>
+    <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">years</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">ldf</span>
+         <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_start_time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span><span class="o">==</span><span class="n">year</span><span class="p">)</span>
+         <span class="o">.</span><span class="n">sink_parquet</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">write_directory</span><span class="si">}</span><span class="s2">/climatetrace-sources_</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;snappy&quot;</span><span class="p">,</span>
+            <span class="n">statistics</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+<span class="n">write_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: local_vars: [&#39;ACTIVITY&#39;, &#39;ACTIVITY_UNITS&#39;, &#39;AGRICULTURE&#39;, &#39;ALUMINUM&#39;, &#39;BAUXITE_MINING&#39;, &#39;BIOLOGICAL_TREATMENT_OF_SOLID_WASTE_AND_BIOGENIC&#39;, &#39;BUILDINGS&#39;, &#39;C&#39;, &#39;CAPACITY&#39;, &#39;CAPACITY_FACTOR&#39;, &#39;CAPACITY_UNITS&#39;, &#39;CEMENT&#39;, &#39;CH4&#39;, &#39;CH4_EMISSIONS&#39;, &#39;CH4_EMISSIONS_FACTOR&#39;, &#39;CHEMICALS&#39;, &#39;CO2&#39;, &#39;CO2E_100YR&#39;, &#39;CO2E_20YR&#39;, &#39;CO2_EMISSIONS&#39;, &#39;CO2_EMISSIONS_FACTOR&#39;, &#39;COAL_MINING&#39;, &#39;CONFIDENCES&#39;, &#39;CONF_CH4_EMISSIONS&#39;, &#39;CONF_CH4_EMISSIONS_FACTOR&#39;, &#39;CONF_CO2_EMISSIONS&#39;, &#39;CONF_CO2_EMISSIONS_FACTOR&#39;, &#39;CONF_N2O_EMISSIONS&#39;, &#39;CONF_N2O_EMISSIONS_FACTOR&#39;, &#39;CONF_TOTAL_CO2E_100YRGWP&#39;, &#39;CONF_TOTAL_CO2E_20YRGWP&#39;, &#39;COPPER_MINING&#39;, &#39;CREATED_DATE&#39;, &#39;CROPLAND_FIRES&#39;, &#39;Confidence&#39;, &#39;DOMESTIC_AVIATION&#39;, &#39;DOMESTIC_SHIPPING&#39;, &#39;ELECTRICITY_GENERATION&#39;, &#39;EMISSIONS_FACTOR&#39;, &#39;EMISSIONS_FACTOR_UNITS&#39;, &#39;EMISSIONS_QUANTITY&#39;, &#39;EMISSIONS_QUANTITY_UNITS&#39;, &#39;END_TIME&#39;, &#39;ENTERIC_FERMENTATION_CATTLE_FEEDLOT&#39;, &#39;ENTERIC_FERMENTATION_CATTLE_PASTURE&#39;, &#39;ENTERIC_FERMENTATION_OTHER&#39;, &#39;FLUORINATED_GASES&#39;, &#39;FORESTRY_AND_LAND_USE&#39;, &#39;FOREST_LAND_CLEARING&#39;, &#39;FOREST_LAND_DEGRADATION&#39;, &#39;FOREST_LAND_FIRES&#39;, &#39;FOSSIL_FUEL_OPERATIONS&#39;, &#39;GAS&#39;, &#39;GAS_LIST&#39;, &#39;GEOMETRY_REF&#39;, &#39;Gas&#39;, &#39;HIGH&#39;, &#39;INCINERATION_AND_OPEN_BURNING_OF_WASTE&#39;, &#39;INTERNATIONAL_AVIATION&#39;, &#39;INTERNATIONAL_SHIPPING&#39;, &#39;IRON_MINING&#39;, &#39;ISO3_COUNTRY&#39;, &#39;In&#39;, &#39;LAT&#39;, &#39;LON&#39;, &#39;LOW&#39;, &#39;Literal&#39;, &#39;MANUFACTURING&#39;, &#39;MANURE_LEFT_ON_PASTURE_CATTLE&#39;, &#39;MANURE_MANAGEMENT_CATTLE_FEEDLOT&#39;, &#39;MANURE_MANAGEMENT_OTHER&#39;, &#39;MEDIUM&#39;, &#39;MINERAL_EXTRACTION&#39;, &#39;MODIFIED_DATE&#39;, &#39;N2O&#39;, &#39;N2O_EMISSIONS&#39;, &#39;N2O_EMISSIONS_FACTOR&#39;, &#39;NET_FOREST_LAND&#39;, &#39;NET_SHRUBGRASS&#39;, &#39;NET_WETLAND&#39;, &#39;OIL_AND_GAS_PRODUCTION_AND_TRANSPORT&#39;, &#39;OIL_AND_GAS_REFINING&#39;, &#39;ORIGINAL_INVENTORY_SECTOR&#39;, &#39;ORIGINAL_INVENTORY_SECTORS&#39;, &#39;OTHER1&#39;, &#39;OTHER10&#39;, &#39;OTHER10_DEF&#39;, &#39;OTHER11&#39;, &#39;OTHER11_DEF&#39;, &#39;OTHER12&#39;, &#39;OTHER12_DEF&#39;, &#39;OTHER1_DEF&#39;, &#39;OTHER2&#39;, &#39;OTHER2_DEF&#39;, &#39;OTHER3&#39;, &#39;OTHER3_DEF&#39;, &#39;OTHER4&#39;, &#39;OTHER4_DEF&#39;, &#39;OTHER5&#39;, &#39;OTHER5_DEF&#39;, &#39;OTHER6&#39;, &#39;OTHER6_DEF&#39;, &#39;OTHER7&#39;, &#39;OTHER7_DEF&#39;, &#39;OTHER8&#39;, &#39;OTHER8_DEF&#39;, &#39;OTHER9&#39;, &#39;OTHER9_DEF&#39;, &#39;OTHER_AGRICULTURAL_SOIL_EMISSIONS&#39;, &#39;OTHER_ENERGY_USE&#39;, &#39;OTHER_FOSSIL_FUEL_OPERATIONS&#39;, &#39;OTHER_MANUFACTURING&#39;, &#39;OTHER_ONSITE_FUEL_USAGE&#39;, &#39;OTHER_TRANSPORT&#39;, &#39;OriginalInventorySector&#39;, &#39;Out&#39;, &#39;PETROCHEMICALS&#39;, &#39;POWER&#39;, &#39;PULP_AND_PAPER&#39;, &#39;RAILWAYS&#39;, &#39;REMOVALS&#39;, &#39;RESIDENTIAL_AND_COMMERCIAL_ONSITE_FUEL_USAGE&#39;, &#39;RICE_CULTIVATION&#39;, &#39;ROAD_TRANSPORTATION&#39;, &#39;ROCK_QUARRYING&#39;, &#39;SAND_QUARRYING&#39;, &#39;SECTOR&#39;, &#39;SECTORS&#39;, &#39;SHRUBGRASS_FIRES&#39;, &#39;SOLID_FUEL_TRANSFORMATION&#39;, &#39;SOLID_WASTE_DISPOSAL&#39;, &#39;SOURCE_ID&#39;, &#39;SOURCE_NAME&#39;, &#39;SOURCE_TYPE&#39;, &#39;START_TIME&#39;, &#39;STEEL&#39;, &#39;SUBSECTOR&#39;, &#39;SUBSECTORS&#39;, &#39;SYNTHETIC_FERTILIZER_APPLICATION&#39;, &#39;Sector&#39;, &#39;SubSector&#39;, &#39;TEMPORAL_GRANULARITY&#39;, &#39;TOTAL_CO2E_100YRGWP&#39;, &#39;TOTAL_CO2E_20YRGWP&#39;, &#39;TRANSPORTATION&#39;, &#39;VERY_HIGH&#39;, &#39;VERY_LOW&#39;, &#39;WASTE&#39;, &#39;WASTEWATER_TREATMENT_AND_DISCHARGE&#39;, &#39;WATER_RESERVOIRS&#39;, &#39;WETLAND_FIRES&#39;, &#39;_&#39;, &#39;_4&#39;, &#39;__&#39;, &#39;___&#39;, &#39;__builtin__&#39;, &#39;__builtins__&#39;, &#39;__doc__&#39;, &#39;__loader__&#39;, &#39;__name__&#39;, &#39;__package__&#39;, &#39;__spec__&#39;, &#39;_dh&#39;, &#39;_i&#39;, &#39;_i1&#39;, &#39;_i2&#39;, &#39;_i3&#39;, &#39;_i4&#39;, &#39;_i5&#39;, &#39;_ih&#39;, &#39;_ii&#39;, &#39;_iii&#39;, &#39;_oh&#39;, &#39;all_columns&#39;, &#39;c_activity&#39;, &#39;c_activity_units&#39;, &#39;c_capacity&#39;, &#39;c_capacity_factor&#39;, &#39;c_capacity_units&#39;, &#39;c_ch4_emissions&#39;, &#39;c_ch4_emissions_factor&#39;, &#39;c_co2_emissions&#39;, &#39;c_co2_emissions_factor&#39;, &#39;c_conf_ch4_emissions&#39;, &#39;c_conf_ch4_emissions_factor&#39;, &#39;c_conf_co2_emissions&#39;, &#39;c_conf_co2_emissions_factor&#39;, &#39;c_conf_n2o_emissions&#39;, &#39;c_conf_n2o_emissions_factor&#39;, &#39;c_conf_total_co2e_100yrgwp&#39;, &#39;c_conf_total_co2e_20yrgwp&#39;, &#39;c_created_date&#39;, &#39;c_emissions_factor&#39;, &#39;c_emissions_factor_units&#39;, &#39;c_emissions_quantity&#39;, &#39;c_emissions_quantity_units&#39;, &#39;c_end_time&#39;, &#39;c_gas&#39;, &#39;c_geometry_ref&#39;, &#39;c_iso3_country&#39;, &#39;c_lat&#39;, &#39;c_lon&#39;, &#39;c_modified_date&#39;, &#39;c_n2o_emissions&#39;, &#39;c_n2o_emissions_factor&#39;, &#39;c_original_inventory_sector&#39;, &#39;c_other1&#39;, &#39;c_other10&#39;, &#39;c_other10_def&#39;, &#39;c_other11&#39;, &#39;c_other11_def&#39;, &#39;c_other12&#39;, &#39;c_other12_def&#39;, &#39;c_other1_def&#39;, &#39;c_other2&#39;, &#39;c_other2_def&#39;, &#39;c_other3&#39;, &#39;c_other3_def&#39;, &#39;c_other4&#39;, &#39;c_other4_def&#39;, &#39;c_other5&#39;, &#39;c_other5_def&#39;, &#39;c_other6&#39;, &#39;c_other6_def&#39;, &#39;c_other7&#39;, &#39;c_other7_def&#39;, &#39;c_other8&#39;, &#39;c_other8_def&#39;, &#39;c_other9&#39;, &#39;c_other9_def&#39;, &#39;c_sector&#39;, &#39;c_source_id&#39;, &#39;c_source_name&#39;, &#39;c_source_type&#39;, &#39;c_start_time&#39;, &#39;c_subsector&#39;, &#39;c_temporal_granularity&#39;, &#39;c_total_co2e_100yrgwp&#39;, &#39;c_total_co2e_20yrgwp&#39;, &#39;ct&#39;, &#39;data_function&#39;, &#39;dds&#39;, &#39;exit&#39;, &#39;get_ipython&#39;, &#39;load_sources&#39;, &#39;logging&#39;, &#39;open&#39;, &#39;pl&#39;, &#39;quit&#39;, &#39;version&#39;, &#39;write_data&#39;, &#39;write_directory&#39;, &#39;years&#39;]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:arg_ctx: FunctionArgContext(named_args=OrderedDict(), inner_call_key=None)
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;__main__/years&gt;: &lt;class &#39;list&#39;&gt; 1c8d850b1588d55aa24caaf526daa7a60ee933473c8534e5e2321b2e4f896f34
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;__main__/write_directory&gt;: &lt;class &#39;str&#39;&gt; e9671acd244849c57167c658fa2f969752048f7ab184a3dcf5c46cb4d56ae124
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;__main__/version&gt;: &lt;class &#39;str&#39;&gt; 314b0899dc9c9902edee921cb2f097d5100dc43a4aeed661798a03eeb7a24fce
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/_files&gt;: &lt;class &#39;list&#39;&gt; 18208f73cf71c63f20e0ecead16b80debf3cb427efdcc12ffff91d3e2c22c165
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/SECTOR&gt;: &lt;class &#39;str&#39;&gt; 9d5d7fcf3aa35a4809f92551aed1f26e3beb8532c2ddcb279e07f0e3d410251a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/SUBSECTOR&gt;: &lt;class &#39;str&#39;&gt; 826e9ccb75fca0ecbd7965b3c36be69580a692be64ce59dc21acba9cc5321599
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/START_TIME&gt;: &lt;class &#39;str&#39;&gt; 8cb8863d0820d03a3e64d0f15203d129c78034830efb9832ebc8eab687c8e320
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/END_TIME&gt;: &lt;class &#39;str&#39;&gt; 02a1a6b5b874b92c21f18dd6f5b6d3fa46d97e39d4fa03517c816cd68198b0ac
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/ISO3_COUNTRY&gt;: &lt;class &#39;str&#39;&gt; b9ff63f00ca96cecb36a0560af183f451f344db284ea30e2f22057cefe14a333
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/SOURCE_ID&gt;: &lt;class &#39;str&#39;&gt; d9fb5c0ef20e45aeca3aee61dcf116d70f6fa8fac8a935131bafb89fa63c915a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CREATED_DATE&gt;: &lt;class &#39;str&#39;&gt; 96ac4e16e556fea843c7484a405367f32e45bf42adbd7a4e036cf792bc05fd07
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/MODIFIED_DATE&gt;: &lt;class &#39;str&#39;&gt; 1008cc54e7ed956e21bc5fcaf8d6576b31cecc05f493e983cf4f3a5e5e2e45e8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/EMISSIONS_QUANTITY&gt;: &lt;class &#39;str&#39;&gt; 837dcd5cc5178973422cd19693ac5348bd9d7e852af771030a377da892a64009
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/EMISSIONS_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 6463d0238250ab15e671356b672d0d0c8afed7eb968c77f129965b45448a7c69
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CAPACITY&gt;: &lt;class &#39;str&#39;&gt; ec21b3b973a3a0e7050392031862848f7a19272ca8a820aed64c56d1d26e8db1
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CAPACITY_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 2bc08268c235056c28a4580a21db591cd25c208bf4ce457069eb708e334ece44
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/ACTIVITY&gt;: &lt;class &#39;str&#39;&gt; 0651863bf5d902262b17c4621ec340544ff016752543d99a92d7d22872d8a455
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/LAT&gt;: &lt;class &#39;str&#39;&gt; 473c3cba6f0b66454d766555166e4829100f26a13f3a0a01019233e0c39c785b
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/LON&gt;: &lt;class &#39;str&#39;&gt; 33975037706d6b6cde528f56aba33c4004f03cddfebc31bfb7cde1ceaba77c4a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/ACTIVITY_UNITS&gt;: &lt;class &#39;str&#39;&gt; 99faba98e9a68e37c30968403dc712b7c871411f684ace184963abd7381d6517
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/EMISSIONS_FACTOR_UNITS&gt;: &lt;class &#39;str&#39;&gt; 2c05b5cddcf1f95bdefbe96d74b9ef9d5ebc9ef04fe5169d5db43427d5c4fafa
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CAPACITY_UNITS&gt;: &lt;class &#39;str&#39;&gt; 0fa985ff6c75067f3a7bd8eeda9c42e89abf8c5c5c0f73077964034dbc53c9cf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/GEOMETRY_REF&gt;: &lt;class &#39;str&#39;&gt; b0e13b0bcba8e18fe2af8e310fbd00131c20e55da61f1ca23a86958bbc5742f9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/ORIGINAL_INVENTORY_SECTOR&gt;: &lt;class &#39;str&#39;&gt; bc33a7a072eeee34a6e752d10acdbd751f53ea5d5728a5805583407d30ffa942
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/all_columns&gt;: &lt;class &#39;list&#39;&gt; 71442adb36903fd1906e79608b714be5329226f0853ccd86728bbaa616e06fd1
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/GAS&gt;: &lt;class &#39;str&#39;&gt; 2fe840e13244a9d748883574c1f1b7b1d7020eb39d0735b8f91ef5cf6f35173e
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/TEMPORAL_GRANULARITY&gt;: &lt;class &#39;str&#39;&gt; bed248e1115f7855049c4c4052dd9129f0fb65db0d3e1afdea0434ed49f8e4bf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/SOURCE_TYPE&gt;: &lt;class &#39;str&#39;&gt; 70369caca4d85df35385c66cba1454932f082856963c08216497ff468dfb25bd
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CO2_EMISSIONS_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 6c14df6730cd317a990b80d4e4ae9161ccf04826d72e117e4a890e616180cd7a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CH4_EMISSIONS_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 024bb8fa459f9033c97e823c7b857fe86451ae0c6f7f0cac4de31a352a050c46
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/N2O_EMISSIONS_FACTOR&gt;: &lt;class &#39;str&#39;&gt; 7df8be046d70164c594ca3356aa973e3126252702b012f7d583714b8cb93eba8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CO2_EMISSIONS&gt;: &lt;class &#39;str&#39;&gt; fa91c09f733da3bd599cb590d5f469a6681fefd5683dccbc00443ac9a9cac975
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/CH4_EMISSIONS&gt;: &lt;class &#39;str&#39;&gt; 73042da3d9e6682bb71e435027d9e53ffa067c377f59b444362e424496b4d4f2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/N2O_EMISSIONS&gt;: &lt;class &#39;str&#39;&gt; 598857035745f1b3d8bac46323781a4e2932adc211a2f8d963f79fdf7691bddc
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/TOTAL_CO2E_20YRGWP&gt;: &lt;class &#39;str&#39;&gt; 1c8e777bcf1fde80f92e98f7bae46684da4c82ce7ecdae7034c76624e783143f
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/TOTAL_CO2E_100YRGWP&gt;: &lt;class &#39;str&#39;&gt; 4ea011a14ca5d64b337174f2ab6a6c29c2574b9191545c5403eba697d898d89a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._eval_ctx:Cache key: &lt;ctrace/data/EMISSIONS_QUANTITY_UNITS&gt;: &lt;class &#39;str&#39;&gt; 31c5f76e48cf61c7856bfc28e863272f203aeb4fe7fec2afe111cc565a7fe843
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: introspect_indirect completed
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: introspect_indirect: 0 loads detected
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: introspect_indirect: 0 loads and 1 detected
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.introspect:&lt;ctrace/data/load_source_compact&gt; not in global interaction cache, objects have changed since loading
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.introspect:&lt;ctrace/data/_get_zip&gt; not in global interaction cache, objects have changed since loading
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.introspect:&lt;ctrace/data/_load_source_conf&gt; not in global interaction cache, objects have changed since loading
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.introspect:&lt;ctrace/data/_load_sources&gt; not in global interaction cache, objects have changed since loading
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.introspect:&lt;ctrace/data/_load_source_confidence&gt; not in global interaction cache, objects have changed since loading
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.introspect:visit_name: &lt;ast.Name object at 0x798f25b1f850&gt; Name(lineno=37, col_offset=23, end_lineno=37, end_col_offset=37, id=&#39;recast_parquet&#39;, ctx=Load()) {&#39;SUBSECTOR&#39;, &#39;_&#39;, &#39;tmp_name&#39;, &#39;subsector_enum&#39;, &#39;n&#39;, &#39;data_files&#39;, &#39;sname&#39;, &#39;_get_zip&#39;, &#39;source_names&#39;, &#39;sector_enum&#39;, &#39;_files&#39;, &#39;tmp_dir&#39;, &#39;_logger&#39;, &#39;c_name&#39;, &#39;fname&#39;, &#39;recast_parquet&#39;, &#39;_load_source_conf&#39;, &#39;zf&#39;, &#39;pl&#39;, &#39;tempfile&#39;, &#39;SECTOR&#39;, &#39;load_source_compact&#39;, &#39;List&#39;, &#39;Path&#39;, &#39;df&#39;, &#39;df_&#39;}
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.introspect:&lt;ctrace/data/recast_parquet&gt; not in global interaction cache, objects have changed since loading
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: introspect completed
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: assigning OrderedDict([(&#39;/write_data&#39;, &#39;bf601e0eb2418e4c3f54924feda1785a52311b63b80696fa2fcb2fd8c2ca1245&#39;), (&#39;/data_sources&#39;, &#39;494e87dc9c77c8d5fc059c3d8566999072f1f4c25dad1126da845b472acefd15&#39;)]) store path(s) to context
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: assigning [] store path(s) to context
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: assigning 2 store path(s) to context
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx: 2 present blobs
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Interaction tree:
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:`- Fun &lt;__main__/write_data&gt; /write_data &lt;-- bf601e0eb2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   |- Ctx None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   |- Dep version -&gt; &lt;__main__/version&gt;: 314b0899dc
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   |- Dep write_directory -&gt; &lt;__main__/write_directory&gt;: e9671acd24
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   |- Dep years -&gt; &lt;__main__/years&gt;: 1c8d850b15
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   |- Ext c_start_time -&gt; &lt;__main__/c_start_time&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   |- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:   `- Fun &lt;__main__/load_sources&gt; /data_sources &lt;-- 494e87dc9c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      |- Ctx 6f0550b930
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:      `- Fun &lt;ctrace/data/load_source_compact&gt; @ 59304d058b
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ctx 870c8118e5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Arg p: 1434fd84d5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep SECTOR -&gt; &lt;ctrace/data/SECTOR&gt;: 9d5d7fcf3a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep SUBSECTOR -&gt; &lt;ctrace/data/SUBSECTOR&gt;: 826e9ccb75
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Dep _files -&gt; &lt;ctrace/data/_files&gt;: 18208f73cf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext List -&gt; &lt;ctrace/data/List&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext Path -&gt; &lt;pathlib/Path&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext _logger -&gt; &lt;ctrace/data/_logger&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext sector_enum -&gt; &lt;ctrace/data/sector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext subsector_enum -&gt; &lt;ctrace/data/subsector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Ext tempfile -&gt; &lt;tempfile&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Fun &lt;ctrace/data/_get_zip&gt; @ 9de54fbcc5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Ctx b5fb91f0c9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Arg p: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Arg name: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Ext ZipFile -&gt; &lt;zipfile/ZipFile&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  `- Ext _ct_dset -&gt; &lt;ctrace/data/_ct_dset&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |- Fun &lt;ctrace/data/_load_source_conf&gt; @ e1c0cb4775
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Ctx f0bf802ad7
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Arg s_fp: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Arg c_fp: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Dep END_TIME -&gt; &lt;ctrace/data/END_TIME&gt;: 02a1a6b5b8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Dep ISO3_COUNTRY -&gt; &lt;ctrace/data/ISO3_COUNTRY&gt;: b9ff63f00c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Dep SOURCE_ID -&gt; &lt;ctrace/data/SOURCE_ID&gt;: d9fb5c0ef2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Dep START_TIME -&gt; &lt;ctrace/data/START_TIME&gt;: 8cb8863d08
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |- Fun &lt;ctrace/data/_load_sources&gt; @ 27435bbba5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ctx 24b7883dfb
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Arg fp: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep ACTIVITY -&gt; &lt;ctrace/data/ACTIVITY&gt;: 0651863bf5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep ACTIVITY_UNITS -&gt; &lt;ctrace/data/ACTIVITY_UNITS&gt;: 99faba98e9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep CAPACITY -&gt; &lt;ctrace/data/CAPACITY&gt;: ec21b3b973
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep CAPACITY_FACTOR -&gt; &lt;ctrace/data/CAPACITY_FACTOR&gt;: 2bc08268c2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep CAPACITY_UNITS -&gt; &lt;ctrace/data/CAPACITY_UNITS&gt;: 0fa985ff6c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep CREATED_DATE -&gt; &lt;ctrace/data/CREATED_DATE&gt;: 96ac4e16e5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep EMISSIONS_FACTOR -&gt; &lt;ctrace/data/EMISSIONS_FACTOR&gt;: 6463d02382
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep EMISSIONS_FACTOR_UNITS -&gt; &lt;ctrace/data/EMISSIONS_FACTOR_UNITS&gt;: 2c05b5cddc
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep EMISSIONS_QUANTITY -&gt; &lt;ctrace/data/EMISSIONS_QUANTITY&gt;: 837dcd5cc5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep END_TIME -&gt; &lt;ctrace/data/END_TIME&gt;: 02a1a6b5b8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep GAS -&gt; &lt;ctrace/data/GAS&gt;: 2fe840e132
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep GEOMETRY_REF -&gt; &lt;ctrace/data/GEOMETRY_REF&gt;: b0e13b0bcb
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep ISO3_COUNTRY -&gt; &lt;ctrace/data/ISO3_COUNTRY&gt;: b9ff63f00c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep LAT -&gt; &lt;ctrace/data/LAT&gt;: 473c3cba6f
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep LON -&gt; &lt;ctrace/data/LON&gt;: 3397503770
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep MODIFIED_DATE -&gt; &lt;ctrace/data/MODIFIED_DATE&gt;: 1008cc54e7
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep ORIGINAL_INVENTORY_SECTOR -&gt; &lt;ctrace/data/ORIGINAL_INVENTORY_SECTOR&gt;: bc33a7a072
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep SOURCE_ID -&gt; &lt;ctrace/data/SOURCE_ID&gt;: d9fb5c0ef2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep START_TIME -&gt; &lt;ctrace/data/START_TIME&gt;: 8cb8863d08
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep TEMPORAL_GRANULARITY -&gt; &lt;ctrace/data/TEMPORAL_GRANULARITY&gt;: bed248e111
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Dep all_columns -&gt; &lt;ctrace/data/all_columns&gt;: 71442adb36
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext C -&gt; &lt;polars/functions/col/ColumnFactory&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext c_gas -&gt; &lt;ctrace/data/c_gas&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext c_iso3_country -&gt; &lt;ctrace/data/c_iso3_country&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext c_original_inventory_sector -&gt; &lt;ctrace/data/c_original_inventory_sector&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext c_temporal_granularity -&gt; &lt;ctrace/data/c_temporal_granularity&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext gas_enum -&gt; &lt;ctrace/data/gas_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext iso3_enum -&gt; &lt;ctrace/data/iso3_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext original_inventory_sector_enum -&gt; &lt;ctrace/data/original_inventory_sector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  |- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  |  `- Ext temporal_granularity_enum -&gt; &lt;ctrace/data/temporal_granularity_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |  `- Fun &lt;ctrace/data/_load_source_confidence&gt; @ b872283c7c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Ctx 3c7dcfe26d
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Arg fp: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep ACTIVITY -&gt; &lt;ctrace/data/ACTIVITY&gt;: 0651863bf5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep CAPACITY -&gt; &lt;ctrace/data/CAPACITY&gt;: ec21b3b973
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep CAPACITY_FACTOR -&gt; &lt;ctrace/data/CAPACITY_FACTOR&gt;: 2bc08268c2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep CH4_EMISSIONS -&gt; &lt;ctrace/data/CH4_EMISSIONS&gt;: 73042da3d9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep CH4_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/CH4_EMISSIONS_FACTOR&gt;: 024bb8fa45
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep CO2_EMISSIONS -&gt; &lt;ctrace/data/CO2_EMISSIONS&gt;: fa91c09f73
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep CO2_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/CO2_EMISSIONS_FACTOR&gt;: 6c14df6730
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep CREATED_DATE -&gt; &lt;ctrace/data/CREATED_DATE&gt;: 96ac4e16e5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep END_TIME -&gt; &lt;ctrace/data/END_TIME&gt;: 02a1a6b5b8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep ISO3_COUNTRY -&gt; &lt;ctrace/data/ISO3_COUNTRY&gt;: b9ff63f00c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep MODIFIED_DATE -&gt; &lt;ctrace/data/MODIFIED_DATE&gt;: 1008cc54e7
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep N2O_EMISSIONS -&gt; &lt;ctrace/data/N2O_EMISSIONS&gt;: 5988570357
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep N2O_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/N2O_EMISSIONS_FACTOR&gt;: 7df8be046d
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep SOURCE_ID -&gt; &lt;ctrace/data/SOURCE_ID&gt;: d9fb5c0ef2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep SOURCE_TYPE -&gt; &lt;ctrace/data/SOURCE_TYPE&gt;: 70369caca4
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep START_TIME -&gt; &lt;ctrace/data/START_TIME&gt;: 8cb8863d08
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep TOTAL_CO2E_100YRGWP -&gt; &lt;ctrace/data/TOTAL_CO2E_100YRGWP&gt;: 4ea011a14c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Dep TOTAL_CO2E_20YRGWP -&gt; &lt;ctrace/data/TOTAL_CO2E_20YRGWP&gt;: 1c8e777bcf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Ext C -&gt; &lt;polars/functions/col/ColumnFactory&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Ext c_iso3_country -&gt; &lt;ctrace/data/c_iso3_country&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Ext c_source_id -&gt; &lt;ctrace/data/c_source_id&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Ext confidence_level_enum -&gt; &lt;ctrace/data/confidence_level_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     |- Ext iso3_enum -&gt; &lt;ctrace/data/iso3_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         |     `- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:         `- Fun &lt;ctrace/data/recast_parquet&gt; @ fa59bf5eb0
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ctx 2aa9b8befb
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Arg df: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Arg conf: None
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep ACTIVITY -&gt; &lt;ctrace/data/ACTIVITY&gt;: 0651863bf5
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep CAPACITY -&gt; &lt;ctrace/data/CAPACITY&gt;: ec21b3b973
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep CAPACITY_FACTOR -&gt; &lt;ctrace/data/CAPACITY_FACTOR&gt;: 2bc08268c2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep CH4_EMISSIONS -&gt; &lt;ctrace/data/CH4_EMISSIONS&gt;: 73042da3d9
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep CH4_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/CH4_EMISSIONS_FACTOR&gt;: 024bb8fa45
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep CO2_EMISSIONS -&gt; &lt;ctrace/data/CO2_EMISSIONS&gt;: fa91c09f73
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep CO2_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/CO2_EMISSIONS_FACTOR&gt;: 6c14df6730
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep EMISSIONS_QUANTITY_UNITS -&gt; &lt;ctrace/data/EMISSIONS_QUANTITY_UNITS&gt;: 31c5f76e48
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep GAS -&gt; &lt;ctrace/data/GAS&gt;: 2fe840e132
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep ISO3_COUNTRY -&gt; &lt;ctrace/data/ISO3_COUNTRY&gt;: b9ff63f00c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep N2O_EMISSIONS -&gt; &lt;ctrace/data/N2O_EMISSIONS&gt;: 5988570357
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep N2O_EMISSIONS_FACTOR -&gt; &lt;ctrace/data/N2O_EMISSIONS_FACTOR&gt;: 7df8be046d
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep ORIGINAL_INVENTORY_SECTOR -&gt; &lt;ctrace/data/ORIGINAL_INVENTORY_SECTOR&gt;: bc33a7a072
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep SECTOR -&gt; &lt;ctrace/data/SECTOR&gt;: 9d5d7fcf3a
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep SOURCE_TYPE -&gt; &lt;ctrace/data/SOURCE_TYPE&gt;: 70369caca4
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep SUBSECTOR -&gt; &lt;ctrace/data/SUBSECTOR&gt;: 826e9ccb75
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep TEMPORAL_GRANULARITY -&gt; &lt;ctrace/data/TEMPORAL_GRANULARITY&gt;: bed248e111
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep TOTAL_CO2E_100YRGWP -&gt; &lt;ctrace/data/TOTAL_CO2E_100YRGWP&gt;: 4ea011a14c
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Dep TOTAL_CO2E_20YRGWP -&gt; &lt;ctrace/data/TOTAL_CO2E_20YRGWP&gt;: 1c8e777bcf
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext C -&gt; &lt;polars/functions/col/ColumnFactory&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext c_emissions_quantity_units -&gt; &lt;ctrace/data/c_emissions_quantity_units&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext c_gas -&gt; &lt;ctrace/data/c_gas&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext c_iso3_country -&gt; &lt;ctrace/data/c_iso3_country&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext c_original_inventory_sector -&gt; &lt;ctrace/data/c_original_inventory_sector&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext c_sector -&gt; &lt;ctrace/data/c_sector&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext c_subsector -&gt; &lt;ctrace/data/c_subsector&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext c_temporal_granularity -&gt; &lt;ctrace/data/c_temporal_granularity&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext confidence_level_enum -&gt; &lt;ctrace/data/confidence_level_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext gas_enum -&gt; &lt;ctrace/data/gas_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext iso3_enum -&gt; &lt;ctrace/data/iso3_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext original_inventory_sector_enum -&gt; &lt;ctrace/data/original_inventory_sector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext pl -&gt; &lt;polars&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext sector_enum -&gt; &lt;ctrace/data/sector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            |- Ext subsector_enum -&gt; &lt;ctrace/data/subsector_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:            `- Ext temporal_granularity_enum -&gt; &lt;ctrace/data/temporal_granularity_enum&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Stage analysis completed
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Updating path: /write_data -&gt; bf601e0eb2418e4c3f54924feda1785a52311b63b80696fa2fcb2fd8c2ca1245
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Updating path: /data_sources -&gt; 494e87dc9c77c8d5fc059c3d8566999072f1f4c25dad1126da845b472acefd15
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx:current_sig: bf601e0eb2418e4c3f54924feda1785a52311b63b80696fa2fcb2fd8c2ca1245
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:_eval_new_ctx:Return cached signature bf601e0eb2418e4c3f54924feda1785a52311b63b80696fa2fcb2fd8c2ca1245
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Starting stage path_commit
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.store:Link /tmp/dds/data/write_data up to date
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds.store:Link /tmp/dds/data/data_sources up to date
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:dds._api:Stage path_commit done
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage analysis: 0.076 sec 90.04%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage store_inspect: 0.000 sec 0.00%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage eval: 0.000 sec 0.00%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage store_commit: 0.007 sec 8.91%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:dds._api:Stage path_commit: 0.001 sec 1.04%
+</pre></div>
+</div>
+</div>
+</div>
+<p>We know check that it works correctly. Let’s load the newly created data instead of the default version stored on the internet, for the year 2022.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<span class="n">sdf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><h4>NAIVE QUERY PLAN</h4><p>run <b>LazyFrame.show_graph()</b> to see the optimized version</p><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: polars_query Pages: 1 -->
+<svg width="2178pt" height="205pt"
+ viewBox="0.00 0.00 2178.00 205.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 201)">
+<title>polars_query</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-201 2174,-201 2174,4 -4,4"/>
+<!-- WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;] [(0, 0)] -->
+<g id="node1" class="node">
+<title>WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;] [(0, 0)]</title>
+<polygon fill="none" stroke="black" points="2170,-197 0,-197 0,-161 2170,-161 2170,-197"/>
+<text text-anchor="middle" x="1085" y="-175.3" font-family="Times,serif" font-size="14.00">WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;]</text>
+</g>
+<!-- WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)] -->
+<g id="node2" class="node">
+<title>WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)]</title>
+<polygon fill="none" stroke="black" points="1495,-125 675,-125 675,-89 1495,-89 1495,-125"/>
+<text text-anchor="middle" x="1085" y="-103.3" font-family="Times,serif" font-size="14.00">WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;]</text>
+</g>
+<!-- WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;] [(0, 0)]&#45;&#45;WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)] -->
+<g id="edge1" class="edge">
+<title>WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;] [(0, 0)]&#45;&#45;WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)]</title>
+<path fill="none" stroke="black" d="M1085,-160.7C1085,-149.85 1085,-135.92 1085,-125.1"/>
+</g>
+<!-- Parquet SCAN /tmp/climatetrace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;
+π */60;
+σ &#45; [(0, 2)] -->
+<g id="node3" class="node">
+<title>Parquet SCAN /tmp/climatetrace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;
+π */60;
+σ &#45; [(0, 2)]</title>
+<polygon fill="none" stroke="black" points="1339.5,-53 830.5,-53 830.5,0 1339.5,0 1339.5,-53"/>
+<text text-anchor="middle" x="1085" y="-37.8" font-family="Times,serif" font-size="14.00">Parquet SCAN /tmp/climatetrace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;</text>
+<text text-anchor="middle" x="1085" y="-22.8" font-family="Times,serif" font-size="14.00">π */60;</text>
+<text text-anchor="middle" x="1085" y="-7.8" font-family="Times,serif" font-size="14.00">σ &#45;</text>
+</g>
+<!-- WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)]&#45;&#45;Parquet SCAN /tmp/climatetrace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;
+π */60;
+σ &#45; [(0, 2)] -->
+<g id="edge2" class="edge">
+<title>WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)]&#45;&#45;Parquet SCAN /tmp/climatetrace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;
+π */60;
+σ &#45; [(0, 2)]</title>
+<path fill="none" stroke="black" d="M1085,-88.97C1085,-78.51 1085,-64.9 1085,-53.16"/>
+</g>
+</g>
+</svg>
+</div></div>
+</div>
+<p>About 6M records for this year. This is spread across multiple gas and also multiple trips in the case of boats or airplanes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>5812705</td></tr></tbody></table></div></div></div>
+</div>
+<p>Check the number of distinct source IDs</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">by_sec</span> <span class="o">=</span> <span class="p">(</span><span class="n">sdf</span>
+<span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">SOURCE_ID</span><span class="p">,</span> <span class="n">SECTOR</span><span class="p">)</span>
+<span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+<span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The number of sources outside FLU:</p>
+<div class="admonition-ctodo admonition">
+<p class="admonition-title">CTODO</p>
+<p>This number does not match the official number on the Climate Trace website (395075 for 2022). Investigate.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">by_sec</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_sector</span> <span class="o">!=</span> <span class="n">FORESTRY_AND_LAND_USE</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>324649</td></tr></tbody></table></div></div></div>
+</div>
+<p>Check: no source is associated with multiple sectors.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">by_sec</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">SOURCE_ID</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">c_sector</span><span class="o">.</span><span class="n">n_unique</span><span class="p">())</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">SECTOR</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (0, 2)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>sector</th></tr><tr><td>u64</td><td>u32</td></tr></thead><tbody></tbody></table></div></div></div>
+</div>
+<p>Check: no annual source should be duplicated by gas.</p>
+<div class="admonition-ctodo admonition">
+<p class="admonition-title">CTODO</p>
+<p>Some sources seem duplicate?</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">sdf</span>
+<span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_temporal_granularity</span> <span class="o">==</span><span class="s2">&quot;annual&quot;</span><span class="p">)</span>
+<span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">SOURCE_ID</span><span class="p">,</span> <span class="n">GAS</span><span class="p">)</span>
+<span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+<span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;len&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+<span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;len&quot;</span><span class="p">)</span>
+<span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (320, 3)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>gas</th><th>len</th></tr><tr><td>u64</td><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>21096128</td><td>&quot;co2e_100yr&quot;</td><td>2</td></tr><tr><td>21096128</td><td>&quot;co2&quot;</td><td>2</td></tr><tr><td>5012760</td><td>&quot;co2e_20yr&quot;</td><td>2</td></tr><tr><td>5012814</td><td>&quot;ch4&quot;</td><td>2</td></tr><tr><td>5012801</td><td>&quot;co2e_100yr&quot;</td><td>2</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>25743740</td><td>&quot;co2e_100yr&quot;</td><td>2751</td></tr><tr><td>25743740</td><td>&quot;n2o&quot;</td><td>2751</td></tr><tr><td>25743740</td><td>&quot;ch4&quot;</td><td>2751</td></tr><tr><td>25743740</td><td>&quot;co2&quot;</td><td>2751</td></tr><tr><td>25743740</td><td>&quot;co2e_20yr&quot;</td><td>2751</td></tr></tbody></table></div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Drilling into the record that is duplicate</span>
+<span class="p">(</span><span class="n">sdf</span>
+<span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_source_id</span> <span class="o">==</span> <span class="mi">25743740</span><span class="p">)</span>
+<span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (2, 60)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>iso3_country</th><th>original_inventory_sector</th><th>start_time</th><th>end_time</th><th>temporal_granularity</th><th>gas</th><th>emissions_quantity</th><th>emissions_factor</th><th>emissions_factor_units</th><th>capacity</th><th>capacity_units</th><th>capacity_factor</th><th>activity</th><th>activity_units</th><th>created_date</th><th>modified_date</th><th>source_name</th><th>source_type</th><th>lat</th><th>lon</th><th>other1</th><th>other2</th><th>other3</th><th>other4</th><th>other5</th><th>other6</th><th>other7</th><th>other8</th><th>other9</th><th>other10</th><th>other11</th><th>other12</th><th>other1_def</th><th>other2_def</th><th>other3_def</th><th>other4_def</th><th>other5_def</th><th>other6_def</th><th>other7_def</th><th>other8_def</th><th>other9_def</th><th>other10_def</th><th>other11_def</th><th>other12_def</th><th>geometry_ref</th><th>conf_source_type</th><th>conf_capacity</th><th>conf_capacity_factor</th><th>conf_activity</th><th>conf_co2_emissions_factor</th><th>conf_ch4_emissions_factor</th><th>conf_n2o_emissions_factor</th><th>conf_co2_emissions</th><th>conf_ch4_emissions</th><th>conf_n2o_emissions</th><th>conf_total_co2e_20yrgwp</th><th>conf_total_co2e_100yrgwp</th><th>sector</th><th>subsector</th></tr><tr><td>u64</td><td>enum</td><td>enum</td><td>datetime[μs]</td><td>datetime[μs]</td><td>enum</td><td>enum</td><td>f64</td><td>f64</td><td>str</td><td>f64</td><td>str</td><td>f64</td><td>f64</td><td>str</td><td>datetime[μs]</td><td>datetime[μs]</td><td>str</td><td>str</td><td>f64</td><td>f64</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td></tr></thead><tbody><tr><td>25743740</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>2022-01-01 00:00:00</td><td>2022-12-31 00:00:00</td><td>&quot;annual&quot;</td><td>&quot;co2e_100yr&quot;</td><td>1225.6</td><td>0.000006</td><td>null</td><td>1.0</td><td>&quot;hectares &quot;</td><td>4000.0</td><td>4000.0</td><td>&quot;animals&quot;</td><td>2023-11-07 00:00:00</td><td>null</td><td>&quot;CHN_dairy_298&quot;</td><td>&quot;manure_managem…</td><td>27.1</td><td>106.5</td><td>&quot;2015&quot;</td><td>&quot;reported/permi…</td><td>&quot;2400.0&quot;</td><td>&quot;0.00047&quot;</td><td>&quot;1600.0&quot;</td><td>&quot;0.00034&quot;</td><td>&quot;18.0&quot;</td><td>&quot;1.0&quot;</td><td>&quot;[{&#x27;unknown&#x27;: 1…</td><td>null</td><td>null</td><td>null</td><td>&quot;year active&quot;</td><td>&quot;cattle_populat…</td><td>&quot;potential_tota…</td><td>&quot;dairy_or_beef_…</td><td>&quot;dairy_total_ot…</td><td>&quot;other_cattle_n…</td><td>&quot;dairy_CH4_emis…</td><td>&quot;beef_other_CH4…</td><td>&quot;manure_managem…</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_106.5_27…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>25743740</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>2022-01-01 00:00:00</td><td>2022-12-31 00:00:00</td><td>&quot;annual&quot;</td><td>&quot;co2e_100yr&quot;</td><td>1225.6</td><td>0.000006</td><td>null</td><td>1.0</td><td>&quot;hectares &quot;</td><td>4000.0</td><td>4000.0</td><td>&quot;animals&quot;</td><td>2023-11-07 00:00:00</td><td>null</td><td>&quot;CHN_dairy_298&quot;</td><td>&quot;manure_managem…</td><td>27.1</td><td>106.5</td><td>&quot;2015&quot;</td><td>&quot;reported/permi…</td><td>&quot;2400.0&quot;</td><td>&quot;0.00047&quot;</td><td>&quot;1600.0&quot;</td><td>&quot;0.00034&quot;</td><td>&quot;18.0&quot;</td><td>&quot;1.0&quot;</td><td>&quot;[{&#x27;unknown&#x27;: 1…</td><td>null</td><td>null</td><td>null</td><td>&quot;year active&quot;</td><td>&quot;cattle_populat…</td><td>&quot;potential_tota…</td><td>&quot;dairy_or_beef_…</td><td>&quot;dairy_total_ot…</td><td>&quot;other_cattle_n…</td><td>&quot;dairy_CH4_emis…</td><td>&quot;beef_other_CH4…</td><td>&quot;manure_managem…</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_106.5_27…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr></tbody></table></div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">sdf</span>
+<span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_temporal_granularity</span> <span class="o">==</span><span class="s2">&quot;month&quot;</span><span class="p">)</span>
+<span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">SOURCE_ID</span><span class="p">,</span> <span class="n">GAS</span><span class="p">)</span>
+<span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+<span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;len&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">)</span>
+<span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (110, 3)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>gas</th><th>len</th></tr><tr><td>u64</td><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>13168871</td><td>&quot;ch4&quot;</td><td>14</td></tr><tr><td>13168148</td><td>&quot;co2e_100yr&quot;</td><td>15</td></tr><tr><td>13169242</td><td>&quot;co2e_20yr&quot;</td><td>13</td></tr><tr><td>13167042</td><td>&quot;co2e_100yr&quot;</td><td>17</td></tr><tr><td>13168386</td><td>&quot;co2&quot;</td><td>16</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>13166715</td><td>&quot;co2e_100yr&quot;</td><td>15</td></tr><tr><td>13168359</td><td>&quot;co2e_20yr&quot;</td><td>13</td></tr><tr><td>13167042</td><td>&quot;ch4&quot;</td><td>17</td></tr><tr><td>13167101</td><td>&quot;co2e_100yr&quot;</td><td>19</td></tr><tr><td>13169229</td><td>&quot;co2e_20yr&quot;</td><td>13</td></tr></tbody></table></div></div></div>
 </div>
 </section>
 

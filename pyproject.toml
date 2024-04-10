@@ -31,6 +31,8 @@ scipy = "^1.12.0"
 # Dependencies for the bayesian analysis
 arviz = "^0.17.1"
 pymc = "^5.12.0"
+dds-py = "^0.13.1"
+pandera = {extras = ["polars"], version = "^0.18.3"}
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.4"
