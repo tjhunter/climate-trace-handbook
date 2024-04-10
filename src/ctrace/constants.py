@@ -1,4 +1,5 @@
 from polars import col as C
+from typing import Literal
 
 # Extra columns for the country emissions:
 EMISSIONS_QUANTITY_UNITS = "emissions_quantity_units"
@@ -18,6 +19,21 @@ CH4 = "ch4"
 N2O = "n2o"
 CO2E_100YR = "co2e_100yr"
 CO2E_20YR = "co2e_20yr"
+
+GAS_LIST = [CO2, CH4, N2O, CO2E_100YR, CO2E_20YR]
+
+Gas = Literal["co2", "ch4", "n2o", "co2e_100yr", "co2e_20yr"]
+
+## ***** CONFIDENCE LEVELS *****
+VERY_HIGH = "very high"
+HIGH = "high"
+MEDIUM = "medium"
+LOW = "low"
+VERY_LOW = "very low"
+
+CONFIDENCES = [VERY_HIGH, HIGH, MEDIUM, LOW, VERY_LOW]
+
+Confidence = Literal["very high", "high", "medium", "low", "very low"]
 
 
 # Extra columns for the confidence levels:
@@ -76,6 +92,431 @@ c_conf_ch4_emissions = C("conf_ch4_emissions")
 c_conf_n2o_emissions = C("conf_n2o_emissions")
 c_conf_total_co2e_20yrgwp = C("conf_total_co2e_20yrgwp")
 c_conf_total_co2e_100yrgwp = C("conf_total_co2e_100yrgwp")
+
+
+## ***** SUBSECTORS *****
+
+SUBSECTORS = [
+    "aluminum",
+    "bauxite-mining",
+    "biological-treatment-of-solid-waste-and-biogenic",
+    "cement",
+    "chemicals",
+    "coal-mining",
+    "copper-mining",
+    "cropland-fires",
+    "domestic-aviation",
+    "domestic-shipping",
+    "electricity-generation",
+    "enteric-fermentation-cattle-feedlot",
+    "enteric-fermentation-cattle-pasture",
+    "enteric-fermentation-other",
+    "fluorinated-gases",
+    "forest-land-clearing",
+    "forest-land-degradation",
+    "forest-land-fires",
+    "incineration-and-open-burning-of-waste",
+    "international-aviation",
+    "international-shipping",
+    "iron-mining",
+    "manure-left-on-pasture-cattle",
+    "manure-management-cattle-feedlot",
+    "manure-management-other",
+    "net-forest-land",
+    "net-shrubgrass",
+    "net-wetland",
+    "oil-and-gas-production-and-transport",
+    "oil-and-gas-refining",
+    "other-agricultural-soil-emissions",
+    "other-energy-use",
+    "other-fossil-fuel-operations",
+    "other-manufacturing",
+    "other-onsite-fuel-usage",
+    "other-transport",
+    "petrochemicals",
+    "pulp-and-paper",
+    "railways",
+    "removals",
+    "residential-and-commercial-onsite-fuel-usage",
+    "rice-cultivation",
+    "road-transportation",
+    "rock-quarrying",
+    "sand-quarrying",
+    "shrubgrass-fires",
+    "solid-fuel-transformation",
+    "solid-waste-disposal",
+    "steel",
+    "synthetic-fertilizer-application",
+    "wastewater-treatment-and-discharge",
+    "water-reservoirs",
+    "wetland-fires",
+]
+
+
+def _code_subsector():
+    for s in SUBSECTORS:
+        s2 = s.upper().replace("-", "_")
+        print(f"{s2} = '{s}'")
+
+    print(f"\n\n")
+    sub = ", ".join([f"'{s}'" for s in SUBSECTORS])
+    print(f"SubSector = Literal[{sub}]")
+    print(f"\n\n")
+
+
+ALUMINUM = "aluminum"
+BAUXITE_MINING = "bauxite-mining"
+BIOLOGICAL_TREATMENT_OF_SOLID_WASTE_AND_BIOGENIC = (
+    "biological-treatment-of-solid-waste-and-biogenic"
+)
+CEMENT = "cement"
+CHEMICALS = "chemicals"
+COAL_MINING = "coal-mining"
+COPPER_MINING = "copper-mining"
+CROPLAND_FIRES = "cropland-fires"
+DOMESTIC_AVIATION = "domestic-aviation"
+DOMESTIC_SHIPPING = "domestic-shipping"
+ELECTRICITY_GENERATION = "electricity-generation"
+ENTERIC_FERMENTATION_CATTLE_FEEDLOT = "enteric-fermentation-cattle-feedlot"
+ENTERIC_FERMENTATION_CATTLE_PASTURE = "enteric-fermentation-cattle-pasture"
+ENTERIC_FERMENTATION_OTHER = "enteric-fermentation-other"
+FLUORINATED_GASES = "fluorinated-gases"
+FOREST_LAND_CLEARING = "forest-land-clearing"
+FOREST_LAND_DEGRADATION = "forest-land-degradation"
+FOREST_LAND_FIRES = "forest-land-fires"
+INCINERATION_AND_OPEN_BURNING_OF_WASTE = "incineration-and-open-burning-of-waste"
+INTERNATIONAL_AVIATION = "international-aviation"
+INTERNATIONAL_SHIPPING = "international-shipping"
+IRON_MINING = "iron-mining"
+MANURE_LEFT_ON_PASTURE_CATTLE = "manure-left-on-pasture-cattle"
+MANURE_MANAGEMENT_CATTLE_FEEDLOT = "manure-management-cattle-feedlot"
+MANURE_MANAGEMENT_OTHER = "manure-management-other"
+NET_FOREST_LAND = "net-forest-land"
+NET_SHRUBGRASS = "net-shrubgrass"
+NET_WETLAND = "net-wetland"
+OIL_AND_GAS_PRODUCTION_AND_TRANSPORT = "oil-and-gas-production-and-transport"
+OIL_AND_GAS_REFINING = "oil-and-gas-refining"
+OTHER_AGRICULTURAL_SOIL_EMISSIONS = "other-agricultural-soil-emissions"
+OTHER_ENERGY_USE = "other-energy-use"
+OTHER_FOSSIL_FUEL_OPERATIONS = "other-fossil-fuel-operations"
+OTHER_MANUFACTURING = "other-manufacturing"
+OTHER_ONSITE_FUEL_USAGE = "other-onsite-fuel-usage"
+OTHER_TRANSPORT = "other-transport"
+PETROCHEMICALS = "petrochemicals"
+PULP_AND_PAPER = "pulp-and-paper"
+RAILWAYS = "railways"
+REMOVALS = "removals"
+RESIDENTIAL_AND_COMMERCIAL_ONSITE_FUEL_USAGE = (
+    "residential-and-commercial-onsite-fuel-usage"
+)
+RICE_CULTIVATION = "rice-cultivation"
+ROAD_TRANSPORTATION = "road-transportation"
+ROCK_QUARRYING = "rock-quarrying"
+SAND_QUARRYING = "sand-quarrying"
+SHRUBGRASS_FIRES = "shrubgrass-fires"
+SOLID_FUEL_TRANSFORMATION = "solid-fuel-transformation"
+SOLID_WASTE_DISPOSAL = "solid-waste-disposal"
+STEEL = "steel"
+SYNTHETIC_FERTILIZER_APPLICATION = "synthetic-fertilizer-application"
+WASTEWATER_TREATMENT_AND_DISCHARGE = "wastewater-treatment-and-discharge"
+WATER_RESERVOIRS = "water-reservoirs"
+WETLAND_FIRES = "wetland-fires"
+
+
+SubSector = Literal[
+    "aluminum",
+    "bauxite-mining",
+    "biological-treatment-of-solid-waste-and-biogenic",
+    "cement",
+    "chemicals",
+    "coal-mining",
+    "copper-mining",
+    "cropland-fires",
+    "domestic-aviation",
+    "domestic-shipping",
+    "electricity-generation",
+    "enteric-fermentation-cattle-feedlot",
+    "enteric-fermentation-cattle-pasture",
+    "enteric-fermentation-other",
+    "fluorinated-gases",
+    "forest-land-clearing",
+    "forest-land-degradation",
+    "forest-land-fires",
+    "incineration-and-open-burning-of-waste",
+    "international-aviation",
+    "international-shipping",
+    "iron-mining",
+    "manure-left-on-pasture-cattle",
+    "manure-management-cattle-feedlot",
+    "manure-management-other",
+    "net-forest-land",
+    "net-shrubgrass",
+    "net-wetland",
+    "oil-and-gas-production-and-transport",
+    "oil-and-gas-refining",
+    "other-agricultural-soil-emissions",
+    "other-energy-use",
+    "other-fossil-fuel-operations",
+    "other-manufacturing",
+    "other-onsite-fuel-usage",
+    "other-transport",
+    "petrochemicals",
+    "pulp-and-paper",
+    "railways",
+    "removals",
+    "residential-and-commercial-onsite-fuel-usage",
+    "rice-cultivation",
+    "road-transportation",
+    "rock-quarrying",
+    "sand-quarrying",
+    "shrubgrass-fires",
+    "solid-fuel-transformation",
+    "solid-waste-disposal",
+    "steel",
+    "synthetic-fertilizer-application",
+    "wastewater-treatment-and-discharge",
+    "water-reservoirs",
+    "wetland-fires",
+]
+
+## ***** SECTORS *****
+
+SECTORS = [
+    "agriculture",
+    "buildings",
+    "fluorinated_gases",
+    "forestry_and_land_use",
+    "fossil_fuel_operations",
+    "manufacturing",
+    "mineral_extraction",
+    "power",
+    "transportation",
+    "waste",
+]
+
+
+def _code_sector():
+    for s in SECTORS:
+        s2 = s.upper().replace("-", "_")
+        print(f"{s2} = '{s}'")
+
+    print(f"\n\n")
+    sub = ", ".join([f"'{s}'" for s in SECTORS])
+    print(f"Sector = Literal[{sub}]")
+    print(f"\n\n")
+
+
+AGRICULTURE = "agriculture"
+BUILDINGS = "buildings"
+FLUORINATED_GASES = "fluorinated_gases"
+FORESTRY_AND_LAND_USE = "forestry_and_land_use"
+FOSSIL_FUEL_OPERATIONS = "fossil_fuel_operations"
+MANUFACTURING = "manufacturing"
+MINERAL_EXTRACTION = "mineral_extraction"
+POWER = "power"
+TRANSPORTATION = "transportation"
+WASTE = "waste"
+
+
+Sector = Literal[
+    "agriculture",
+    "buildings",
+    "fluorinated_gases",
+    "forestry_and_land_use",
+    "fossil_fuel_operations",
+    "manufacturing",
+    "mineral_extraction",
+    "power",
+    "transportation",
+    "waste",
+]
+
+## ***** ORIGINAL INVENTORY SECTORS *****
+
+ORIGINAL_INVENTORY_SECTORS = [
+    "aluminum",
+    "bauxite-mining",
+    "biological-treatment-of-solid-waste-and-biogenic",
+    "cement",
+    "chemicals",
+    "coal-mining",
+    "copper-mining",
+    "cropland-fires",
+    "domestic-aviation",
+    "domestic-shipping",
+    "electricity-generation",
+    "enteric-fermentation-cattle-feedlot",
+    "enteric-fermentation-cattle-pasture",
+    "enteric-fermentation-other",
+    "fluorinated-gases",
+    "forest-land-clearing",
+    "forest-land-degradation",
+    "forest-land-fires",
+    "incineration-and-open-burning-of-waste",
+    "international-aviation",
+    "international-shipping",
+    "iron-mining",
+    "manure-left-on-pasture-cattle",
+    "manure-management-cattle-feedlot",
+    "manure-management-other",
+    "net-forest-land",
+    "net-shrubgrass",
+    "net-wetland",
+    "oil-and-gas-production-and-transport",
+    "oil-and-gas-refining",
+    "other-agricultural-soil-emissions",
+    "other-energy-use",
+    "other-fossil-fuel-operations",
+    "other-manufacturing",
+    "other-onsite-fuel-usage",
+    "other-transport",
+    "petrochemicals",
+    "pulp-and-paper",
+    "railways",
+    "removals",
+    "residential-and-commercial-onsite-fuel-usage",
+    "rice-cultivation",
+    "road-transportation",
+    "rock-quarrying",
+    "sand-quarrying",
+    "shrubgrass-fires",
+    "solid-fuel-transformation",
+    "solid-waste-disposal",
+    "steel",
+    "synthetic-fertilizer-application",
+    "wastewater-treatment-and-discharge",
+    "water-reservoirs",
+    "wetland-fires",
+]
+
+
+def _code_original_inventory_sector():
+    for s in ORIGINAL_INVENTORY_SECTORS:
+        s2 = s.upper().replace("-", "_")
+        print(f"{s2} = '{s}'")
+
+    print(f"\n\n")
+    sub = ", ".join([f"'{s}'" for s in ORIGINAL_INVENTORY_SECTORS])
+    print(f"OriginalInventorySector = Literal[{sub}]")
+    print(f"\n\n")
+
+
+ALUMINUM = "aluminum"
+BAUXITE_MINING = "bauxite-mining"
+BIOLOGICAL_TREATMENT_OF_SOLID_WASTE_AND_BIOGENIC = (
+    "biological-treatment-of-solid-waste-and-biogenic"
+)
+CEMENT = "cement"
+CHEMICALS = "chemicals"
+COAL_MINING = "coal-mining"
+COPPER_MINING = "copper-mining"
+CROPLAND_FIRES = "cropland-fires"
+DOMESTIC_AVIATION = "domestic-aviation"
+DOMESTIC_SHIPPING = "domestic-shipping"
+ELECTRICITY_GENERATION = "electricity-generation"
+ENTERIC_FERMENTATION_CATTLE_FEEDLOT = "enteric-fermentation-cattle-feedlot"
+ENTERIC_FERMENTATION_CATTLE_PASTURE = "enteric-fermentation-cattle-pasture"
+ENTERIC_FERMENTATION_OTHER = "enteric-fermentation-other"
+FLUORINATED_GASES = "fluorinated-gases"
+FOREST_LAND_CLEARING = "forest-land-clearing"
+FOREST_LAND_DEGRADATION = "forest-land-degradation"
+FOREST_LAND_FIRES = "forest-land-fires"
+INCINERATION_AND_OPEN_BURNING_OF_WASTE = "incineration-and-open-burning-of-waste"
+INTERNATIONAL_AVIATION = "international-aviation"
+INTERNATIONAL_SHIPPING = "international-shipping"
+IRON_MINING = "iron-mining"
+MANURE_LEFT_ON_PASTURE_CATTLE = "manure-left-on-pasture-cattle"
+MANURE_MANAGEMENT_CATTLE_FEEDLOT = "manure-management-cattle-feedlot"
+MANURE_MANAGEMENT_OTHER = "manure-management-other"
+NET_FOREST_LAND = "net-forest-land"
+NET_SHRUBGRASS = "net-shrubgrass"
+NET_WETLAND = "net-wetland"
+OIL_AND_GAS_PRODUCTION_AND_TRANSPORT = "oil-and-gas-production-and-transport"
+OIL_AND_GAS_REFINING = "oil-and-gas-refining"
+OTHER_AGRICULTURAL_SOIL_EMISSIONS = "other-agricultural-soil-emissions"
+OTHER_ENERGY_USE = "other-energy-use"
+OTHER_FOSSIL_FUEL_OPERATIONS = "other-fossil-fuel-operations"
+OTHER_MANUFACTURING = "other-manufacturing"
+OTHER_ONSITE_FUEL_USAGE = "other-onsite-fuel-usage"
+OTHER_TRANSPORT = "other-transport"
+PETROCHEMICALS = "petrochemicals"
+PULP_AND_PAPER = "pulp-and-paper"
+RAILWAYS = "railways"
+REMOVALS = "removals"
+RESIDENTIAL_AND_COMMERCIAL_ONSITE_FUEL_USAGE = (
+    "residential-and-commercial-onsite-fuel-usage"
+)
+RICE_CULTIVATION = "rice-cultivation"
+ROAD_TRANSPORTATION = "road-transportation"
+ROCK_QUARRYING = "rock-quarrying"
+SAND_QUARRYING = "sand-quarrying"
+SHRUBGRASS_FIRES = "shrubgrass-fires"
+SOLID_FUEL_TRANSFORMATION = "solid-fuel-transformation"
+SOLID_WASTE_DISPOSAL = "solid-waste-disposal"
+STEEL = "steel"
+SYNTHETIC_FERTILIZER_APPLICATION = "synthetic-fertilizer-application"
+WASTEWATER_TREATMENT_AND_DISCHARGE = "wastewater-treatment-and-discharge"
+WATER_RESERVOIRS = "water-reservoirs"
+WETLAND_FIRES = "wetland-fires"
+
+
+OriginalInventorySector = Literal[
+    "aluminum",
+    "bauxite-mining",
+    "biological-treatment-of-solid-waste-and-biogenic",
+    "cement",
+    "chemicals",
+    "coal-mining",
+    "copper-mining",
+    "cropland-fires",
+    "domestic-aviation",
+    "domestic-shipping",
+    "electricity-generation",
+    "enteric-fermentation-cattle-feedlot",
+    "enteric-fermentation-cattle-pasture",
+    "enteric-fermentation-other",
+    "fluorinated-gases",
+    "forest-land-clearing",
+    "forest-land-degradation",
+    "forest-land-fires",
+    "incineration-and-open-burning-of-waste",
+    "international-aviation",
+    "international-shipping",
+    "iron-mining",
+    "manure-left-on-pasture-cattle",
+    "manure-management-cattle-feedlot",
+    "manure-management-other",
+    "net-forest-land",
+    "net-shrubgrass",
+    "net-wetland",
+    "oil-and-gas-production-and-transport",
+    "oil-and-gas-refining",
+    "other-agricultural-soil-emissions",
+    "other-energy-use",
+    "other-fossil-fuel-operations",
+    "other-manufacturing",
+    "other-onsite-fuel-usage",
+    "other-transport",
+    "petrochemicals",
+    "pulp-and-paper",
+    "railways",
+    "removals",
+    "residential-and-commercial-onsite-fuel-usage",
+    "rice-cultivation",
+    "road-transportation",
+    "rock-quarrying",
+    "sand-quarrying",
+    "shrubgrass-fires",
+    "solid-fuel-transformation",
+    "solid-waste-disposal",
+    "steel",
+    "synthetic-fertilizer-application",
+    "wastewater-treatment-and-discharge",
+    "water-reservoirs",
+    "wetland-fires",
+]
+
+## ***** COLUMNS *****
 
 # The code was generated by the following snippet:
 # Gen the code:

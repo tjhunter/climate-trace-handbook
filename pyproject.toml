@@ -36,6 +36,7 @@ pymc = "^5.12.0"
 ruff = "^0.3.4"
 prettier = "^0.0.7"
 black = "^24.3.0"
+mypy = "^1.9.0"
 
 [build-system]
 requires = ["poetry-core"]

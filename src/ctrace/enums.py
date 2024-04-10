@@ -3,6 +3,13 @@ Enumerations for the data
 """
 
 import polars as pl
+from .constants import (
+    SUBSECTORS,
+    GAS_LIST,
+    CONFIDENCES,
+    SECTORS,
+    ORIGINAL_INVENTORY_SECTORS,
+)
 
 # The list was generated with the following snippet:
 # countries = pl.read_csv("https://gitlab.com/pasosdeJesus/division-politica/-/raw/main/PAISES_ISO_2022-ampliado.csv?inline=false")
@@ -266,12 +273,7 @@ _countries = [
 
 iso3_enum = pl.Enum(_countries)
 
-N2O = "n2o"
-CH4 = "ch4"
-CO2 = "co2"
-CO2E_20yr = "co2e_20yr"
-CO2E_100yr = "co2e_100yr"
-gas_enum = pl.Enum([CH4, CO2, CO2E_20yr, CO2E_100yr, N2O])
+gas_enum = pl.Enum(GAS_LIST)
 
 temporal_granularity_enum = pl.Enum(["annual", "other", "month", "week", "day", "hour"])
 
@@ -293,10 +295,11 @@ INVENTORY_SECTORS = [
 inventory_sector_enum = pl.Enum(INVENTORY_SECTORS)
 
 # Confidence levels
-VERY_HIGH = "very high"
-HIGH = "high"
-MEDIUM = "medium"
-LOW = "low"
-VERY_LOW = "very low"
 
-confidence_level_enum = pl.Enum([VERY_HIGH, HIGH, MEDIUM, LOW, VERY_LOW])
+confidence_level_enum = pl.Enum(CONFIDENCES)
+
+subsector_enum = pl.Enum(SUBSECTORS)
+
+sector_enum = pl.Enum(SECTORS)
+
+original_inventory_sector_enum = pl.Enum(ORIGINAL_INVENTORY_SECTORS)
