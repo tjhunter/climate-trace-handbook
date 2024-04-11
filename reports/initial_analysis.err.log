@@ -1,44 +1,36 @@
 Traceback (most recent call last):
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 782, in _async_poll_for_reply
+    msg = await ensure_async(self.kc.shell_channel.get_msg(timeout=new_timeout))
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 198, in ensure_async
+    result = await obj
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/jupyter_client/channels.py", line 315, in get_msg
+    raise Empty
+_queue.Empty
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
     executenb(
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1314, in execute
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1314, in execute
     return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
     return loop.run_until_complete(inner)
   File "/usr/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
     return future.result()
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 709, in async_execute
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 709, in async_execute
     await self.async_execute_cell(
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1062, in async_execute_cell
-    await self._check_raise_for_error(cell, cell_index, exec_reply)
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-Yg9kLiuM-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
-    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
-nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
-------------------
-cedf = ct.read_country_emissions()
-------------------
-
-
-[0;31m---------------------------------------------------------------------------[0m
-[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
-Cell [0;32mIn[3], line 1[0m
-[0;32m----> 1[0m cedf [38;5;241m=[39m [43mct[49m[38;5;241;43m.[39;49m[43mread_country_emissions[49m[43m([49m[43m)[49m
-
-File [0;32m~/work/carbonmap/science/tutorials/src/ctrace/data.py:104[0m, in [0;36mread_country_emissions[0;34m(p)[0m
-[1;32m    102[0m [38;5;28;01mfor[39;00m fname [38;5;129;01min[39;00m _files:
-[1;32m    103[0m     _logger[38;5;241m.[39mdebug([38;5;124mf[39m[38;5;124m"[39m[38;5;124mopen [39m[38;5;132;01m{[39;00mfname[38;5;132;01m}[39;00m[38;5;124m"[39m)
-[0;32m--> 104[0m     zf [38;5;241m=[39m [43mZipFile[49m[43m([49m[43mPath[49m[43m([49m[43mp[49m[43m)[49m[43m [49m[38;5;241;43m/[39;49m[43m [49m[43mfname[49m[43m)[49m
-[1;32m    105[0m     source_names [38;5;241m=[39m [
-[1;32m    106[0m         n [38;5;28;01mfor[39;00m n [38;5;129;01min[39;00m zf[38;5;241m.[39mnamelist() [38;5;28;01mif[39;00m n[38;5;241m.[39mendswith([38;5;124m"[39m[38;5;124m_country_emissions.csv[39m[38;5;124m"[39m)
-[1;32m    107[0m     ]
-[1;32m    108[0m     _logger[38;5;241m.[39mdebug([38;5;124mf[39m[38;5;124m"[39m[38;5;124msources: [39m[38;5;132;01m{[39;00msource_names[38;5;132;01m}[39;00m[38;5;124m"[39m)
-
-File [0;32m/usr/lib/python3.10/zipfile.py:1251[0m, in [0;36mZipFile.__init__[0;34m(self, file, mode, compression, allowZip64, compresslevel, strict_timestamps)[0m
-[1;32m   1249[0m [38;5;28;01mwhile[39;00m [38;5;28;01mTrue[39;00m:
-[1;32m   1250[0m     [38;5;28;01mtry[39;00m:
-[0;32m-> 1251[0m         [38;5;28mself[39m[38;5;241m.[39mfp [38;5;241m=[39m [43mio[49m[38;5;241;43m.[39;49m[43mopen[49m[43m([49m[43mfile[49m[43m,[49m[43m [49m[43mfilemode[49m[43m)[49m
-[1;32m   1252[0m     [38;5;28;01mexcept[39;00m [38;5;167;01mOSError[39;00m:
-[1;32m   1253[0m         [38;5;28;01mif[39;00m filemode [38;5;129;01min[39;00m modeDict:
-
-[0;31mFileNotFoundError[0m: [Errno 2] No such file or directory: '/home/tjhunter/Downloads/agriculture.zip'
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1005, in async_execute_cell
+    exec_reply = await self.task_poll_for_reply
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 806, in _async_poll_for_reply
+    error_on_timeout_execute_reply = await self._async_handle_timeout(timeout, cell)
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 856, in _async_handle_timeout
+    raise CellTimeoutError.error_from_timeout_and_cell(
+nbclient.exceptions.CellTimeoutError: A cell timed out while it was being executed, after 30 seconds.
+The message was: Cell execution timed out.
+Here is a preview of the cell contents:
+-------------------
+# TODO: this specific query takes a while, understand why this is the case
+sdf_gy.filter(c_subsector == "wastewater-treatment-and-discharge").head(3).collect()
+-------------------
 
