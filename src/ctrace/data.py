@@ -10,7 +10,7 @@ from pathlib import Path
 import tempfile
 from polars import col as C
 import logging
-from typing import Optional, TypeVar, List, Tuple
+from typing import Optional, TypeVar, List, Tuple, Union
 import pooch  # type: ignore
 
 from .constants import *
@@ -101,7 +101,7 @@ def read_source_emissions(
         # ),
         2022: (
             "1kuPb8Gi41DxoIlQwtJr235uqKHJt6GvY",
-            "sha256:9d9a9161882c538c1082801ba5730e9b08404b9276b1f6504c857b84b926d3a3",
+            "sha256:b54a45e62eaf05bccdc45f5c3df2711b2b46647d299d5899b5777acdedbf1986",
         ),
     }
     (google_id, sha) = _files[year]
@@ -159,28 +159,37 @@ def load_source_compact(p: Optional[Path] = None) -> Tuple[pl.LazyFrame, List[Pa
     return res_df, data_files
 
 
-def _load_sources_csv(p: Optional[Path] = None) -> pl.DataFrame:
-    """Returns the sources from the CSV files without any processing.
+def _load_csv(
+    filter,
+    cols: Optional[List[str]] = None,
+    p: Optional[Path] = None,
+) -> pl.DataFrame:
+    """
+    Returns a subset of the CSV files, all merged into a single dataframe.
+
+    There is no interpretation of the column types, they are all strings.
+
     Data is loaded eagerly, which consumes a lot of memory.
 
-    This is mostly useful for debugging purposes.
+    This is mostly useful for debugging purposes, not part of the official API.
     """
     dfs: List[pl.DataFrame] = []
-    for fname in _files[:1]:
+    for fname in _files:
         (zf, _) = _get_zip(p, fname)
-        source_names = [n for n in zf.namelist() if n.endswith("-sources.csv")]
+        source_names = [n for n in zf.namelist() if filter(fname, n)]
         _logger.debug(f"sources: {source_names}")
         for sname in source_names:
             _logger.debug(f"opening {fname} / {sname}")
             df = pl.read_csv(zf.open(sname), infer_schema_length=0)
-            df = df.select(SOURCE_ID, START_TIME, END_TIME, GAS).with_columns(
-                pl.lit(fname.replace(".zip", "")).cast(sector_enum).alias(SECTOR),
-                pl.lit(sname.replace("_emissions-sources.csv", ""))
-                .cast(subsector_enum)
-                .alias(SUBSECTOR),
+            if cols is not None:
+                df = df.select(cols)
+            df = df.with_columns(
+                pl.lit(fname.replace(".zip", "")).alias("zip_name"),
+                pl.lit(sname.replace(".csv", "")).alias("file_name"),
             )
             dfs.append(df)
-    res_df: pl.DataFrame = pl.concat(dfs)
+    # diagonal -> make a union of all columns (pandas-like behavior)
+    res_df: pl.DataFrame = pl.concat(dfs, how="diagonal")
     return res_df
 
 
@@ -195,6 +204,10 @@ def _get_zip(p: Optional[Path], name: str) -> Tuple[ZipFile, Path]:
 def _load_source_conf(s_fp, c_fp) -> pl.DataFrame:
     s_df = _load_sources(s_fp)
     c_df = _load_source_confidence(c_fp)
+    # Workaround: some confidence records are duplicated:
+    c_df = c_df.group_by(START_TIME, END_TIME, ISO3_COUNTRY, SOURCE_ID).agg(
+        pl.first("*")
+    )
     return s_df.join(
         c_df.drop(["created_date", "modified_date"]),
         on=[START_TIME, END_TIME, ISO3_COUNTRY, SOURCE_ID],
