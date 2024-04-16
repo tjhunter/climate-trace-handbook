@@ -100,7 +100,7 @@ def read_source_emissions(
         #     "sha256:c46005c2ed1a0e91a583cedafc92d79368099649f0e15b3cde041b95a161161a",
         # ),
         2022: (
-            "1kuPb8Gi41DxoIlQwtJr235uqKHJt6GvY",
+            "1Z2IN0V2Y9nTSVxvNpcnQBMG-IgzfLcOz",
             None,
         ),
     }
