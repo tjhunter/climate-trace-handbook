@@ -100,12 +100,12 @@ def read_source_emissions(
         #     "sha256:c46005c2ed1a0e91a583cedafc92d79368099649f0e15b3cde041b95a161161a",
         # ),
         2022: (
-            "1kuPb8Gi41DxoIlQwtJr235uqKHJt6GvY",
-            "sha256:b54a45e62eaf05bccdc45f5c3df2711b2b46647d299d5899b5777acdedbf1986",
+            "1Z2IN0V2Y9nTSVxvNpcnQBMG-IgzfLcOz",
+            None,
         ),
     }
     (google_id, sha) = _files[year]
-    fname = f"climatetrace-sources_{version}_{year}.parquet"
+    fname = f"climate_trace-sources_{version}_{year}.parquet"
     if p is None:
         local_p = pooch.retrieve(
             url=google_url.format(fileid=google_id),
@@ -145,8 +145,26 @@ def load_source_compact(p: Optional[Path] = None) -> Tuple[pl.LazyFrame, List[Pa
                 .cast(subsector_enum)
                 .alias(SUBSECTOR),
             )
+            # Remove all the empty strings, this provides better statistics and
+            # removes unnecessary string compression.
+            df = df.with_columns(
+                [
+                    pl.when(pl.col(pl.Utf8).str.lengths() == 0)
+                    .then(None)
+                    .otherwise(pl.col(pl.Utf8))
+                    .keep_name()
+                ]
+            )
             tmp_name = tmp_dir / sname.replace(".csv", ".parquet")
-            df.write_parquet(tmp_name)
+            # Making large groups because they will be broken into smaller
+            # during the split by year.
+            df.write_parquet(
+                tmp_name,
+                compression="zstd",
+                statistics=True,
+                row_group_size=2_000_000,
+                use_pyarrow=True,
+            )
             data_files.append(tmp_name)
             _logger.debug(f"wrote {tmp_name}")
     dfs: List[pl.LazyFrame] = []
