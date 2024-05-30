@@ -3,12 +3,13 @@ Enumerations for the data
 """
 
 import polars as pl
+
 from .constants import (
-    SUBSECTORS,
-    GAS_LIST,
     CONFIDENCES,
-    SECTORS,
+    GAS_LIST,
     ORIGINAL_INVENTORY_SECTORS,
+    SECTORS,
+    SUBSECTORS,
 )
 
 # The list was generated with the following snippet:

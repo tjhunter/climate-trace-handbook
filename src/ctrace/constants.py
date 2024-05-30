@@ -1,5 +1,6 @@
-from polars import col as C
 from typing import Literal
+
+from polars import col as C
 
 # Extra columns for the country emissions:
 EMISSIONS_QUANTITY_UNITS = "emissions_quantity_units"
@@ -158,10 +159,10 @@ def _code_subsector():
         s2 = s.upper().replace("-", "_")
         print(f"{s2} = '{s}'")
 
-    print(f"\n\n")
+    print("\n\n")
     sub = ", ".join([f"'{s}'" for s in SUBSECTORS])
     print(f"SubSector = Literal[{sub}]")
-    print(f"\n\n")
+    print("\n\n")
 
 
 ALUMINUM = "aluminum"
@@ -300,10 +301,10 @@ def _code_sector():
         s2 = s.upper().replace("-", "_")
         print(f"{s2} = '{s}'")
 
-    print(f"\n\n")
+    print("\n\n")
     sub = ", ".join([f"'{s}'" for s in SECTORS])
     print(f"Sector = Literal[{sub}]")
-    print(f"\n\n")
+    print("\n\n")
 
 
 AGRICULTURE = "agriculture"
@@ -395,10 +396,10 @@ def _code_original_inventory_sector():
         s2 = s.upper().replace("-", "_")
         print(f"{s2} = '{s}'")
 
-    print(f"\n\n")
+    print("\n\n")
     sub = ", ".join([f"'{s}'" for s in ORIGINAL_INVENTORY_SECTORS])
     print(f"OriginalInventorySector = Literal[{sub}]")
-    print(f"\n\n")
+    print("\n\n")
 
 
 ALUMINUM = "aluminum"

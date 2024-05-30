@@ -1,14 +1,32 @@
 [tool.poetry]
-name = "climate-tutorials"
-version = "0.1.0"
-description = "A series of tutorials on climate data"
+name = "climate-trace"
+version = "0.2.0"
+description = "A package for loading and analyzing data from the Climate TRACE consortium."
 authors = ["Tim Hunter <tjhunter@cs.stanford.edu>"]
 license = "CC BY-SA 4.0 Deed"
 readme = "README.md"
+package-mode = true
+keywords = ["climate", "data", "analysis", "bayesian", "climate change", "polars"]
+repository = "https://github.com/tjhunter/climate-trace-handbook/"
+documentation = "https://tjhunter.github.io/climate-trace-handbook/intro.html"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Data Scientists",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.10",
+]
 
-# Not packaging for now, just a book.
-package-mode = false
+packages = [
+    { include = "ctrace", from = "src" },
+]
 
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/tjhunter/climate-trace-handbook/issues"
 
 [tool.poetry.dependencies]
 # Dependencies for the ctrace package
@@ -20,6 +38,7 @@ pyarrow = "^15.0.2"
 pooch = "^1.8.1"
 
 # Dependencies for the book
+[tool.poetry.group.book.dependencies]
 jupyter-book = "^1.0.0"
 jupyter = "^1.0.0"
 pandas = "^2.2.1"
@@ -29,17 +48,82 @@ ghp-import = "^2.1.0"
 scipy = "^1.12.0"
 
 # Dependencies for the bayesian analysis
+[tool.poetry.group.bayesian.dependencies]
 arviz = "^0.17.1"
 pymc = "^5.12.0"
 dds-py = "^0.13.1"
 pandera = {extras = ["polars"], version = "^0.18.3"}
 duckdb = "^0.10.1"
+huggingface-hub = "^0.23.2"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.4"
 prettier = "^0.0.7"
 black = "^24.3.0"
 mypy = "^1.9.0"
+huggingface-hub = "^0.23.2"
+
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:tool.poetry.version"]
+version_variables = [
+    "src/ctrace/__init__.py:__version__",
+]
+build_command = "pip install poetry && poetry build"
+
+[tool.semantic_release.changelog.environment]
+keep_trailing_newline = true
+
+[tool.semantic_release.branches.main]
+match = "main"
+
+[tool.ruff.lint]
+ignore = [
+    "D203", # 1 blank line required before class docstring
+    "D212", # Multi-line docstring summary should start at the first line
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D107", # Missing docstring in `__init__`
+    "D200", # One-line docstring should fit on one line with quotes
+    "D401", # First line of docstring should be in imperative mood
+    "D205", # 1 blank line required between summary line and description
+    "D400", # First line should end with a period
+    "D415", # Section name should end with a newline
+    "D419", # Section name should end with a newline,
+    "E501", # Line too long
+    "F401",  # imported but unused,
+    "F403",  # import * used
+    "F405",  # reimported
+    "RUF005",
+    "S101",  # Use of assert detected
+]
+
+select = [
+    "B",   # flake8-bugbear
+    "D",   # flake8-docstrings
+    "C4",  # flake8-comprehensions
+    "S",   # flake8-bandit
+    "F",   # pyflake
+    "E",   # pycodestyle
+    "W",   # pycodestyle
+    "UP",  # pyupgrade
+    "I",   # isort
+    "RUF", # ruff specific
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ctrace"]
+
+[tool.mypy]
+# suppress errors about unsatisfied imports
+ignore_missing_imports = true
+
+no_implicit_optional = true
+
+# ensure all execution paths are returning
+warn_no_return = true
+
+show_error_codes = true
 
 [build-system]
 requires = ["poetry-core"]
