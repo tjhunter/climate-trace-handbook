@@ -14,19 +14,19 @@
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
@@ -34,15 +34,15 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
-    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
-  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
 
     <script src="_static/documentation_options.js?v=9eb32ce0"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
@@ -71,27 +71,23 @@
 
   
   
-  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
@@ -113,8 +109,13 @@
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form></div>
   </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
     </header>
   
 
@@ -198,7 +199,7 @@
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
 
@@ -207,7 +208,7 @@
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
@@ -386,6 +387,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#investigation-some-emissions-quantities-are-null">Investigation: some emissions quantities are null</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-the-data-to-the-hugging-face-hub">Upload the data to the Hugging Face Hub</a></li>
 </ul>
             </nav>
         </div>
@@ -427,21 +429,22 @@ has been prepared. Skip if you just want to access the final, prepared data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">polars</span> <span class="k">as</span> <span class="nn">pl</span>
-
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">polars</span> <span class="k">as</span> <span class="nn">pl</span>
 <span class="kn">from</span> <span class="nn">ctrace.constants</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">ctrace</span> <span class="k">as</span> <span class="nn">ct</span>
 <span class="kn">import</span> <span class="nn">pyarrow</span>
 <span class="kn">from</span> <span class="nn">dds</span> <span class="kn">import</span> <span class="n">data_function</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">dds</span>
+<span class="kn">import</span> <span class="nn">huggingface_hub</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;dds&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 <span class="n">dds</span><span class="o">.</span><span class="n">accept_module</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
 </pre></div>
@@ -634,7 +637,7 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">write_directory</span> <span class="o">=</span> <span class="s2">&quot;/tmp&quot;</span>
-<span class="n">years</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">2023</span><span class="p">))</span> <span class="c1"># TODO 2015</span>
+<span class="n">years</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">years</span>
 <span class="n">version</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">version</span>
 
 <span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/write_data&quot;</span><span class="p">)</span>
@@ -650,7 +653,7 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
     <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">years</span><span class="p">:</span>
         <span class="n">fname1</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">write_directory</span><span class="si">}</span><span class="s2">/pre_climate_trace-sources_</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
         <span class="p">(</span>
-            <span class="n">ldf</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_start_time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span> <span class="o">==</span> <span class="n">year</span><span class="p">)</span>
+            <span class="n">ldf</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_start_time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
                <span class="c1"># Currently a bug in polars: ComputeError: buffer not aligned for mmap</span>
                <span class="c1"># .sort(by=[GAS, SECTOR, SUBSECTOR, ISO3_COUNTRY, SOURCE_ID])</span>
                <span class="o">.</span><span class="n">sink_parquet</span><span class="p">(</span>
@@ -680,7 +683,21 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[(&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2022.parquet&#39;,
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[(&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2015.parquet&#39;,
+  &#39;/tmp/climate_trace-sources_v2-2023-ct2_2015.parquet&#39;),
+ (&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2016.parquet&#39;,
+  &#39;/tmp/climate_trace-sources_v2-2023-ct2_2016.parquet&#39;),
+ (&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2017.parquet&#39;,
+  &#39;/tmp/climate_trace-sources_v2-2023-ct2_2017.parquet&#39;),
+ (&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2018.parquet&#39;,
+  &#39;/tmp/climate_trace-sources_v2-2023-ct2_2018.parquet&#39;),
+ (&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2019.parquet&#39;,
+  &#39;/tmp/climate_trace-sources_v2-2023-ct2_2019.parquet&#39;),
+ (&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2020.parquet&#39;,
+  &#39;/tmp/climate_trace-sources_v2-2023-ct2_2020.parquet&#39;),
+ (&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2021.parquet&#39;,
+  &#39;/tmp/climate_trace-sources_v2-2023-ct2_2021.parquet&#39;),
+ (&#39;/tmp/pre_climate_trace-sources_v2-2023-ct2_2022.parquet&#39;,
   &#39;/tmp/climate_trace-sources_v2-2023-ct2_2022.parquet&#39;)]
 </pre></div>
 </div>
@@ -701,17 +718,17 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/pre_climate_trace-sources_v2-2023-ct2_2022.parquet
-/tmp/climate_trace-sources_v2-2023-ct2_2022.parquet
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/pre_climate_trace-sources_v2-2023-ct2_2015.parquet
+/tmp/climate_trace-sources_v2-2023-ct2_2015.parquet
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7ebd9c7aaed0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7d67c67dd350&gt;
   created_by: Polars
   num_columns: 60
-  num_rows: 5798595
-  num_row_groups: 5781
-  format_version: 2.6
-  serialized_size: 28418795
+  num_rows: 4408150
+  num_row_groups: 4392
+  format_version: 1.0
+  serialized_size: 20815822
 </pre></div>
 </div>
 </div>
@@ -725,13 +742,13 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7ebd9bef0e50&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7d67abf95fd0&gt;
   created_by: parquet-cpp-arrow version 15.0.2
   num_columns: 60
-  num_rows: 5798595
-  num_row_groups: 58
+  num_rows: 4408150
+  num_row_groups: 44
   format_version: 2.6
-  serialized_size: 324598
+  serialized_size: 247080
 </pre></div>
 </div>
 </div>
@@ -747,13 +764,13 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.Statistics object at 0x7ebd9b8f7920&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.Statistics object at 0x7d678c0cf740&gt;
   has_min_max: True
   min: agriculture
   max: agriculture
   null_count: 0
   distinct_count: None
-  num_values: 100140
+  num_values: 100390
   physical_type: BYTE_ARRAY
   logical_type: String
   converted_type (legacy): UTF8
@@ -779,48 +796,40 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: polars_query Pages: 1 -->
-<svg width="2178pt" height="205pt"
- viewBox="0.00 0.00 2178.00 205.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="8117pt" height="205pt"
+ viewBox="0.00 0.00 8117.00 205.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 201)">
 <title>polars_query</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-201 2174,-201 2174,4 -4,4"/>
-<!-- WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;] [(0, 0)] -->
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-201 8113,-201 8113,4 -4,4"/>
+<!-- p1 -->
 <g id="node1" class="node">
-<title>WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;] [(0, 0)]</title>
-<polygon fill="none" stroke="black" points="2170,-197 0,-197 0,-161 2170,-161 2170,-197"/>
-<text text-anchor="middle" x="1085" y="-175.3" font-family="Times,serif" font-size="14.00">WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;]</text>
+<title>p1</title>
+<polygon fill="none" stroke="black" points="8109,-197 0,-197 0,-161 8109,-161 8109,-197"/>
+<text text-anchor="middle" x="4054.5" y="-175.3" font-family="Times,serif" font-size="14.00">WITH COLUMNS [col(&quot;conf_source_type&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_source_type&quot;), col(&quot;conf_capacity&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_capacity&quot;), col(&quot;conf_capacity_factor&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_capacity_factor&quot;), col(&quot;conf_activity&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_activity&quot;), col(&quot;conf_co2_emissions_factor&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_co2_emissions_factor&quot;), col(&quot;conf_ch4_emissions_factor&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_ch4_emissions_factor&quot;), col(&quot;conf_n2o_emissions_factor&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_n2o_emissions_factor&quot;), col(&quot;conf_co2_emissions&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_co2_emissions&quot;), col(&quot;conf_ch4_emissions&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_ch4_emissions&quot;), col(&quot;conf_n2o_emissions&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_n2o_emissions&quot;), col(&quot;conf_total_co2e_20yrgwp&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_total_co2e_20yrgwp&quot;), col(&quot;conf_total_co2e_100yrgwp&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_total_co2e_100yrgwp&quot;)]</text>
 </g>
-<!-- WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)] -->
+<!-- p2 -->
 <g id="node2" class="node">
-<title>WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)]</title>
-<polygon fill="none" stroke="black" points="1495,-125 675,-125 675,-89 1495,-89 1495,-125"/>
-<text text-anchor="middle" x="1085" y="-103.3" font-family="Times,serif" font-size="14.00">WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;]</text>
+<title>p2</title>
+<polygon fill="none" stroke="black" points="5890.5,-125 2218.5,-125 2218.5,-89 5890.5,-89 5890.5,-125"/>
+<text text-anchor="middle" x="4054.5" y="-103.3" font-family="Times,serif" font-size="14.00">WITH COLUMNS [col(&quot;iso3_country&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;iso3_country&quot;), col(&quot;gas&quot;).cast(Enum(Some(local), Physical)).alias(&quot;gas&quot;), col(&quot;original_inventory_sector&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;original_inventory_sector&quot;), col(&quot;temporal_granularity&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;temporal_granularity&quot;), col(&quot;subsector&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;subsector&quot;), col(&quot;sector&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;sector&quot;)]</text>
 </g>
-<!-- WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;] [(0, 0)]&#45;&#45;WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)] -->
+<!-- p1&#45;&#45;p2 -->
 <g id="edge1" class="edge">
-<title>WITH COLUMNS [&quot;conf_source_type&quot;,&quot;conf_capacity&quot;,&quot;conf_capacity_factor&quot;,&quot;conf_activity&quot;,&quot;conf_co2_emissions_factor&quot;,&quot;conf_ch4_emissions_factor&quot;,&quot;conf_n2o_emissions_factor&quot;,&quot;conf_co2_emissions&quot;,&quot;conf_ch4_emissions&quot;,&quot;conf_n2o_emissions&quot;,&quot;conf_total_co2e_20yrgwp&quot;,&quot;conf_total_co2e_100yrgwp&quot;] [(0, 0)]&#45;&#45;WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)]</title>
-<path fill="none" stroke="black" d="M1085,-160.7C1085,-149.85 1085,-135.92 1085,-125.1"/>
+<title>p1&#45;&#45;p2</title>
+<path fill="none" stroke="black" d="M4054.5,-160.7C4054.5,-149.85 4054.5,-135.92 4054.5,-125.1"/>
 </g>
-<!-- Parquet SCAN /tmp/climate_trace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;
-π */60;
-σ &#45; [(0, 2)] -->
+<!-- p3 -->
 <g id="node3" class="node">
-<title>Parquet SCAN /tmp/climate_trace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;
-π */60;
-σ &#45; [(0, 2)]</title>
-<polygon fill="none" stroke="black" points="1343,-53 827,-53 827,0 1343,0 1343,-53"/>
-<text text-anchor="middle" x="1085" y="-37.8" font-family="Times,serif" font-size="14.00">Parquet SCAN /tmp/climate_trace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;</text>
-<text text-anchor="middle" x="1085" y="-22.8" font-family="Times,serif" font-size="14.00">π */60;</text>
-<text text-anchor="middle" x="1085" y="-7.8" font-family="Times,serif" font-size="14.00">σ &#45;</text>
+<title>p3</title>
+<polygon fill="none" stroke="black" points="4310.5,-53 3798.5,-53 3798.5,0 4310.5,0 4310.5,-53"/>
+<text text-anchor="middle" x="4054.5" y="-37.8" font-family="Times,serif" font-size="14.00">Parquet SCAN /tmp/climate_trace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet</text>
+<text text-anchor="middle" x="4054.5" y="-22.8" font-family="Times,serif" font-size="14.00">π */60;</text>
+<text text-anchor="middle" x="4054.5" y="-7.8" font-family="Times,serif" font-size="14.00">σ None</text>
 </g>
-<!-- WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)]&#45;&#45;Parquet SCAN /tmp/climate_trace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;
-π */60;
-σ &#45; [(0, 2)] -->
+<!-- p2&#45;&#45;p3 -->
 <g id="edge2" class="edge">
-<title>WITH COLUMNS [&quot;iso3_country&quot;,&quot;gas&quot;,&quot;original_inventory_sector&quot;,&quot;temporal_granularity&quot;,&quot;subsector&quot;,&quot;sector&quot;] [(0, 1)]&#45;&#45;Parquet SCAN /tmp/climate_trace&#45;sources_v2&#45;2023&#45;ct2_2022.parquet;
-π */60;
-σ &#45; [(0, 2)]</title>
-<path fill="none" stroke="black" d="M1085,-88.97C1085,-78.51 1085,-64.9 1085,-53.16"/>
+<title>p2&#45;&#45;p3</title>
+<path fill="none" stroke="black" d="M4054.5,-88.97C4054.5,-78.51 4054.5,-64.9 4054.5,-53.16"/>
 </g>
 </g>
 </svg>
@@ -917,7 +926,7 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (90, 3)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>gas</th><th>len</th></tr><tr><td>u64</td><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>13174046</td><td>&quot;co2&quot;</td><td>2</td></tr><tr><td>13174845</td><td>&quot;co2&quot;</td><td>2</td></tr><tr><td>13167070</td><td>&quot;ch4&quot;</td><td>2</td></tr><tr><td>13177703</td><td>&quot;co2e_20yr&quot;</td><td>2</td></tr><tr><td>13174096</td><td>&quot;co2&quot;</td><td>2</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>13168862</td><td>&quot;ch4&quot;</td><td>6</td></tr><tr><td>13168862</td><td>&quot;co2e_100yr&quot;</td><td>6</td></tr><tr><td>13168862</td><td>&quot;n2o&quot;</td><td>6</td></tr><tr><td>13168862</td><td>&quot;co2e_20yr&quot;</td><td>6</td></tr><tr><td>13168862</td><td>&quot;co2&quot;</td><td>6</td></tr></tbody></table></div></div></div>
+<small>shape: (90, 3)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>gas</th><th>len</th></tr><tr><td>u64</td><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>13167070</td><td>&quot;ch4&quot;</td><td>2</td></tr><tr><td>13174096</td><td>&quot;co2e_20yr&quot;</td><td>2</td></tr><tr><td>13174845</td><td>&quot;co2e_20yr&quot;</td><td>2</td></tr><tr><td>13174046</td><td>&quot;co2&quot;</td><td>2</td></tr><tr><td>13177703</td><td>&quot;co2e_100yr&quot;</td><td>2</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>13168862</td><td>&quot;co2e_100yr&quot;</td><td>6</td></tr><tr><td>13168862</td><td>&quot;co2e_20yr&quot;</td><td>6</td></tr><tr><td>13168862</td><td>&quot;co2&quot;</td><td>6</td></tr><tr><td>13168862</td><td>&quot;n2o&quot;</td><td>6</td></tr><tr><td>13168862</td><td>&quot;ch4&quot;</td><td>6</td></tr></tbody></table></div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -941,7 +950,7 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (6, 60)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>iso3_country</th><th>original_inventory_sector</th><th>start_time</th><th>end_time</th><th>temporal_granularity</th><th>gas</th><th>emissions_quantity</th><th>emissions_factor</th><th>emissions_factor_units</th><th>capacity</th><th>capacity_units</th><th>capacity_factor</th><th>activity</th><th>activity_units</th><th>created_date</th><th>modified_date</th><th>source_name</th><th>source_type</th><th>lat</th><th>lon</th><th>other1</th><th>other2</th><th>other3</th><th>other4</th><th>other5</th><th>other6</th><th>other7</th><th>other8</th><th>other9</th><th>other10</th><th>other11</th><th>other12</th><th>other1_def</th><th>other2_def</th><th>other3_def</th><th>other4_def</th><th>other5_def</th><th>other6_def</th><th>other7_def</th><th>other8_def</th><th>other9_def</th><th>other10_def</th><th>other11_def</th><th>other12_def</th><th>geometry_ref</th><th>conf_source_type</th><th>conf_capacity</th><th>conf_capacity_factor</th><th>conf_activity</th><th>conf_co2_emissions_factor</th><th>conf_ch4_emissions_factor</th><th>conf_n2o_emissions_factor</th><th>conf_co2_emissions</th><th>conf_ch4_emissions</th><th>conf_n2o_emissions</th><th>conf_total_co2e_20yrgwp</th><th>conf_total_co2e_100yrgwp</th><th>sector</th><th>subsector</th></tr><tr><td>u64</td><td>enum</td><td>enum</td><td>datetime[μs]</td><td>datetime[μs]</td><td>enum</td><td>enum</td><td>f64</td><td>f64</td><td>str</td><td>f64</td><td>str</td><td>f64</td><td>f64</td><td>str</td><td>datetime[μs]</td><td>datetime[μs]</td><td>str</td><td>str</td><td>f64</td><td>f64</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td></tr></thead><tbody><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-…</td><td>2022-01-24 00:00:05</td><td>2023-01-28 04:05:20</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>887242.035664</td><td>384.71971</td><td>&quot;average kg of …</td><td>2270.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.3604e6</td><td>&quot;nautical miles…</td><td>2022-01-24 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Ex…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation…</td><td>&quot;international-…</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-…</td><td>2022-03-07 00:00:12</td><td>2023-08-17 05:28:10</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>777996.059535</td><td>382.425599</td><td>&quot;average kg of …</td><td>2143.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.1804e6</td><td>&quot;nautical miles…</td><td>2022-03-07 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Ex…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation…</td><td>&quot;international-…</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-…</td><td>2022-02-21 00:07:40</td><td>2023-06-09 17:30:53</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>705932.371351</td><td>378.080732</td><td>&quot;average kg of …</td><td>2083.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.0456e6</td><td>&quot;nautical miles…</td><td>2022-02-21 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Ex…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation…</td><td>&quot;international-…</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-…</td><td>2022-05-23 00:00:07</td><td>2023-08-21 08:19:06</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>866005.903</td><td>385.374134</td><td>&quot;average kg of …</td><td>2338.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.4547e6</td><td>&quot;nautical miles…</td><td>2022-05-23 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Ex…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation…</td><td>&quot;international-…</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-…</td><td>2022-05-09 00:00:10</td><td>2023-06-13 04:06:34</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>835881.630293</td><td>382.002172</td><td>&quot;average kg of …</td><td>2255.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.3769e6</td><td>&quot;nautical miles…</td><td>2022-05-09 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Ex…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation…</td><td>&quot;international-…</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-…</td><td>2022-03-14 00:03:45</td><td>2023-07-05 16:50:59</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>724527.140616</td><td>381.217951</td><td>&quot;average kg of …</td><td>2095.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.0766e6</td><td>&quot;nautical miles…</td><td>2022-03-14 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Ex…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation…</td><td>&quot;international-…</td></tr></tbody></table></div></div></div>
+<small>shape: (6, 60)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>iso3_country</th><th>original_inventory_sector</th><th>start_time</th><th>end_time</th><th>temporal_granularity</th><th>gas</th><th>emissions_quantity</th><th>emissions_factor</th><th>emissions_factor_units</th><th>capacity</th><th>capacity_units</th><th>capacity_factor</th><th>activity</th><th>activity_units</th><th>created_date</th><th>modified_date</th><th>source_name</th><th>source_type</th><th>lat</th><th>lon</th><th>other1</th><th>other2</th><th>other3</th><th>other4</th><th>other5</th><th>other6</th><th>other7</th><th>other8</th><th>other9</th><th>other10</th><th>other11</th><th>other12</th><th>other1_def</th><th>other2_def</th><th>other3_def</th><th>other4_def</th><th>other5_def</th><th>other6_def</th><th>other7_def</th><th>other8_def</th><th>other9_def</th><th>other10_def</th><th>other11_def</th><th>other12_def</th><th>geometry_ref</th><th>conf_source_type</th><th>conf_capacity</th><th>conf_capacity_factor</th><th>conf_activity</th><th>conf_co2_emissions_factor</th><th>conf_ch4_emissions_factor</th><th>conf_n2o_emissions_factor</th><th>conf_co2_emissions</th><th>conf_ch4_emissions</th><th>conf_n2o_emissions</th><th>conf_total_co2e_20yrgwp</th><th>conf_total_co2e_100yrgwp</th><th>sector</th><th>subsector</th></tr><tr><td>u64</td><td>enum</td><td>enum</td><td>datetime[μs]</td><td>datetime[μs]</td><td>enum</td><td>enum</td><td>f64</td><td>f64</td><td>str</td><td>f64</td><td>str</td><td>f64</td><td>f64</td><td>str</td><td>datetime[μs]</td><td>datetime[μs]</td><td>str</td><td>str</td><td>f64</td><td>f64</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td><td>enum</td></tr></thead><tbody><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-shipping&quot;</td><td>2022-01-24 00:00:05</td><td>2023-01-28 04:05:20</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>887242.035664</td><td>384.71971</td><td>&quot;average kg of CO2 per NM trave…</td><td>2270.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.3604e6</td><td>&quot;nautical miles (NM)&quot;</td><td>2022-01-24 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Exclusive Economic…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281_1.3221&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation&quot;</td><td>&quot;international-shipping&quot;</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-shipping&quot;</td><td>2022-03-07 00:00:12</td><td>2023-08-17 05:28:10</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>777996.059535</td><td>382.425599</td><td>&quot;average kg of CO2 per NM trave…</td><td>2143.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.1804e6</td><td>&quot;nautical miles (NM)&quot;</td><td>2022-03-07 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Exclusive Economic…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281_1.3221&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation&quot;</td><td>&quot;international-shipping&quot;</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-shipping&quot;</td><td>2022-02-21 00:07:40</td><td>2023-06-09 17:30:53</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>705932.371351</td><td>378.080732</td><td>&quot;average kg of CO2 per NM trave…</td><td>2083.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.0456e6</td><td>&quot;nautical miles (NM)&quot;</td><td>2022-02-21 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Exclusive Economic…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281_1.3221&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation&quot;</td><td>&quot;international-shipping&quot;</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-shipping&quot;</td><td>2022-05-23 00:00:07</td><td>2023-08-21 08:19:06</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>866005.903</td><td>385.374134</td><td>&quot;average kg of CO2 per NM trave…</td><td>2338.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.4547e6</td><td>&quot;nautical miles (NM)&quot;</td><td>2022-05-23 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Exclusive Economic…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281_1.3221&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation&quot;</td><td>&quot;international-shipping&quot;</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-shipping&quot;</td><td>2022-05-09 00:00:10</td><td>2023-06-13 04:06:34</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>835881.630293</td><td>382.002172</td><td>&quot;average kg of CO2 per NM trave…</td><td>2255.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.3769e6</td><td>&quot;nautical miles (NM)&quot;</td><td>2022-05-09 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Exclusive Economic…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281_1.3221&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation&quot;</td><td>&quot;international-shipping&quot;</td></tr><tr><td>13168862</td><td>&quot;SGP&quot;</td><td>&quot;international-shipping&quot;</td><td>2022-03-14 00:03:45</td><td>2023-07-05 16:50:59</td><td>&quot;annual&quot;</td><td>&quot;co2&quot;</td><td>724527.140616</td><td>381.217951</td><td>&quot;average kg of CO2 per NM trave…</td><td>2095.0</td><td>&quot;voyages&quot;</td><td>null</td><td>2.0766e6</td><td>&quot;nautical miles (NM)&quot;</td><td>2022-03-14 00:00:00</td><td>2023-10-27 16:00:00</td><td>&quot;Singapore&quot;</td><td>null</td><td>1.3221</td><td>103.8281</td><td>&quot;Singaporean Exclusive Economic…</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;economic_zone&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;trace_103.8281_1.3221&quot;</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>&quot;transportation&quot;</td><td>&quot;international-shipping&quot;</td></tr></tbody></table></div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -962,7 +971,7 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (110, 3)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>gas</th><th>len</th></tr><tr><td>u64</td><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>13169134</td><td>&quot;n2o&quot;</td><td>13</td></tr><tr><td>13168358</td><td>&quot;ch4&quot;</td><td>14</td></tr><tr><td>13168386</td><td>&quot;co2&quot;</td><td>16</td></tr><tr><td>13167101</td><td>&quot;co2&quot;</td><td>19</td></tr><tr><td>13168627</td><td>&quot;co2e_20yr&quot;</td><td>15</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>13168359</td><td>&quot;co2e_100yr&quot;</td><td>13</td></tr><tr><td>13168148</td><td>&quot;ch4&quot;</td><td>15</td></tr><tr><td>13168182</td><td>&quot;co2&quot;</td><td>16</td></tr><tr><td>13168267</td><td>&quot;n2o&quot;</td><td>14</td></tr><tr><td>13167042</td><td>&quot;n2o&quot;</td><td>17</td></tr></tbody></table></div></div></div>
+<small>shape: (110, 3)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>gas</th><th>len</th></tr><tr><td>u64</td><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>13169158</td><td>&quot;co2e_20yr&quot;</td><td>16</td></tr><tr><td>13169222</td><td>&quot;n2o&quot;</td><td>16</td></tr><tr><td>13168358</td><td>&quot;co2&quot;</td><td>14</td></tr><tr><td>13167042</td><td>&quot;co2e_100yr&quot;</td><td>17</td></tr><tr><td>13169222</td><td>&quot;co2&quot;</td><td>16</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>13168267</td><td>&quot;ch4&quot;</td><td>14</td></tr><tr><td>13168627</td><td>&quot;n2o&quot;</td><td>15</td></tr><tr><td>13168359</td><td>&quot;co2e_20yr&quot;</td><td>13</td></tr><tr><td>13167042</td><td>&quot;ch4&quot;</td><td>17</td></tr><tr><td>13168359</td><td>&quot;co2&quot;</td><td>13</td></tr></tbody></table></div></div></div>
 </div>
 <p>Check: emissions should always be defined</p>
 <div class="admonition-ctodo admonition">
@@ -990,7 +999,7 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (38, 3)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>false</th><th>true</th></tr><tr><td>enum</td><td>u32</td><td>u32</td></tr></thead><tbody><tr><td>&quot;net-shrubgrass…</td><td>148827</td><td>99218</td></tr><tr><td>&quot;wetland-fires&quot;</td><td>128421</td><td>85614</td></tr><tr><td>&quot;petrochemicals…</td><td>464</td><td>116</td></tr><tr><td>&quot;wastewater-tre…</td><td>267330</td><td>null</td></tr><tr><td>&quot;electricity-ge…</td><td>24402</td><td>16268</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;copper-mining&quot;</td><td>1248</td><td>1527</td></tr><tr><td>&quot;synthetic-fert…</td><td>129626</td><td>86419</td></tr><tr><td>&quot;net-wetland&quot;</td><td>128256</td><td>85504</td></tr><tr><td>&quot;iron-mining&quot;</td><td>672</td><td>2008</td></tr><tr><td>&quot;road-transport…</td><td>84610</td><td>null</td></tr></tbody></table></div></div></div>
+<small>shape: (38, 3)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>true</th><th>false</th></tr><tr><td>enum</td><td>u32</td><td>u32</td></tr></thead><tbody><tr><td>&quot;forest-land-clearing&quot;</td><td>99386</td><td>149079</td></tr><tr><td>&quot;wastewater-treatment-and-disch…</td><td>null</td><td>267330</td></tr><tr><td>&quot;steel&quot;</td><td>21840</td><td>32760</td></tr><tr><td>&quot;electricity-generation&quot;</td><td>16268</td><td>24402</td></tr><tr><td>&quot;removals&quot;</td><td>100248</td><td>150372</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;domestic-shipping&quot;</td><td>427966</td><td>641949</td></tr><tr><td>&quot;road-transportation&quot;</td><td>null</td><td>84610</td></tr><tr><td>&quot;synthetic-fertilizer-applicati…</td><td>86419</td><td>129626</td></tr><tr><td>&quot;domestic-aviation&quot;</td><td>9230</td><td>39830</td></tr><tr><td>&quot;oil-and-gas-refining&quot;</td><td>null</td><td>3420</td></tr></tbody></table></div></div></div>
 </div>
 <section id="investigation-for-2022-some-source-emissions-are-multiple-2x-or-3x-the-country-emissions-for-the-same-country">
 <h3>Investigation: for 2022, some source emissions are multiple (2x or 3x) the country emissions for the same country<a class="headerlink" href="#investigation-for-2022-some-source-emissions-are-multiple-2x-or-3x-the-country-emissions-for-the-same-country" title="Link to this heading">#</a></h3>
@@ -1005,41 +1014,8 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: [&#39;domestic-aviation_emissions-sources.csv&#39;]
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening transportation.zip / domestic-aviation_emissions-sources.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/tjhunter/work/climate-trace-handbook/src/ctrace/data.py:201: UserWarning: Polars found a filename. Ensure you pass a path to the file instead of a python file object when possible for best performance.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/tjhunter/work/climate-trace-handbook/src/ctrace/data.py:184: UserWarning: Polars found a filename. Ensure you pass a path to the file instead of a python file object when possible for best performance.
   df = pl.read_csv(zf.open(sname), infer_schema_length=0)
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
 </pre></div>
 </div>
 </div>
@@ -1049,41 +1025,6 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cedf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span>
     <span class="k">lambda</span> <span class="n">fname</span><span class="p">,</span> <span class="n">sname</span><span class="p">:</span> <span class="n">fname</span> <span class="o">==</span> <span class="s2">&quot;transportation.zip&quot;</span> <span class="ow">and</span> <span class="n">sname</span> <span class="o">==</span> <span class="s2">&quot;domestic-aviation_country_emissions.csv&quot;</span><span class="p">,</span>
     <span class="p">[</span><span class="n">EMISSIONS_QUANTITY</span><span class="p">,</span> <span class="n">ISO3_COUNTRY</span><span class="p">,</span> <span class="n">START_TIME</span><span class="p">,</span> <span class="n">END_TIME</span><span class="p">,</span> <span class="n">GAS</span><span class="p">])</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: [&#39;domestic-aviation_country_emissions.csv&#39;]
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening transportation.zip / domestic-aviation_country_emissions.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
 </pre></div>
 </div>
 </div>
@@ -1104,7 +1045,7 @@ emissions_factor_units: [[&quot;T of N2O per animal head&quot;,null,null,&quot;T
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (1, 7)</small><table border="1" class="dataframe"><thead><tr><th>emissions_quantity</th><th>iso3_country</th><th>start_time</th><th>end_time</th><th>gas</th><th>zip_name</th><th>file_name</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>&quot;44.62328775845…</td><td>&quot;ARE&quot;</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;co2e_100yr&quot;</td><td>&quot;transportation…</td><td>&quot;domestic-aviat…</td></tr></tbody></table></div></div></div>
+<small>shape: (1, 7)</small><table border="1" class="dataframe"><thead><tr><th>emissions_quantity</th><th>iso3_country</th><th>start_time</th><th>end_time</th><th>gas</th><th>zip_name</th><th>file_name</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>&quot;44.623287758451276&quot;</td><td>&quot;ARE&quot;</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;co2e_100yr&quot;</td><td>&quot;transportation&quot;</td><td>&quot;domestic-aviation_country_emis…</td></tr></tbody></table></div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1156,44 +1097,6 @@ As a result, doing a left joint between sources and source confidences duplicate
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: [&#39;manure-management-cattle-feedlot_emissions-sources.csv&#39;, &#39;manure-left-on-pasture-cattle_emissions-sources.csv&#39;]
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening agriculture.zip / manure-management-cattle-feedlot_emissions-sources.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening agriculture.zip / manure-left-on-pasture-cattle_emissions-sources.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1214,50 +1117,12 @@ As a result, doing a left joint between sources and source confidences duplicate
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (1, 9)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>source_name</th><th>emissions_quantity</th><th>iso3_country</th><th>start_time</th><th>end_time</th><th>gas</th><th>zip_name</th><th>file_name</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>&quot;25743740&quot;</td><td>&quot;CHN_dairy_298&quot;</td><td>&quot;1225.6&quot;</td><td>&quot;CHN&quot;</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;co2e_100yr&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr></tbody></table></div></div></div>
+<small>shape: (1, 9)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>source_name</th><th>emissions_quantity</th><th>iso3_country</th><th>start_time</th><th>end_time</th><th>gas</th><th>zip_name</th><th>file_name</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>&quot;25743740&quot;</td><td>&quot;CHN_dairy_298&quot;</td><td>&quot;1225.6&quot;</td><td>&quot;CHN&quot;</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;co2e_100yr&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr></tbody></table></div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conf_df</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span>
     <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">sname</span><span class="p">:</span> <span class="n">sname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;manure&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;sources_confidence.csv&quot;</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: [&#39;manure-management-cattle-feedlot_emissions-sources_confidence.csv&#39;, &#39;manure-left-on-pasture-cattle_emissions-sources_confidence.csv&#39;]
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening agriculture.zip / manure-management-cattle-feedlot_emissions-sources_confidence.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening agriculture.zip / manure-left-on-pasture-cattle_emissions-sources_confidence.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
 </pre></div>
 </div>
 </div>
@@ -1279,7 +1144,7 @@ As a result, doing a left joint between sources and source confidences duplicate
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (2_751, 22)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>source_name</th><th>iso3_country</th><th>original_inventory_sector</th><th>start_time</th><th>end_time</th><th>source_type</th><th>capacity</th><th>capacity_factor</th><th>activity</th><th>co2_emissions_factor</th><th>ch4_emissions_factor</th><th>n2o_emissions_factor</th><th>co2_emissions</th><th>ch4_emissions</th><th>n2o_emissions</th><th>total_co2e_20yrgwp</th><th>created_date</th><th>modified_date</th><th>total_co2e_100yrgwp</th><th>zip_name</th><th>file_name</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>&quot;25743740&quot;</td><td>&quot;CHN_dairy_298&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;high&quot;</td><td>&quot;very low&quot;</td><td>&quot;medium&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_beef_1&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;high&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_beef_10&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_beef_100&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_beef_1000&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_95&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_96&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_97&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_98&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_99&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-managem…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:…</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-managem…</td></tr></tbody></table></div></div></div>
+<small>shape: (2_751, 22)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>source_name</th><th>iso3_country</th><th>original_inventory_sector</th><th>start_time</th><th>end_time</th><th>source_type</th><th>capacity</th><th>capacity_factor</th><th>activity</th><th>co2_emissions_factor</th><th>ch4_emissions_factor</th><th>n2o_emissions_factor</th><th>co2_emissions</th><th>ch4_emissions</th><th>n2o_emissions</th><th>total_co2e_20yrgwp</th><th>created_date</th><th>modified_date</th><th>total_co2e_100yrgwp</th><th>zip_name</th><th>file_name</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>&quot;25743740&quot;</td><td>&quot;CHN_dairy_298&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;high&quot;</td><td>&quot;very low&quot;</td><td>&quot;medium&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_beef_1&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;high&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_beef_10&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_beef_100&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_beef_1000&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;very low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_95&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_96&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_97&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_98&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr><tr><td>&quot;25743740&quot;</td><td>&quot;ZAF_dairy_99&quot;</td><td>&quot;CHN&quot;</td><td>&quot;manure-management-cattle-feedl…</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;medium&quot;</td><td>&quot;very low&quot;</td><td>&quot;low&quot;</td><td>&quot;high&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;medium&quot;</td><td>&quot;2023-09-06 00:00:00&quot;</td><td>null</td><td>&quot;medium&quot;</td><td>&quot;agriculture&quot;</td><td>&quot;manure-management-cattle-feedl…</td></tr></tbody></table></div></div></div>
 </div>
 </section>
 <section id="investigation-some-emissions-quantities-are-null">
@@ -1307,47 +1172,12 @@ As a result, doing a left joint between sources and source confidences duplicate
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (38, 3)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>true</th><th>false</th></tr><tr><td>enum</td><td>u32</td><td>u32</td></tr></thead><tbody><tr><td>&quot;bauxite-mining…</td><td>644</td><td>231</td></tr><tr><td>&quot;petrochemicals…</td><td>116</td><td>464</td></tr><tr><td>&quot;iron-mining&quot;</td><td>2008</td><td>672</td></tr><tr><td>&quot;copper-mining&quot;</td><td>1527</td><td>1248</td></tr><tr><td>&quot;pulp-and-paper…</td><td>387</td><td>1548</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;manure-left-on…</td><td>46702</td><td>184518</td></tr><tr><td>&quot;cropland-fires…</td><td>null</td><td>239700</td></tr><tr><td>&quot;wastewater-tre…</td><td>null</td><td>267330</td></tr><tr><td>&quot;international-…</td><td>279914</td><td>419871</td></tr><tr><td>&quot;domestic-shipp…</td><td>427966</td><td>641949</td></tr></tbody></table></div></div></div>
+<small>shape: (38, 3)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>true</th><th>false</th></tr><tr><td>enum</td><td>u32</td><td>u32</td></tr></thead><tbody><tr><td>&quot;bauxite-mining&quot;</td><td>644</td><td>231</td></tr><tr><td>&quot;petrochemicals&quot;</td><td>116</td><td>464</td></tr><tr><td>&quot;iron-mining&quot;</td><td>2008</td><td>672</td></tr><tr><td>&quot;copper-mining&quot;</td><td>1527</td><td>1248</td></tr><tr><td>&quot;pulp-and-paper&quot;</td><td>387</td><td>1548</td></tr><tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;manure-left-on-pasture-cattle&quot;</td><td>46702</td><td>184518</td></tr><tr><td>&quot;cropland-fires&quot;</td><td>null</td><td>239700</td></tr><tr><td>&quot;wastewater-treatment-and-disch…</td><td>null</td><td>267330</td></tr><tr><td>&quot;international-shipping&quot;</td><td>279914</td><td>419871</td></tr><tr><td>&quot;domestic-shipping&quot;</td><td>427966</td><td>641949</td></tr></tbody></table></div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span>
     <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">sname</span><span class="p">:</span> <span class="n">sname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;electricity&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;sources.csv&quot;</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: [&#39;electricity-generation_emissions-sources.csv&#39;]
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening power.zip / electricity-generation_emissions-sources.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources: []
 </pre></div>
 </div>
 </div>
@@ -1369,9 +1199,60 @@ As a result, doing a left joint between sources and source confidences duplicate
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (8, 32)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>iso3_country</th><th>original_inventory_sector</th><th>start_time</th><th>end_time</th><th>temporal_granularity</th><th>gas</th><th>emissions_quantity</th><th>emissions_factor</th><th>emissions_factor_units</th><th>capacity</th><th>capacity_units</th><th>capacity_factor</th><th>activity</th><th>activity_units</th><th>created_date</th><th>modified_date</th><th>source_name</th><th>source_type</th><th>lat</th><th>lon</th><th>other1</th><th>other2</th><th>other3</th><th>other4</th><th>other1_def</th><th>other2_def</th><th>other3_def</th><th>other4_def</th><th>geometry_ref</th><th>zip_name</th><th>file_name</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-ge…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;annual&quot;</td><td>&quot;ch4&quot;</td><td>null</td><td>null</td><td>&quot;field_not_mode…</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.345&quot;</td><td>&quot;417000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:…</td><td>&quot;2023-11-01 10:…</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_incl…</td><td>&quot;biomass_emissi…</td><td>&quot;biomass_capaci…</td><td>&quot;biomass_genera…</td><td>&quot;trace_-85.9708…</td><td>&quot;power&quot;</td><td>&quot;electricity-ge…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-ge…</td><td>&quot;2022-01-01 00:…</td><td>&quot;2022-12-31 00:…</td><td>&quot;annual&quot;</td><td>&quot;n2o&quot;</td><td>null</td><td>null</td><td>&quot;field_not_mode…</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.345&quot;</td><td>&quot;417000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:…</td><td>&quot;2023-11-01 10:…</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_incl…</td><td>&quot;biomass_emissi…</td><td>&quot;biomass_capaci…</td><td>&quot;biomass_genera…</td><td>&quot;trace_-85.9708…</td><td>&quot;power&quot;</td><td>&quot;electricity-ge…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-ge…</td><td>&quot;2021-01-01 00:…</td><td>&quot;2021-12-31 00:…</td><td>&quot;annual&quot;</td><td>&quot;n2o&quot;</td><td>null</td><td>null</td><td>&quot;field_not_mode…</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.324&quot;</td><td>&quot;392000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:…</td><td>&quot;2023-11-01 10:…</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_incl…</td><td>&quot;biomass_emissi…</td><td>&quot;biomass_capaci…</td><td>&quot;biomass_genera…</td><td>&quot;trace_-85.9708…</td><td>&quot;power&quot;</td><td>&quot;electricity-ge…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-ge…</td><td>&quot;2021-01-01 00:…</td><td>&quot;2021-12-31 00:…</td><td>&quot;annual&quot;</td><td>&quot;ch4&quot;</td><td>null</td><td>null</td><td>&quot;field_not_mode…</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.324&quot;</td><td>&quot;392000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:…</td><td>&quot;2023-11-01 10:…</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_incl…</td><td>&quot;biomass_emissi…</td><td>&quot;biomass_capaci…</td><td>&quot;biomass_genera…</td><td>&quot;trace_-85.9708…</td><td>&quot;power&quot;</td><td>&quot;electricity-ge…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-ge…</td><td>&quot;2020-01-01 00:…</td><td>&quot;2020-12-31 00:…</td><td>&quot;annual&quot;</td><td>&quot;n2o&quot;</td><td>null</td><td>null</td><td>&quot;field_not_mode…</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.335&quot;</td><td>&quot;406000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:…</td><td>&quot;2023-11-01 10:…</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_incl…</td><td>&quot;biomass_emissi…</td><td>&quot;biomass_capaci…</td><td>&quot;biomass_genera…</td><td>&quot;trace_-85.9708…</td><td>&quot;power&quot;</td><td>&quot;electricity-ge…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-ge…</td><td>&quot;2020-01-01 00:…</td><td>&quot;2020-12-31 00:…</td><td>&quot;annual&quot;</td><td>&quot;ch4&quot;</td><td>null</td><td>null</td><td>&quot;field_not_mode…</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.335&quot;</td><td>&quot;406000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:…</td><td>&quot;2023-11-01 10:…</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_incl…</td><td>&quot;biomass_emissi…</td><td>&quot;biomass_capaci…</td><td>&quot;biomass_genera…</td><td>&quot;trace_-85.9708…</td><td>&quot;power&quot;</td><td>&quot;electricity-ge…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-ge…</td><td>&quot;2019-01-01 00:…</td><td>&quot;2019-12-31 00:…</td><td>&quot;annual&quot;</td><td>&quot;n2o&quot;</td><td>null</td><td>null</td><td>&quot;field_not_mode…</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.329&quot;</td><td>&quot;398000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:…</td><td>&quot;2023-11-01 10:…</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_incl…</td><td>&quot;biomass_emissi…</td><td>&quot;biomass_capaci…</td><td>&quot;biomass_genera…</td><td>&quot;trace_-85.9708…</td><td>&quot;power&quot;</td><td>&quot;electricity-ge…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-ge…</td><td>&quot;2019-01-01 00:…</td><td>&quot;2019-12-31 00:…</td><td>&quot;annual&quot;</td><td>&quot;ch4&quot;</td><td>null</td><td>null</td><td>&quot;field_not_mode…</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.329&quot;</td><td>&quot;398000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:…</td><td>&quot;2023-11-01 10:…</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_incl…</td><td>&quot;biomass_emissi…</td><td>&quot;biomass_capaci…</td><td>&quot;biomass_genera…</td><td>&quot;trace_-85.9708…</td><td>&quot;power&quot;</td><td>&quot;electricity-ge…</td></tr></tbody></table></div></div></div>
+<small>shape: (8, 32)</small><table border="1" class="dataframe"><thead><tr><th>source_id</th><th>iso3_country</th><th>original_inventory_sector</th><th>start_time</th><th>end_time</th><th>temporal_granularity</th><th>gas</th><th>emissions_quantity</th><th>emissions_factor</th><th>emissions_factor_units</th><th>capacity</th><th>capacity_units</th><th>capacity_factor</th><th>activity</th><th>activity_units</th><th>created_date</th><th>modified_date</th><th>source_name</th><th>source_type</th><th>lat</th><th>lon</th><th>other1</th><th>other2</th><th>other3</th><th>other4</th><th>other1_def</th><th>other2_def</th><th>other3_def</th><th>other4_def</th><th>geometry_ref</th><th>zip_name</th><th>file_name</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-generation&quot;</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;annual&quot;</td><td>&quot;ch4&quot;</td><td>null</td><td>null</td><td>&quot;field_not_modeled&quot;</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.345&quot;</td><td>&quot;417000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:00:00&quot;</td><td>&quot;2023-11-01 10:00:00&quot;</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_included&quot;</td><td>&quot;biomass_emissions&quot;</td><td>&quot;biomass_capacity&quot;</td><td>&quot;biomass_generation&quot;</td><td>&quot;trace_-85.9708_34.0128&quot;</td><td>&quot;power&quot;</td><td>&quot;electricity-generation_emissio…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-generation&quot;</td><td>&quot;2022-01-01 00:00:00&quot;</td><td>&quot;2022-12-31 00:00:00&quot;</td><td>&quot;annual&quot;</td><td>&quot;n2o&quot;</td><td>null</td><td>null</td><td>&quot;field_not_modeled&quot;</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.345&quot;</td><td>&quot;417000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:00:00&quot;</td><td>&quot;2023-11-01 10:00:00&quot;</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_included&quot;</td><td>&quot;biomass_emissions&quot;</td><td>&quot;biomass_capacity&quot;</td><td>&quot;biomass_generation&quot;</td><td>&quot;trace_-85.9708_34.0128&quot;</td><td>&quot;power&quot;</td><td>&quot;electricity-generation_emissio…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-generation&quot;</td><td>&quot;2021-01-01 00:00:00&quot;</td><td>&quot;2021-12-31 00:00:00&quot;</td><td>&quot;annual&quot;</td><td>&quot;n2o&quot;</td><td>null</td><td>null</td><td>&quot;field_not_modeled&quot;</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.324&quot;</td><td>&quot;392000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:00:00&quot;</td><td>&quot;2023-11-01 10:00:00&quot;</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_included&quot;</td><td>&quot;biomass_emissions&quot;</td><td>&quot;biomass_capacity&quot;</td><td>&quot;biomass_generation&quot;</td><td>&quot;trace_-85.9708_34.0128&quot;</td><td>&quot;power&quot;</td><td>&quot;electricity-generation_emissio…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-generation&quot;</td><td>&quot;2021-01-01 00:00:00&quot;</td><td>&quot;2021-12-31 00:00:00&quot;</td><td>&quot;annual&quot;</td><td>&quot;ch4&quot;</td><td>null</td><td>null</td><td>&quot;field_not_modeled&quot;</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.324&quot;</td><td>&quot;392000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:00:00&quot;</td><td>&quot;2023-11-01 10:00:00&quot;</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_included&quot;</td><td>&quot;biomass_emissions&quot;</td><td>&quot;biomass_capacity&quot;</td><td>&quot;biomass_generation&quot;</td><td>&quot;trace_-85.9708_34.0128&quot;</td><td>&quot;power&quot;</td><td>&quot;electricity-generation_emissio…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-generation&quot;</td><td>&quot;2020-01-01 00:00:00&quot;</td><td>&quot;2020-12-31 00:00:00&quot;</td><td>&quot;annual&quot;</td><td>&quot;n2o&quot;</td><td>null</td><td>null</td><td>&quot;field_not_modeled&quot;</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.335&quot;</td><td>&quot;406000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:00:00&quot;</td><td>&quot;2023-11-01 10:00:00&quot;</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_included&quot;</td><td>&quot;biomass_emissions&quot;</td><td>&quot;biomass_capacity&quot;</td><td>&quot;biomass_generation&quot;</td><td>&quot;trace_-85.9708_34.0128&quot;</td><td>&quot;power&quot;</td><td>&quot;electricity-generation_emissio…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-generation&quot;</td><td>&quot;2020-01-01 00:00:00&quot;</td><td>&quot;2020-12-31 00:00:00&quot;</td><td>&quot;annual&quot;</td><td>&quot;ch4&quot;</td><td>null</td><td>null</td><td>&quot;field_not_modeled&quot;</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.335&quot;</td><td>&quot;406000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:00:00&quot;</td><td>&quot;2023-11-01 10:00:00&quot;</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_included&quot;</td><td>&quot;biomass_emissions&quot;</td><td>&quot;biomass_capacity&quot;</td><td>&quot;biomass_generation&quot;</td><td>&quot;trace_-85.9708_34.0128&quot;</td><td>&quot;power&quot;</td><td>&quot;electricity-generation_emissio…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-generation&quot;</td><td>&quot;2019-01-01 00:00:00&quot;</td><td>&quot;2019-12-31 00:00:00&quot;</td><td>&quot;annual&quot;</td><td>&quot;n2o&quot;</td><td>null</td><td>null</td><td>&quot;field_not_modeled&quot;</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.329&quot;</td><td>&quot;398000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:00:00&quot;</td><td>&quot;2023-11-01 10:00:00&quot;</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_included&quot;</td><td>&quot;biomass_emissions&quot;</td><td>&quot;biomass_capacity&quot;</td><td>&quot;biomass_generation&quot;</td><td>&quot;trace_-85.9708_34.0128&quot;</td><td>&quot;power&quot;</td><td>&quot;electricity-generation_emissio…</td></tr><tr><td>&quot;25448848&quot;</td><td>&quot;USA&quot;</td><td>&quot;electricity-generation&quot;</td><td>&quot;2019-01-01 00:00:00&quot;</td><td>&quot;2019-12-31 00:00:00&quot;</td><td>&quot;annual&quot;</td><td>&quot;ch4&quot;</td><td>null</td><td>null</td><td>&quot;field_not_modeled&quot;</td><td>&quot;138&quot;</td><td>&quot;MW&quot;</td><td>&quot;0.329&quot;</td><td>&quot;398000&quot;</td><td>&quot;MWh&quot;</td><td>&quot;2023-10-31 00:00:00&quot;</td><td>&quot;2023-11-01 10:00:00&quot;</td><td>&quot;Gadsden&quot;</td><td>&quot;gas&quot;</td><td>&quot;34.0128&quot;</td><td>&quot;-85.9708&quot;</td><td>&quot;a&quot;</td><td>null</td><td>null</td><td>null</td><td>&quot;field_not_included&quot;</td><td>&quot;biomass_emissions&quot;</td><td>&quot;biomass_capacity&quot;</td><td>&quot;biomass_generation&quot;</td><td>&quot;trace_-85.9708_34.0128&quot;</td><td>&quot;power&quot;</td><td>&quot;electricity-generation_emissio…</td></tr></tbody></table></div></div></div>
 </div>
 </section>
+</section>
+<section id="upload-the-data-to-the-hugging-face-hub">
+<h2>Upload the data to the Hugging Face Hub<a class="headerlink" href="#upload-the-data-to-the-hugging-face-hub" title="Link to this heading">#</a></h2>
+<p>This step will only work if you have the credentials to upload the dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">huggingface_hub.utils</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">api</span> <span class="o">=</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">HfApi</span><span class="p">()</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span> <span class="ow">in</span> <span class="n">write_data</span><span class="p">():</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
+            <span class="n">path_or_fileobj</span><span class="o">=</span><span class="n">fpath</span><span class="p">,</span>
+            <span class="n">path_in_repo</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span>
+            <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;tjhunter/climate-trace&quot;</span><span class="p">,</span>
+            <span class="n">repo_type</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+<span class="k">except</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">HfHubHTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate_trace-sources_v2-2023-ct2_2015.parquet /tmp/climate_trace-sources_v2-2023-ct2_2015.parquet
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate_trace-sources_v2-2023-ct2_2016.parquet /tmp/climate_trace-sources_v2-2023-ct2_2016.parquet
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate_trace-sources_v2-2023-ct2_2017.parquet /tmp/climate_trace-sources_v2-2023-ct2_2017.parquet
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate_trace-sources_v2-2023-ct2_2018.parquet /tmp/climate_trace-sources_v2-2023-ct2_2018.parquet
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate_trace-sources_v2-2023-ct2_2019.parquet /tmp/climate_trace-sources_v2-2023-ct2_2019.parquet
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate_trace-sources_v2-2023-ct2_2020.parquet /tmp/climate_trace-sources_v2-2023-ct2_2020.parquet
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate_trace-sources_v2-2023-ct2_2021.parquet /tmp/climate_trace-sources_v2-2023-ct2_2021.parquet
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate_trace-sources_v2-2023-ct2_2022.parquet /tmp/climate_trace-sources_v2-2023-ct2_2022.parquet
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 
@@ -1402,7 +1283,7 @@ As a result, doing a left joint between sources and source confidences duplicate
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
     <a class="left-prev"
@@ -1438,6 +1319,7 @@ As a result, doing a left joint between sources and source confidences duplicate
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#investigation-some-emissions-quantities-are-null">Investigation: some emissions quantities are null</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-the-data-to-the-hugging-face-hub">Upload the data to the Hugging Face Hub</a></li>
 </ul>
   </nav></div>
 
@@ -1486,8 +1368,8 @@ By Tim Hunter
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
 
   <footer class="bd-footer">
   </footer>

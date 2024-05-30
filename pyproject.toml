@@ -11,7 +11,6 @@ repository = "https://github.com/tjhunter/climate-trace-handbook/"
 documentation = "https://tjhunter.github.io/climate-trace-handbook/intro.html"
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Intended Audience :: Data Scientists",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
@@ -45,7 +44,7 @@ pandas = "^2.2.1"
 matplotlib = "^3.8.3"
 plotly = "^5.20.0"
 ghp-import = "^2.1.0"
-scipy = "^1.12.0"
+scipy = ">=1.10.0,<1.12.0" # Arviz requires scipy 1.11   
 
 # Dependencies for the bayesian analysis
 [tool.poetry.group.bayesian.dependencies]
