@@ -1,0 +1,718 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Checking the constants from the official API &#8212; The Climate TRACE Data Science Handbook</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_constants';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/climate_trace_logo.jpeg" class="logo__image only-light" alt="The Climate TRACE Data Science Handbook - Home"/>
+    <img src="_static/climate_trace_logo.jpeg" class="logo__image only-dark pst-js-only" alt="The Climate TRACE Data Science Handbook - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Saving the planet with data: deriving insights from the Climate Trace project.
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="initial_analysis.html">Data exploration of the Climate TRACE dataset</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="sce_diffs.html">Comparing source and country inventories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="uncertainty_drilldown.html">Uncertainty drilldown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingestion.html">Data ingestion and formatting</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/tjhunter/climate-trace-handbook" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/tjhunter/climate-trace-handbook/issues/new?title=Issue%20on%20page%20%2F_constants.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/_constants.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Checking the constants from the official API</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="checking-the-constants-from-the-official-api">
+<h1>Checking the constants from the official API<a class="headerlink" href="#checking-the-constants-from-the-official-api" title="Link to this heading">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>curl<span class="w"> </span>--request<span class="w"> </span>GET<span class="w"> </span><span class="err">\</span>
+  <span class="o">--</span><span class="n">url</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">climatetrace</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">v6</span><span class="o">/</span><span class="n">definitions</span><span class="o">/</span><span class="n">sectors</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&quot;fluorinated-gases&quot;,&quot;waste&quot;,&quot;transportation&quot;,&quot;fossil-fuel-operations&quot;,&quot;agriculture&quot;,&quot;power&quot;,&quot;forestry-and-land-use&quot;,&quot;buildings&quot;,&quot;manufacturing&quot;,&quot;mineral-extraction&quot;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;fluorinated-gases&quot;</span><span class="p">,</span><span class="s2">&quot;waste&quot;</span><span class="p">,</span><span class="s2">&quot;transportation&quot;</span><span class="p">,</span><span class="s2">&quot;fossil-fuel-operations&quot;</span><span class="p">,</span><span class="s2">&quot;agriculture&quot;</span><span class="p">,</span><span class="s2">&quot;power&quot;</span><span class="p">,</span><span class="s2">&quot;forestry-and-land-use&quot;</span><span class="p">,</span><span class="s2">&quot;buildings&quot;</span><span class="p">,</span><span class="s2">&quot;manufacturing&quot;</span><span class="p">,</span><span class="s2">&quot;mineral-extraction&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;agriculture&#39;,
+ &#39;buildings&#39;,
+ &#39;fluorinated-gases&#39;,
+ &#39;forestry-and-land-use&#39;,
+ &#39;fossil-fuel-operations&#39;,
+ &#39;manufacturing&#39;,
+ &#39;mineral-extraction&#39;,
+ &#39;power&#39;,
+ &#39;transportation&#39;,
+ &#39;waste&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ctrace.constants</span>
+<span class="n">ctrace</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">_code_sector</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span># AUTOGENERATED
+
+AGRICULTURE = &#39;agriculture&#39;
+BUILDINGS = &#39;buildings&#39;
+FLUORINATED_GASES = &#39;fluorinated-gases&#39;
+FORESTRY_AND_LAND_USE = &#39;forestry-and-land-use&#39;
+FOSSIL_FUEL_OPERATIONS = &#39;fossil-fuel-operations&#39;
+MANUFACTURING = &#39;manufacturing&#39;
+MINERAL_EXTRACTION = &#39;mineral-extraction&#39;
+POWER = &#39;power&#39;
+TRANSPORTATION = &#39;transportation&#39;
+WASTE = &#39;waste&#39;
+Sector = Literal[&#39;agriculture&#39;, &#39;buildings&#39;, &#39;fluorinated-gases&#39;, &#39;forestry-and-land-use&#39;, &#39;fossil-fuel-operations&#39;, &#39;manufacturing&#39;, &#39;mineral-extraction&#39;, &#39;power&#39;, &#39;transportation&#39;, &#39;waste&#39;]
+
+# END AUTOGENERATED
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>curl<span class="w"> </span>--request<span class="w"> </span>GET<span class="w"> </span><span class="err">\</span>
+  <span class="o">--</span><span class="n">url</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">climatetrace</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">v6</span><span class="o">/</span><span class="n">definitions</span><span class="o">/</span><span class="n">subsectors</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,&quot;coal-mining&quot;,&quot;copper-mining&quot;,&quot;cropland-fires&quot;,&quot;crop-residues&quot;,&quot;domestic-aviation&quot;,&quot;domestic-shipping&quot;,&quot;domestic-shipping-ship&quot;,&quot;domestic-wastewater-treatment-and-discharge&quot;,&quot;electricity-generation&quot;,&quot;enteric-fermentation-cattle-operation&quot;,&quot;enteric-fermentation-cattle-pasture&quot;,&quot;enteric-fermentation-other&quot;,&quot;fluorinated-gases&quot;,&quot;food-beverage-tobacco&quot;,&quot;forest-land-clearing&quot;,&quot;forest-land-degradation&quot;,&quot;forest-land-fires&quot;,&quot;glass&quot;,&quot;heat-plants&quot;,&quot;incineration-and-open-burning-of-waste&quot;,&quot;industrial-wastewater-treatment-and-discharge&quot;,&quot;international-aviation&quot;,&quot;international-shipping&quot;,&quot;international-shipping-ship&quot;,&quot;iron-and-steel&quot;,&quot;iron-mining&quot;,&quot;lime&quot;,&quot;manure-applied-to-soils&quot;,&quot;manure-left-on-pasture-cattle&quot;,&quot;manure-management-cattle-operation&quot;,&quot;manure-management-other&quot;,&quot;net-forest-land&quot;,&quot;net-shrubgrass&quot;,&quot;net-wetland&quot;,&quot;non-residential-onsite-fuel-usage&quot;,&quot;oil-and-gas-production&quot;,&quot;oil-and-gas-refining&quot;,&quot;oil-and-gas-transport&quot;,&quot;other-agricultural-soil-emissions&quot;,&quot;other-chemicals&quot;,&quot;other-energy-use&quot;,&quot;other-fossil-fuel-operations&quot;,&quot;other-manufacturing&quot;,&quot;other-metals&quot;,&quot;other-mining-quarrying&quot;,&quot;other-onsite-fuel-usage&quot;,&quot;other-transport&quot;,&quot;petrochemical-steam-cracking&quot;,&quot;pulp-and-paper&quot;,&quot;railways&quot;,&quot;removals&quot;,&quot;residential-onsite-fuel-usage&quot;,&quot;rice-cultivation&quot;,&quot;road-transportation&quot;,&quot;road-transportation-road-segment&quot;,&quot;rock-quarrying&quot;,&quot;sand-quarrying&quot;,&quot;shrubgrass-fires&quot;,&quot;soil-organic-carbon&quot;,&quot;solid-fuel-transformation&quot;,&quot;solid-waste-disposal&quot;,&quot;synthetic-fertilizer-application&quot;,&quot;textiles-leather-apparel&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;,&quot;wood-and-wood-products&quot;]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/usr/lib/python3.10/pty.py:89: RuntimeWarning: Using fork() can cause Polars to deadlock in the child process.
+In addition, using fork() with Python in general is a recipe for mysterious
+deadlocks and crashes.
+
+The most likely reason you are seeing this error is because you are using the
+multiprocessing module on Linux, which uses fork() by default. This will be
+fixed in Python 3.14. Until then, you want to use the &quot;spawn&quot; context instead.
+
+See https://docs.pola.rs/user-guide/misc/multiprocessing/ for details.
+
+  pid, fd = os.forkpty()
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;aluminum&quot;</span><span class="p">,</span><span class="s2">&quot;bauxite-mining&quot;</span><span class="p">,</span><span class="s2">&quot;biological-treatment-of-solid-waste-and-biogenic&quot;</span><span class="p">,</span><span class="s2">&quot;cement&quot;</span><span class="p">,</span><span class="s2">&quot;chemicals&quot;</span><span class="p">,</span><span class="s2">&quot;coal-mining&quot;</span><span class="p">,</span><span class="s2">&quot;copper-mining&quot;</span><span class="p">,</span><span class="s2">&quot;cropland-fires&quot;</span><span class="p">,</span><span class="s2">&quot;crop-residues&quot;</span><span class="p">,</span><span class="s2">&quot;domestic-aviation&quot;</span><span class="p">,</span><span class="s2">&quot;domestic-shipping&quot;</span><span class="p">,</span><span class="s2">&quot;domestic-shipping-ship&quot;</span><span class="p">,</span><span class="s2">&quot;domestic-wastewater-treatment-and-discharge&quot;</span><span class="p">,</span><span class="s2">&quot;electricity-generation&quot;</span><span class="p">,</span><span class="s2">&quot;enteric-fermentation-cattle-operation&quot;</span><span class="p">,</span><span class="s2">&quot;enteric-fermentation-cattle-pasture&quot;</span><span class="p">,</span><span class="s2">&quot;enteric-fermentation-other&quot;</span><span class="p">,</span><span class="s2">&quot;fluorinated-gases&quot;</span><span class="p">,</span><span class="s2">&quot;food-beverage-tobacco&quot;</span><span class="p">,</span><span class="s2">&quot;forest-land-clearing&quot;</span><span class="p">,</span><span class="s2">&quot;forest-land-degradation&quot;</span><span class="p">,</span><span class="s2">&quot;forest-land-fires&quot;</span><span class="p">,</span><span class="s2">&quot;glass&quot;</span><span class="p">,</span><span class="s2">&quot;heat-plants&quot;</span><span class="p">,</span><span class="s2">&quot;incineration-and-open-burning-of-waste&quot;</span><span class="p">,</span><span class="s2">&quot;industrial-wastewater-treatment-and-discharge&quot;</span><span class="p">,</span><span class="s2">&quot;international-aviation&quot;</span><span class="p">,</span><span class="s2">&quot;international-shipping&quot;</span><span class="p">,</span><span class="s2">&quot;international-shipping-ship&quot;</span><span class="p">,</span><span class="s2">&quot;iron-and-steel&quot;</span><span class="p">,</span><span class="s2">&quot;iron-mining&quot;</span><span class="p">,</span><span class="s2">&quot;lime&quot;</span><span class="p">,</span><span class="s2">&quot;manure-applied-to-soils&quot;</span><span class="p">,</span><span class="s2">&quot;manure-left-on-pasture-cattle&quot;</span><span class="p">,</span><span class="s2">&quot;manure-management-cattle-operation&quot;</span><span class="p">,</span><span class="s2">&quot;manure-management-other&quot;</span><span class="p">,</span><span class="s2">&quot;net-forest-land&quot;</span><span class="p">,</span><span class="s2">&quot;net-shrubgrass&quot;</span><span class="p">,</span><span class="s2">&quot;net-wetland&quot;</span><span class="p">,</span><span class="s2">&quot;non-residential-onsite-fuel-usage&quot;</span><span class="p">,</span><span class="s2">&quot;oil-and-gas-production&quot;</span><span class="p">,</span><span class="s2">&quot;oil-and-gas-refining&quot;</span><span class="p">,</span><span class="s2">&quot;oil-and-gas-transport&quot;</span><span class="p">,</span><span class="s2">&quot;other-agricultural-soil-emissions&quot;</span><span class="p">,</span><span class="s2">&quot;other-chemicals&quot;</span><span class="p">,</span><span class="s2">&quot;other-energy-use&quot;</span><span class="p">,</span><span class="s2">&quot;other-fossil-fuel-operations&quot;</span><span class="p">,</span><span class="s2">&quot;other-manufacturing&quot;</span><span class="p">,</span><span class="s2">&quot;other-metals&quot;</span><span class="p">,</span><span class="s2">&quot;other-mining-quarrying&quot;</span><span class="p">,</span><span class="s2">&quot;other-onsite-fuel-usage&quot;</span><span class="p">,</span><span class="s2">&quot;other-transport&quot;</span><span class="p">,</span><span class="s2">&quot;petrochemical-steam-cracking&quot;</span><span class="p">,</span><span class="s2">&quot;pulp-and-paper&quot;</span><span class="p">,</span><span class="s2">&quot;railways&quot;</span><span class="p">,</span><span class="s2">&quot;removals&quot;</span><span class="p">,</span><span class="s2">&quot;residential-onsite-fuel-usage&quot;</span><span class="p">,</span><span class="s2">&quot;rice-cultivation&quot;</span><span class="p">,</span><span class="s2">&quot;road-transportation&quot;</span><span class="p">,</span><span class="s2">&quot;road-transportation-road-segment&quot;</span><span class="p">,</span><span class="s2">&quot;rock-quarrying&quot;</span><span class="p">,</span><span class="s2">&quot;sand-quarrying&quot;</span><span class="p">,</span><span class="s2">&quot;shrubgrass-fires&quot;</span><span class="p">,</span><span class="s2">&quot;soil-organic-carbon&quot;</span><span class="p">,</span><span class="s2">&quot;solid-fuel-transformation&quot;</span><span class="p">,</span><span class="s2">&quot;solid-waste-disposal&quot;</span><span class="p">,</span><span class="s2">&quot;synthetic-fertilizer-application&quot;</span><span class="p">,</span><span class="s2">&quot;textiles-leather-apparel&quot;</span><span class="p">,</span><span class="s2">&quot;water-reservoirs&quot;</span><span class="p">,</span><span class="s2">&quot;wetland-fires&quot;</span><span class="p">,</span><span class="s2">&quot;wood-and-wood-products&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;aluminum&#39;,
+ &#39;bauxite-mining&#39;,
+ &#39;biological-treatment-of-solid-waste-and-biogenic&#39;,
+ &#39;cement&#39;,
+ &#39;chemicals&#39;,
+ &#39;coal-mining&#39;,
+ &#39;copper-mining&#39;,
+ &#39;crop-residues&#39;,
+ &#39;cropland-fires&#39;,
+ &#39;domestic-aviation&#39;,
+ &#39;domestic-shipping&#39;,
+ &#39;domestic-shipping-ship&#39;,
+ &#39;domestic-wastewater-treatment-and-discharge&#39;,
+ &#39;electricity-generation&#39;,
+ &#39;enteric-fermentation-cattle-operation&#39;,
+ &#39;enteric-fermentation-cattle-pasture&#39;,
+ &#39;enteric-fermentation-other&#39;,
+ &#39;fluorinated-gases&#39;,
+ &#39;food-beverage-tobacco&#39;,
+ &#39;forest-land-clearing&#39;,
+ &#39;forest-land-degradation&#39;,
+ &#39;forest-land-fires&#39;,
+ &#39;glass&#39;,
+ &#39;heat-plants&#39;,
+ &#39;incineration-and-open-burning-of-waste&#39;,
+ &#39;industrial-wastewater-treatment-and-discharge&#39;,
+ &#39;international-aviation&#39;,
+ &#39;international-shipping&#39;,
+ &#39;international-shipping-ship&#39;,
+ &#39;iron-and-steel&#39;,
+ &#39;iron-mining&#39;,
+ &#39;lime&#39;,
+ &#39;manure-applied-to-soils&#39;,
+ &#39;manure-left-on-pasture-cattle&#39;,
+ &#39;manure-management-cattle-operation&#39;,
+ &#39;manure-management-other&#39;,
+ &#39;net-forest-land&#39;,
+ &#39;net-shrubgrass&#39;,
+ &#39;net-wetland&#39;,
+ &#39;non-residential-onsite-fuel-usage&#39;,
+ &#39;oil-and-gas-production&#39;,
+ &#39;oil-and-gas-refining&#39;,
+ &#39;oil-and-gas-transport&#39;,
+ &#39;other-agricultural-soil-emissions&#39;,
+ &#39;other-chemicals&#39;,
+ &#39;other-energy-use&#39;,
+ &#39;other-fossil-fuel-operations&#39;,
+ &#39;other-manufacturing&#39;,
+ &#39;other-metals&#39;,
+ &#39;other-mining-quarrying&#39;,
+ &#39;other-onsite-fuel-usage&#39;,
+ &#39;other-transport&#39;,
+ &#39;petrochemical-steam-cracking&#39;,
+ &#39;pulp-and-paper&#39;,
+ &#39;railways&#39;,
+ &#39;removals&#39;,
+ &#39;residential-onsite-fuel-usage&#39;,
+ &#39;rice-cultivation&#39;,
+ &#39;road-transportation&#39;,
+ &#39;road-transportation-road-segment&#39;,
+ &#39;rock-quarrying&#39;,
+ &#39;sand-quarrying&#39;,
+ &#39;shrubgrass-fires&#39;,
+ &#39;soil-organic-carbon&#39;,
+ &#39;solid-fuel-transformation&#39;,
+ &#39;solid-waste-disposal&#39;,
+ &#39;synthetic-fertilizer-application&#39;,
+ &#39;textiles-leather-apparel&#39;,
+ &#39;water-reservoirs&#39;,
+ &#39;wetland-fires&#39;,
+ &#39;wood-and-wood-products&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ctrace.constants</span>
+<span class="n">ctrace</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">_code_subsector</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span># AUTOGENERATED
+
+ALUMINUM = &#39;aluminum&#39;
+BAUXITE_MINING = &#39;bauxite-mining&#39;
+BIOLOGICAL_TREATMENT_OF_SOLID_WASTE_AND_BIOGENIC = &#39;biological-treatment-of-solid-waste-and-biogenic&#39;
+CEMENT = &#39;cement&#39;
+CHEMICALS = &#39;chemicals&#39;
+COAL_MINING = &#39;coal-mining&#39;
+COPPER_MINING = &#39;copper-mining&#39;
+CROP_RESIDUES = &#39;crop-residues&#39;
+CROPLAND_FIRES = &#39;cropland-fires&#39;
+DOMESTIC_AVIATION = &#39;domestic-aviation&#39;
+DOMESTIC_SHIPPING = &#39;domestic-shipping&#39;
+DOMESTIC_SHIPPING_SHIP = &#39;domestic-shipping-ship&#39;
+DOMESTIC_WASTEWATER_TREATMENT_AND_DISCHARGE = &#39;domestic-wastewater-treatment-and-discharge&#39;
+ELECTRICITY_GENERATION = &#39;electricity-generation&#39;
+ENTERIC_FERMENTATION_CATTLE_OPERATION = &#39;enteric-fermentation-cattle-operation&#39;
+ENTERIC_FERMENTATION_CATTLE_PASTURE = &#39;enteric-fermentation-cattle-pasture&#39;
+ENTERIC_FERMENTATION_OTHER = &#39;enteric-fermentation-other&#39;
+FLUORINATED_GASES = &#39;fluorinated-gases&#39;
+FOOD_BEVERAGE_TOBACCO = &#39;food-beverage-tobacco&#39;
+FOREST_LAND_CLEARING = &#39;forest-land-clearing&#39;
+FOREST_LAND_DEGRADATION = &#39;forest-land-degradation&#39;
+FOREST_LAND_FIRES = &#39;forest-land-fires&#39;
+GLASS = &#39;glass&#39;
+HEAT_PLANTS = &#39;heat-plants&#39;
+INCINERATION_AND_OPEN_BURNING_OF_WASTE = &#39;incineration-and-open-burning-of-waste&#39;
+INDUSTRIAL_WASTEWATER_TREATMENT_AND_DISCHARGE = &#39;industrial-wastewater-treatment-and-discharge&#39;
+INTERNATIONAL_AVIATION = &#39;international-aviation&#39;
+INTERNATIONAL_SHIPPING = &#39;international-shipping&#39;
+INTERNATIONAL_SHIPPING_SHIP = &#39;international-shipping-ship&#39;
+IRON_AND_STEEL = &#39;iron-and-steel&#39;
+IRON_MINING = &#39;iron-mining&#39;
+LIME = &#39;lime&#39;
+MANURE_APPLIED_TO_SOILS = &#39;manure-applied-to-soils&#39;
+MANURE_LEFT_ON_PASTURE_CATTLE = &#39;manure-left-on-pasture-cattle&#39;
+MANURE_MANAGEMENT_CATTLE_OPERATION = &#39;manure-management-cattle-operation&#39;
+MANURE_MANAGEMENT_OTHER = &#39;manure-management-other&#39;
+NET_FOREST_LAND = &#39;net-forest-land&#39;
+NET_SHRUBGRASS = &#39;net-shrubgrass&#39;
+NET_WETLAND = &#39;net-wetland&#39;
+NON_RESIDENTIAL_ONSITE_FUEL_USAGE = &#39;non-residential-onsite-fuel-usage&#39;
+OIL_AND_GAS_PRODUCTION = &#39;oil-and-gas-production&#39;
+OIL_AND_GAS_REFINING = &#39;oil-and-gas-refining&#39;
+OIL_AND_GAS_TRANSPORT = &#39;oil-and-gas-transport&#39;
+OTHER_AGRICULTURAL_SOIL_EMISSIONS = &#39;other-agricultural-soil-emissions&#39;
+OTHER_CHEMICALS = &#39;other-chemicals&#39;
+OTHER_ENERGY_USE = &#39;other-energy-use&#39;
+OTHER_FOSSIL_FUEL_OPERATIONS = &#39;other-fossil-fuel-operations&#39;
+OTHER_MANUFACTURING = &#39;other-manufacturing&#39;
+OTHER_METALS = &#39;other-metals&#39;
+OTHER_MINING_QUARRYING = &#39;other-mining-quarrying&#39;
+OTHER_ONSITE_FUEL_USAGE = &#39;other-onsite-fuel-usage&#39;
+OTHER_TRANSPORT = &#39;other-transport&#39;
+PETROCHEMICAL_STEAM_CRACKING = &#39;petrochemical-steam-cracking&#39;
+PULP_AND_PAPER = &#39;pulp-and-paper&#39;
+RAILWAYS = &#39;railways&#39;
+REMOVALS = &#39;removals&#39;
+RESIDENTIAL_ONSITE_FUEL_USAGE = &#39;residential-onsite-fuel-usage&#39;
+RICE_CULTIVATION = &#39;rice-cultivation&#39;
+ROAD_TRANSPORTATION = &#39;road-transportation&#39;
+ROAD_TRANSPORTATION_ROAD_SEGMENT = &#39;road-transportation-road-segment&#39;
+ROCK_QUARRYING = &#39;rock-quarrying&#39;
+SAND_QUARRYING = &#39;sand-quarrying&#39;
+SHRUBGRASS_FIRES = &#39;shrubgrass-fires&#39;
+SOIL_ORGANIC_CARBON = &#39;soil-organic-carbon&#39;
+SOLID_FUEL_TRANSFORMATION = &#39;solid-fuel-transformation&#39;
+SOLID_WASTE_DISPOSAL = &#39;solid-waste-disposal&#39;
+SYNTHETIC_FERTILIZER_APPLICATION = &#39;synthetic-fertilizer-application&#39;
+TEXTILES_LEATHER_APPAREL = &#39;textiles-leather-apparel&#39;
+WATER_RESERVOIRS = &#39;water-reservoirs&#39;
+WETLAND_FIRES = &#39;wetland-fires&#39;
+WOOD_AND_WOOD_PRODUCTS = &#39;wood-and-wood-products&#39;
+
+
+
+SubSector = Literal[&#39;aluminum&#39;, &#39;bauxite-mining&#39;, &#39;biological-treatment-of-solid-waste-and-biogenic&#39;, &#39;cement&#39;, &#39;chemicals&#39;, &#39;coal-mining&#39;, &#39;copper-mining&#39;, &#39;crop-residues&#39;, &#39;cropland-fires&#39;, &#39;domestic-aviation&#39;, &#39;domestic-shipping&#39;, &#39;domestic-shipping-ship&#39;, &#39;domestic-wastewater-treatment-and-discharge&#39;, &#39;electricity-generation&#39;, &#39;enteric-fermentation-cattle-operation&#39;, &#39;enteric-fermentation-cattle-pasture&#39;, &#39;enteric-fermentation-other&#39;, &#39;fluorinated-gases&#39;, &#39;food-beverage-tobacco&#39;, &#39;forest-land-clearing&#39;, &#39;forest-land-degradation&#39;, &#39;forest-land-fires&#39;, &#39;glass&#39;, &#39;heat-plants&#39;, &#39;incineration-and-open-burning-of-waste&#39;, &#39;industrial-wastewater-treatment-and-discharge&#39;, &#39;international-aviation&#39;, &#39;international-shipping&#39;, &#39;international-shipping-ship&#39;, &#39;iron-and-steel&#39;, &#39;iron-mining&#39;, &#39;lime&#39;, &#39;manure-applied-to-soils&#39;, &#39;manure-left-on-pasture-cattle&#39;, &#39;manure-management-cattle-operation&#39;, &#39;manure-management-other&#39;, &#39;net-forest-land&#39;, &#39;net-shrubgrass&#39;, &#39;net-wetland&#39;, &#39;non-residential-onsite-fuel-usage&#39;, &#39;oil-and-gas-production&#39;, &#39;oil-and-gas-refining&#39;, &#39;oil-and-gas-transport&#39;, &#39;other-agricultural-soil-emissions&#39;, &#39;other-chemicals&#39;, &#39;other-energy-use&#39;, &#39;other-fossil-fuel-operations&#39;, &#39;other-manufacturing&#39;, &#39;other-metals&#39;, &#39;other-mining-quarrying&#39;, &#39;other-onsite-fuel-usage&#39;, &#39;other-transport&#39;, &#39;petrochemical-steam-cracking&#39;, &#39;pulp-and-paper&#39;, &#39;railways&#39;, &#39;removals&#39;, &#39;residential-onsite-fuel-usage&#39;, &#39;rice-cultivation&#39;, &#39;road-transportation&#39;, &#39;road-transportation-road-segment&#39;, &#39;rock-quarrying&#39;, &#39;sand-quarrying&#39;, &#39;shrubgrass-fires&#39;, &#39;soil-organic-carbon&#39;, &#39;solid-fuel-transformation&#39;, &#39;solid-waste-disposal&#39;, &#39;synthetic-fertilizer-application&#39;, &#39;textiles-leather-apparel&#39;, &#39;water-reservoirs&#39;, &#39;wetland-fires&#39;, &#39;wood-and-wood-products&#39;]
+
+# END AUTOGENERATED
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tim Hunter
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
