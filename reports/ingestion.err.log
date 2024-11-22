@@ -1,47 +1,154 @@
 Traceback (most recent call last):
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 782, in _async_poll_for_reply
-    msg = await ensure_async(self.kc.shell_channel.get_msg(timeout=new_timeout))
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/jupyter_core/utils/__init__.py", line 198, in ensure_async
-    result = await obj
-             ^^^^^^^^^
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/jupyter_client/channels.py", line 313, in get_msg
-    raise Empty
-_queue.Empty
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
     executenb(
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 1314, in execute
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1314, in execute
     return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
     return loop.run_until_complete(inner)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
     return future.result()
-           ^^^^^^^^^^^^^^^
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 709, in async_execute
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 709, in async_execute
     await self.async_execute_cell(
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 1005, in async_execute_cell
-    exec_reply = await self.task_poll_for_reply
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 806, in _async_poll_for_reply
-    error_on_timeout_execute_reply = await self._async_handle_timeout(timeout, cell)
-                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 856, in _async_handle_timeout
-    raise CellTimeoutError.error_from_timeout_and_cell(
-nbclient.exceptions.CellTimeoutError: A cell timed out while it was being executed, after 100 seconds.
-The message was: Cell execution timed out.
-Here is a preview of the cell contents:
--------------------
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
 @data_function("/data_sources")
 def load_sources():
     (_, files) = ct.data.load_source_compact()
     return files
 
 load_sources()
--------------------
+------------------
+
+----- stderr -----
+DEBUG:ctrace.data:Opening path agriculture.zip co2
+----- stderr -----
+DEBUG:ctrace.data:sources:co2: agriculture.zip -> ['DATA/cropland-fires_emissions_sources.csv', 'DATA/enteric-fermentation-cattle-operation_emissions_sources.csv', 'DATA/enteric-fermentation-cattle-pasture_emissions_sources.csv', 'DATA/manure-left-on-pasture-cattle_emissions_sources.csv', 'DATA/manure-management-cattle-operation_emissions_sources.csv', 'DATA/rice-cultivation_emissions_sources.csv', 'DATA/synthetic-fertilizer-application_emissions_sources.csv']
+----- stderr -----
+DEBUG:ctrace.data:opening agriculture.zip / DATA/cropland-fires_emissions_sources.csv
+----- stderr -----
+DEBUG:ctrace.data:opening agriculture.zip / DATA/cropland-fires_emissions_sources.csv and DATA/cropland-fires_emissions_sources_confidence.csv
+----- stderr -----
+DEBUG:ctrace.data:loading source <zipfile.ZipExtFile name='DATA/cropland-fires_emissions_sources.csv' mode='r' compress_type=deflate>
+----- stderr -----
+DEBUG:ctrace.data:loaded str
+----- stderr -----
+DEBUG:ctrace.data:recast
+----- stderr -----
+DEBUG:ctrace.data:loading source conf <zipfile.ZipExtFile name='DATA/cropland-fires_emissions_sources_confidence.csv' mode='r' compress_type=deflate>
+----- stderr -----
+DEBUG:ctrace.data:columns: ['source_id', 'source_name', 'iso3_country', 'sector', 'subsector', 'start_time', 'end_time', 'source_type', 'capacity', 'capacity_factor', 'activity', 'gas', 'emissions_factor', 'emissions_quantity', 'created_date', 'modified_date']
+----- stderr -----
+DEBUG:ctrace.data:source conf:
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mKeyboardInterrupt[0m                         Traceback (most recent call last)
+Cell [0;32mIn[4], line 6[0m
+[1;32m      3[0m     (_, files) [38;5;241m=[39m ct[38;5;241m.[39mdata[38;5;241m.[39mload_source_compact()
+[1;32m      4[0m     [38;5;28;01mreturn[39;00m files
+[0;32m----> 6[0m [43mload_sources[49m[43m([49m[43m)[49m
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/dds/_annotations.py:68[0m, in [0;36mdata_function.<locals>.decorator_.<locals>.wrapper[0;34m(*args, **kwargs)[0m
+[1;32m     58[0m [38;5;28;01mif[39;00m [38;5;28mlen[39m(args) [38;5;241m>[39m [38;5;241m0[39m [38;5;129;01mor[39;00m [38;5;28mlen[39m(kwargs) [38;5;241m>[39m [38;5;241m0[39m:
+[1;32m     59[0m     [38;5;28;01mraise[39;00m DDSException(
+[1;32m     60[0m         [38;5;124mf[39m[38;5;124m"[39m[38;5;124m@data_function cannot be used with arguments. [39m[38;5;124m"[39m
+[1;32m     61[0m         [38;5;124mf[39m[38;5;124m"[39m[38;5;124mArguments were passed to the function [39m[38;5;132;01m{[39;00mfunc[38;5;132;01m}[39;00m[38;5;124m, but this function [39m[38;5;124m"[39m
+[0;32m   (...)[0m
+[1;32m     66[0m         DDSErrorCode[38;5;241m.[39mARG_IN_DATA_FUNCTION,
+[1;32m     67[0m     )
+[0;32m---> 68[0m [38;5;28;01mreturn[39;00m [43m_keep[49m[43m([49m[43mpath[49m[43m,[49m[43m [49m[43mfunc[49m[43m,[49m[43m [49m[38;5;241;43m*[39;49m[43margs[49m[43m,[49m[43m [49m[38;5;241;43m*[39;49m[38;5;241;43m*[39;49m[43mkwargs[49m[43m)[49m
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/dds/_api.py:52[0m, in [0;36mkeep[0;34m(path, fun, *args, **kwargs)[0m
+[1;32m     45[0m [38;5;28;01mdef[39;00m [38;5;21mkeep[39m(
+[1;32m     46[0m     path: Union[[38;5;28mstr[39m, DDSPath, pathlib[38;5;241m.[39mPath],
+[1;32m     47[0m     fun: Callable[[38;5;241m.[39m[38;5;241m.[39m[38;5;241m.[39m, _Out],
+[1;32m     48[0m     [38;5;241m*[39margs: Tuple[Any, [38;5;241m.[39m[38;5;241m.[39m[38;5;241m.[39m],
+[1;32m     49[0m     [38;5;241m*[39m[38;5;241m*[39mkwargs: Dict[[38;5;28mstr[39m, Any],
+[1;32m     50[0m ) [38;5;241m-[39m[38;5;241m>[39m _Out:
+[1;32m     51[0m     path [38;5;241m=[39m DDSPathUtils[38;5;241m.[39mcreate(path)
+[0;32m---> 52[0m     res: Optional[_Out] [38;5;241m=[39m [43m_eval[49m[43m([49m[43mfun[49m[43m,[49m[43m [49m[43mpath[49m[43m,[49m[43m [49m[43margs[49m[43m,[49m[43m [49m[43mkwargs[49m[43m,[49m[43m [49m[38;5;28;43;01mNone[39;49;00m[43m,[49m[43m [49m[38;5;28;43;01mNone[39;49;00m[43m,[49m[43m [49m[38;5;28;43;01mNone[39;49;00m[43m)[49m
+[1;32m     53[0m     [38;5;28;01mreturn[39;00m res
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/dds/_api.py:199[0m, in [0;36m_eval[0;34m(fun, path, args, kwargs, dds_export_graph, dds_extra_debug, dds_stages)[0m
+[1;32m    195[0m extra_debug [38;5;241m=[39m dds_extra_debug [38;5;129;01mor[39;00m get_option(extra_debug_option)
+[1;32m    197[0m [38;5;28;01mif[39;00m [38;5;129;01mnot[39;00m _eval_ctx:
+[1;32m    198[0m     [38;5;66;03m# Not in an evaluation context, create one and introspect[39;00m
+[0;32m--> 199[0m     [38;5;28;01mreturn[39;00m [43m_eval_new_ctx[49m[43m([49m[43mfun[49m[43m,[49m[43m [49m[43mpath[49m[43m,[49m[43m [49m[43margs[49m[43m,[49m[43m [49m[43mkwargs[49m[43m,[49m[43m [49m[43mexport_graph[49m[43m,[49m[43m [49m[43mextra_debug[49m[43m,[49m[43m [49m[43mstages[49m[43m)[49m
+[1;32m    200[0m [38;5;28;01melse[39;00m:
+[1;32m    201[0m     [38;5;28;01mif[39;00m [38;5;129;01mnot[39;00m path:
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/dds/_api.py:388[0m, in [0;36m_eval_new_ctx[0;34m(fun, path, args, kwargs, export_graph, extra_debug, stages)[0m
+[1;32m    382[0m kwargs_repr [38;5;241m=[39m OrderedDict(
+[1;32m    383[0m     [(key, [38;5;28mstr[39m([38;5;28mtype[39m(arg))) [38;5;28;01mfor[39;00m (key, arg) [38;5;129;01min[39;00m kwargs[38;5;241m.[39mitems()]
+[1;32m    384[0m )
+[1;32m    385[0m _logger[38;5;241m.[39minfo(
+[1;32m    386[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m_eval_new_ctx:Evaluating (eval) fun [39m[38;5;132;01m{[39;00mfun[38;5;132;01m}[39;00m[38;5;124m with args [39m[38;5;132;01m{[39;00marg_repr[38;5;132;01m}[39;00m[38;5;124m kwargs [39m[38;5;132;01m{[39;00mkwargs_repr[38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m    387[0m )
+[0;32m--> 388[0m res [38;5;241m=[39m [43mfun[49m[43m([49m[38;5;241;43m*[39;49m[43margs[49m[43m,[49m[43m [49m[38;5;241;43m*[39;49m[38;5;241;43m*[39;49m[43mkwargs[49m[43m)[49m
+[1;32m    389[0m _add_delta(t, ProcessingStage[38;5;241m.[39mEVAL)
+[1;32m    390[0m _logger[38;5;241m.[39minfo([38;5;124mf[39m[38;5;124m"[39m[38;5;124m_eval_new_ctx:Evaluating (eval) fun [39m[38;5;132;01m{[39;00mfun[38;5;132;01m}[39;00m[38;5;124m: completed[39m[38;5;124m"[39m)
+
+Cell [0;32mIn[4], line 3[0m, in [0;36mload_sources[0;34m()[0m
+[1;32m      1[0m [38;5;129m@data_function[39m([38;5;124m"[39m[38;5;124m/data_sources[39m[38;5;124m"[39m)
+[1;32m      2[0m [38;5;28;01mdef[39;00m [38;5;21mload_sources[39m():
+[0;32m----> 3[0m     (_, files) [38;5;241m=[39m [43mct[49m[38;5;241;43m.[39;49m[43mdata[49m[38;5;241;43m.[39;49m[43mload_source_compact[49m[43m([49m[43m)[49m
+[1;32m      4[0m     [38;5;28;01mreturn[39;00m files
+
+File [0;32m~/work/climate-trace-handbook/src/ctrace/data.py:167[0m, in [0;36mload_source_compact[0;34m(p)[0m
+[1;32m    163[0m c_name [38;5;241m=[39m sname[38;5;241m.[39mreplace(
+[1;32m    164[0m     [38;5;124m"[39m[38;5;124m_emissions_sources.csv[39m[38;5;124m"[39m, [38;5;124m"[39m[38;5;124m_emissions_sources_confidence.csv[39m[38;5;124m"[39m
+[1;32m    165[0m )
+[1;32m    166[0m _logger[38;5;241m.[39mdebug([38;5;124mf[39m[38;5;124m"[39m[38;5;124mopening [39m[38;5;132;01m{[39;00mfname[38;5;132;01m}[39;00m[38;5;124m / [39m[38;5;132;01m{[39;00msname[38;5;132;01m}[39;00m[38;5;124m and [39m[38;5;132;01m{[39;00mc_name[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[0;32m--> 167[0m df [38;5;241m=[39m [43m_load_source_conf[49m[43m([49m[43mzf[49m[38;5;241;43m.[39;49m[43mopen[49m[43m([49m[43msname[49m[43m)[49m[43m,[49m[43m [49m[43mzf[49m[38;5;241;43m.[39;49m[43mopen[49m[43m([49m[43mc_name[49m[43m)[49m[43m)[49m
+[1;32m    168[0m [38;5;66;03m# Remove all the empty strings, this provides better statistics and[39;00m
+[1;32m    169[0m [38;5;66;03m# removes unnecessary string compression.[39;00m
+[1;32m    170[0m df [38;5;241m=[39m df[38;5;241m.[39mwith_columns(
+[1;32m    171[0m     [
+[1;32m    172[0m         pl[38;5;241m.[39mwhen(pl[38;5;241m.[39mcol(pl[38;5;241m.[39mUtf8)[38;5;241m.[39mstr[38;5;241m.[39mlen_bytes() [38;5;241m==[39m [38;5;241m0[39m)
+[0;32m   (...)[0m
+[1;32m    176[0m     ]
+[1;32m    177[0m )
+
+File [0;32m~/work/climate-trace-handbook/src/ctrace/data.py:253[0m, in [0;36m_load_source_conf[0;34m(s_fp, c_fp)[0m
+[1;32m    247[0m [38;5;66;03m# Workaround: some confidence records are duplicated:[39;00m
+[1;32m    248[0m c_df [38;5;241m=[39m (
+[1;32m    249[0m     c_df[38;5;241m.[39mgroup_by(START_TIME, END_TIME, ISO3_COUNTRY, SOURCE_ID)
+[1;32m    250[0m     [38;5;241m.[39magg(pl[38;5;241m.[39mfirst([38;5;124m"[39m[38;5;124m*[39m[38;5;124m"[39m))
+[1;32m    251[0m     [38;5;241m.[39mshrink_to_fit()
+[1;32m    252[0m )
+[0;32m--> 253[0m [38;5;28;01mreturn[39;00m [43ms_df[49m[38;5;241;43m.[39;49m[43mjoin[49m[43m([49m
+[1;32m    254[0m [43m    [49m[43mc_df[49m[38;5;241;43m.[39;49m[43mdrop[49m[43m([49m[43m[[49m[38;5;124;43m"[39;49m[38;5;124;43mcreated_date[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mmodified_date[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[43mSECTOR[49m[43m,[49m[43m [49m[43mSUBSECTOR[49m[43m][49m[43m)[49m[43m,[49m
+[1;32m    255[0m [43m    [49m[43mon[49m[38;5;241;43m=[39;49m[43m[[49m[43mSTART_TIME[49m[43m,[49m[43m [49m[43mEND_TIME[49m[43m,[49m[43m [49m[43mISO3_COUNTRY[49m[43m,[49m[43m [49m[43mSOURCE_ID[49m[43m,[49m[43m [49m[43mGAS[49m[43m][49m[43m,[49m
+[1;32m    256[0m [43m    [49m[43mhow[49m[38;5;241;43m=[39;49m[38;5;124;43m"[39;49m[38;5;124;43mleft[39;49m[38;5;124;43m"[39;49m[43m,[49m
+[1;32m    257[0m [43m[49m[43m)[49m[38;5;241m.[39mshrink_to_fit()
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/polars/dataframe/frame.py:7144[0m, in [0;36mDataFrame.join[0;34m(self, other, on, how, left_on, right_on, suffix, validate, join_nulls, coalesce)[0m
+[1;32m   7140[0m     msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mexpected `other` join table to be a DataFrame, got [39m[38;5;132;01m{[39;00m[38;5;28mtype[39m(other)[38;5;241m.[39m[38;5;18m__name__[39m[38;5;132;01m!r}[39;00m[38;5;124m"[39m
+[1;32m   7141[0m     [38;5;28;01mraise[39;00m [38;5;167;01mTypeError[39;00m(msg)
+[1;32m   7143[0m [38;5;28;01mreturn[39;00m (
+[0;32m-> 7144[0m     [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43mlazy[49m[43m([49m[43m)[49m
+[1;32m   7145[0m [43m    [49m[38;5;241;43m.[39;49m[43mjoin[49m[43m([49m
+[1;32m   7146[0m [43m        [49m[43mother[49m[38;5;241;43m=[39;49m[43mother[49m[38;5;241;43m.[39;49m[43mlazy[49m[43m([49m[43m)[49m[43m,[49m
+[1;32m   7147[0m [43m        [49m[43mleft_on[49m[38;5;241;43m=[39;49m[43mleft_on[49m[43m,[49m
+[1;32m   7148[0m [43m        [49m[43mright_on[49m[38;5;241;43m=[39;49m[43mright_on[49m[43m,[49m
+[1;32m   7149[0m [43m        [49m[43mon[49m[38;5;241;43m=[39;49m[43mon[49m[43m,[49m
+[1;32m   7150[0m [43m        [49m[43mhow[49m[38;5;241;43m=[39;49m[43mhow[49m[43m,[49m
+[1;32m   7151[0m [43m        [49m[43msuffix[49m[38;5;241;43m=[39;49m[43msuffix[49m[43m,[49m
+[1;32m   7152[0m [43m        [49m[43mvalidate[49m[38;5;241;43m=[39;49m[43mvalidate[49m[43m,[49m
+[1;32m   7153[0m [43m        [49m[43mjoin_nulls[49m[38;5;241;43m=[39;49m[43mjoin_nulls[49m[43m,[49m
+[1;32m   7154[0m [43m        [49m[43mcoalesce[49m[38;5;241;43m=[39;49m[43mcoalesce[49m[43m,[49m
+[1;32m   7155[0m [43m    [49m[43m)[49m
+[1;32m   7156[0m [43m    [49m[38;5;241;43m.[39;49m[43mcollect[49m[43m([49m[43m_eager[49m[38;5;241;43m=[39;49m[38;5;28;43;01mTrue[39;49;00m[43m)[49m
+[1;32m   7157[0m )
+
+File [0;32m~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/polars/lazyframe/frame.py:2029[0m, in [0;36mLazyFrame.collect[0;34m(self, type_coercion, predicate_pushdown, projection_pushdown, simplify_expression, slice_pushdown, comm_subplan_elim, comm_subexpr_elim, cluster_with_columns, collapse_joins, no_optimization, streaming, engine, background, _eager, **_kwargs)[0m
+[1;32m   2027[0m [38;5;66;03m# Only for testing purposes[39;00m
+[1;32m   2028[0m callback [38;5;241m=[39m _kwargs[38;5;241m.[39mget([38;5;124m"[39m[38;5;124mpost_opt_callback[39m[38;5;124m"[39m, callback)
+[0;32m-> 2029[0m [38;5;28;01mreturn[39;00m wrap_df([43mldf[49m[38;5;241;43m.[39;49m[43mcollect[49m[43m([49m[43mcallback[49m[43m)[49m)
+
+[0;31mKeyboardInterrupt[0m: 
 

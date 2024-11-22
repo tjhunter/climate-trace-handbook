@@ -1,87 +1,35 @@
 Traceback (most recent call last):
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
     executenb(
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 1314, in execute
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1314, in execute
     return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
     return loop.run_until_complete(inner)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
     return future.result()
-           ^^^^^^^^^^^^^^^
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 709, in async_execute
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 709, in async_execute
     await self.async_execute_cell(
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 1062, in async_execute_cell
     await self._check_raise_for_error(cell, cell_index, exec_reply)
-  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+  File "/home/tjhunter/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
     raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
 nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
 ------------------
-EMISSIONS_QUANTITY_S = EMISSIONS_QUANTITY + "_s"
-EMISSIONS_QUANTITY_CE = EMISSIONS_QUANTITY + "_ce"
+year = 2023
+gas = CO2E_100YR
 
-jdf = (cedf_gy_agg
-       .join(sdf_gy_agg, on=[ISO3_COUNTRY, SECTOR, SUBSECTOR], suffix="_s", how="outer")
-.with_columns(
-    c_iso3_country.fill_null(C(ISO3_COUNTRY+"_s")),
-    c_sector.fill_null(C(SECTOR+"_s")),
-    c_subsector.fill_null(C(SECTOR+"_s")),
-    c_emissions_quantity.alias(EMISSIONS_QUANTITY_CE),
-).select(
-    c_iso3_country,
-    c_sector,
-    c_subsector,
-    EMISSIONS_QUANTITY_S,
-    EMISSIONS_QUANTITY_CE
-))
-jdf
+cedf = ct.read_country_emissions()
+sdf = ct.read_source_emissions(year=year,p="/tmp")
 ------------------
 
------ stderr -----
-/tmp/ipykernel_187647/3045774584.py:5: DeprecationWarning: Use of `how='outer'` should be replaced with `how='full'`.
-  .join(sdf_gy_agg, on=[ISO3_COUNTRY, SECTOR, SUBSECTOR], suffix="_s", how="outer")
-------------------
 
 [0;31m---------------------------------------------------------------------------[0m
-[0;31mComputeError[0m                              Traceback (most recent call last)
-Cell [0;32mIn[6], line 6[0m
-[1;32m      1[0m EMISSIONS_QUANTITY_S [38;5;241m=[39m EMISSIONS_QUANTITY [38;5;241m+[39m [38;5;124m"[39m[38;5;124m_s[39m[38;5;124m"[39m
-[1;32m      2[0m EMISSIONS_QUANTITY_CE [38;5;241m=[39m EMISSIONS_QUANTITY [38;5;241m+[39m [38;5;124m"[39m[38;5;124m_ce[39m[38;5;124m"[39m
-[1;32m      4[0m jdf [38;5;241m=[39m ([43mcedf_gy_agg[49m
-[1;32m      5[0m [43m       [49m[38;5;241;43m.[39;49m[43mjoin[49m[43m([49m[43msdf_gy_agg[49m[43m,[49m[43m [49m[43mon[49m[38;5;241;43m=[39;49m[43m[[49m[43mISO3_COUNTRY[49m[43m,[49m[43m [49m[43mSECTOR[49m[43m,[49m[43m [49m[43mSUBSECTOR[49m[43m][49m[43m,[49m[43m [49m[43msuffix[49m[38;5;241;43m=[39;49m[38;5;124;43m"[39;49m[38;5;124;43m_s[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[43mhow[49m[38;5;241;43m=[39;49m[38;5;124;43m"[39;49m[38;5;124;43mouter[39;49m[38;5;124;43m"[39;49m[43m)[49m
-[0;32m----> 6[0m [38;5;241;43m.[39;49m[43mwith_columns[49m[43m([49m
-[1;32m      7[0m [43m    [49m[43mc_iso3_country[49m[38;5;241;43m.[39;49m[43mfill_null[49m[43m([49m[43mC[49m[43m([49m[43mISO3_COUNTRY[49m[38;5;241;43m+[39;49m[38;5;124;43m"[39;49m[38;5;124;43m_s[39;49m[38;5;124;43m"[39;49m[43m)[49m[43m)[49m[43m,[49m
-[1;32m      8[0m [43m    [49m[43mc_sector[49m[38;5;241;43m.[39;49m[43mfill_null[49m[43m([49m[43mC[49m[43m([49m[43mSECTOR[49m[38;5;241;43m+[39;49m[38;5;124;43m"[39;49m[38;5;124;43m_s[39;49m[38;5;124;43m"[39;49m[43m)[49m[43m)[49m[43m,[49m
-[1;32m      9[0m [43m    [49m[43mc_subsector[49m[38;5;241;43m.[39;49m[43mfill_null[49m[43m([49m[43mC[49m[43m([49m[43mSECTOR[49m[38;5;241;43m+[39;49m[38;5;124;43m"[39;49m[38;5;124;43m_s[39;49m[38;5;124;43m"[39;49m[43m)[49m[43m)[49m[43m,[49m
-[1;32m     10[0m [43m    [49m[43mc_emissions_quantity[49m[38;5;241;43m.[39;49m[43malias[49m[43m([49m[43mEMISSIONS_QUANTITY_CE[49m[43m)[49m[43m,[49m
-[1;32m     11[0m [43m)[49m[38;5;241m.[39mselect(
-[1;32m     12[0m     c_iso3_country,
-[1;32m     13[0m     c_sector,
-[1;32m     14[0m     c_subsector,
-[1;32m     15[0m     EMISSIONS_QUANTITY_S,
-[1;32m     16[0m     EMISSIONS_QUANTITY_CE
-[1;32m     17[0m ))
-[1;32m     18[0m jdf
+[0;31mTypeError[0m                                 Traceback (most recent call last)
+Cell [0;32mIn[3], line 4[0m
+[1;32m      1[0m year [38;5;241m=[39m [38;5;241m2023[39m
+[1;32m      2[0m gas [38;5;241m=[39m CO2E_100YR
+[0;32m----> 4[0m cedf [38;5;241m=[39m [43mct[49m[38;5;241;43m.[39;49m[43mread_country_emissions[49m[43m([49m[43m)[49m
+[1;32m      5[0m sdf [38;5;241m=[39m ct[38;5;241m.[39mread_source_emissions(year[38;5;241m=[39myear,p[38;5;241m=[39m[38;5;124m"[39m[38;5;124m/tmp[39m[38;5;124m"[39m)
 
-File [0;32m~/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/polars/dataframe/frame.py:8474[0m, in [0;36mDataFrame.with_columns[0;34m(self, *exprs, **named_exprs)[0m
-[1;32m   8328[0m [38;5;28;01mdef[39;00m [38;5;21mwith_columns[39m(
-[1;32m   8329[0m     [38;5;28mself[39m,
-[1;32m   8330[0m     [38;5;241m*[39mexprs: IntoExpr [38;5;241m|[39m Iterable[IntoExpr],
-[1;32m   8331[0m     [38;5;241m*[39m[38;5;241m*[39mnamed_exprs: IntoExpr,
-[1;32m   8332[0m ) [38;5;241m-[39m[38;5;241m>[39m DataFrame:
-[1;32m   8333[0m [38;5;250m    [39m[38;5;124;03m"""[39;00m
-[1;32m   8334[0m [38;5;124;03m    Add columns to this DataFrame.[39;00m
-[1;32m   8335[0m 
-[0;32m   (...)[0m
-[1;32m   8472[0m [38;5;124;03m    └─────┴──────┴─────────────┘[39;00m
-[1;32m   8473[0m [38;5;124;03m    """[39;00m
-[0;32m-> 8474[0m     [38;5;28;01mreturn[39;00m [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43mlazy[49m[43m([49m[43m)[49m[38;5;241;43m.[39;49m[43mwith_columns[49m[43m([49m[38;5;241;43m*[39;49m[43mexprs[49m[43m,[49m[43m [49m[38;5;241;43m*[39;49m[38;5;241;43m*[39;49m[43mnamed_exprs[49m[43m)[49m[38;5;241;43m.[39;49m[43mcollect[49m[43m([49m[43m_eager[49m[38;5;241;43m=[39;49m[38;5;28;43;01mTrue[39;49;00m[43m)[49m
-
-File [0;32m~/.cache/pypoetry/virtualenvs/climate-tutorials-nO4nxH9g-py3.11/lib/python3.11/site-packages/polars/lazyframe/frame.py:1855[0m, in [0;36mLazyFrame.collect[0;34m(self, type_coercion, predicate_pushdown, projection_pushdown, simplify_expression, slice_pushdown, comm_subplan_elim, comm_subexpr_elim, cluster_with_columns, no_optimization, streaming, background, _eager, **_kwargs)[0m
-[1;32m   1852[0m [38;5;66;03m# Only for testing purposes atm.[39;00m
-[1;32m   1853[0m callback [38;5;241m=[39m _kwargs[38;5;241m.[39mget([38;5;124m"[39m[38;5;124mpost_opt_callback[39m[38;5;124m"[39m)
-[0;32m-> 1855[0m [38;5;28;01mreturn[39;00m wrap_df([43mldf[49m[38;5;241;43m.[39;49m[43mcollect[49m[43m([49m[43mcallback[49m[43m)[49m)
-
-[0;31mComputeError[0m: failed to determine supertype of enum and enum
+[0;31mTypeError[0m: read_country_emissions() missing 1 required positional argument: 'gas'
 
