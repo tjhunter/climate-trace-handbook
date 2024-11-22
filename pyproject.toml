@@ -32,7 +32,7 @@ packages = [
 # This narrow range for python is required by pytensor->pymc
 # TODO: see if we can expand it in the future
 python = ">=3.10,<3.13"
-polars = "^0.20.16"
+polars = "^1.0"
 pyarrow = "^15.0.2"
 pooch = "^1.8.1"
 
