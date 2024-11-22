@@ -7,7 +7,7 @@ chapters:
 - file: initial_analysis
 - file: sce_diffs
 - file: uncertainty_drilldown
-#- file: ingestion
+- file: ingestion
 # - file: markdown
 # - file: notebooks
 # - file: markdown-notebooks

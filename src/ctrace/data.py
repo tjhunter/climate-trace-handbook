@@ -105,17 +105,16 @@ def read_source_emissions(
     """
     ys = _check_year(year)
     gases = _check_gas(gas)
-    assert year is not None, "Year must be specified for now"
     fname = "climate_trace-sources_{version}_{year}_{gas}.parquet"
     if p is None:
         local_paths = [
             huggingface_hub.hf_hub_download(
                 repo_id="tjhunter/climate-trace",
-                filename=fname.format(year=year_, version=version),
+                filename=fname.format(year=year_, version=version, gas=gas),
                 repo_type="dataset",
             )
             for year_ in ys
-            for gas in gas
+            for gas in gases
         ]
     else:
         local_paths = [

@@ -365,6 +365,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-optimized-parquet-files">Creating optimized parquet files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregating-by-year-and-optimizing-the-output">Aggregating by year and optimizing the output</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-checks">Initial checks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrity-checks">Integrity checks</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-the-data-to-the-hugging-face-hub">Upload the data to the Hugging Face Hub</a></li>
 </ul>
             </nav>
@@ -407,7 +408,7 @@ has been prepared. Skip if you just want to access the final, prepared data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -451,142 +452,80 @@ has been prepared. Skip if you just want to access the final, prepared data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:Opening path agriculture.zip co2
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:sources:co2: agriculture.zip -&gt; [&#39;DATA/cropland-fires_emissions_sources.csv&#39;, &#39;DATA/enteric-fermentation-cattle-operation_emissions_sources.csv&#39;, &#39;DATA/enteric-fermentation-cattle-pasture_emissions_sources.csv&#39;, &#39;DATA/manure-left-on-pasture-cattle_emissions_sources.csv&#39;, &#39;DATA/manure-management-cattle-operation_emissions_sources.csv&#39;, &#39;DATA/rice-cultivation_emissions_sources.csv&#39;, &#39;DATA/synthetic-fertilizer-application_emissions_sources.csv&#39;]
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening agriculture.zip / DATA/cropland-fires_emissions_sources.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:opening agriculture.zip / DATA/cropland-fires_emissions_sources.csv and DATA/cropland-fires_emissions_sources_confidence.csv
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:loading source &lt;zipfile.ZipExtFile name=&#39;DATA/cropland-fires_emissions_sources.csv&#39; mode=&#39;r&#39; compress_type=deflate&gt;
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:loaded str
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:recast
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:loading source conf &lt;zipfile.ZipExtFile name=&#39;DATA/cropland-fires_emissions_sources_confidence.csv&#39; mode=&#39;r&#39; compress_type=deflate&gt;
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:columns: [&#39;source_id&#39;, &#39;source_name&#39;, &#39;iso3_country&#39;, &#39;sector&#39;, &#39;subsector&#39;, &#39;start_time&#39;, &#39;end_time&#39;, &#39;source_type&#39;, &#39;capacity&#39;, &#39;capacity_factor&#39;, &#39;activity&#39;, &#39;gas&#39;, &#39;emissions_factor&#39;, &#39;emissions_quantity&#39;, &#39;created_date&#39;, &#39;modified_date&#39;]
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DEBUG:ctrace.data:source conf: 
-</pre></div>
-</div>
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">KeyboardInterrupt</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">line</span> <span class="mi">6</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span>     <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load_source_compact</span><span class="p">()</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span>     <span class="k">return</span> <span class="n">files</span>
-<span class="ne">----&gt; </span><span class="mi">6</span> <span class="n">load_sources</span><span class="p">()</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/dds/_annotations.py:68,</span> in <span class="ni">data_function.&lt;locals&gt;.decorator_.&lt;locals&gt;.wrapper</span><span class="nt">(*args, **kwargs)</span>
-<span class="g g-Whitespace">     </span><span class="mi">58</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<span class="g g-Whitespace">     </span><span class="mi">59</span>     <span class="k">raise</span> <span class="n">DDSException</span><span class="p">(</span>
-<span class="g g-Whitespace">     </span><span class="mi">60</span>         <span class="sa">f</span><span class="s2">&quot;@data_function cannot be used with arguments. &quot;</span>
-<span class="g g-Whitespace">     </span><span class="mi">61</span>         <span class="sa">f</span><span class="s2">&quot;Arguments were passed to the function </span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2">, but this function &quot;</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">66</span>         <span class="n">DDSErrorCode</span><span class="o">.</span><span class="n">ARG_IN_DATA_FUNCTION</span><span class="p">,</span>
-<span class="g g-Whitespace">     </span><span class="mi">67</span>     <span class="p">)</span>
-<span class="ne">---&gt; </span><span class="mi">68</span> <span class="k">return</span> <span class="n">_keep</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/dds/_api.py:52,</span> in <span class="ni">keep</span><span class="nt">(path, fun, *args, **kwargs)</span>
-<span class="g g-Whitespace">     </span><span class="mi">45</span> <span class="k">def</span> <span class="nf">keep</span><span class="p">(</span>
-<span class="g g-Whitespace">     </span><span class="mi">46</span>     <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DDSPath</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span>
-<span class="g g-Whitespace">     </span><span class="mi">47</span>     <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_Out</span><span class="p">],</span>
-<span class="g g-Whitespace">     </span><span class="mi">48</span>     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
-<span class="g g-Whitespace">     </span><span class="mi">49</span>     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-<span class="g g-Whitespace">     </span><span class="mi">50</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Out</span><span class="p">:</span>
-<span class="g g-Whitespace">     </span><span class="mi">51</span>     <span class="n">path</span> <span class="o">=</span> <span class="n">DDSPathUtils</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-<span class="ne">---&gt; </span><span class="mi">52</span>     <span class="n">res</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_Out</span><span class="p">]</span> <span class="o">=</span> <span class="n">_eval</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">53</span>     <span class="k">return</span> <span class="n">res</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/dds/_api.py:199,</span> in <span class="ni">_eval</span><span class="nt">(fun, path, args, kwargs, dds_export_graph, dds_extra_debug, dds_stages)</span>
-<span class="g g-Whitespace">    </span><span class="mi">195</span> <span class="n">extra_debug</span> <span class="o">=</span> <span class="n">dds_extra_debug</span> <span class="ow">or</span> <span class="n">get_option</span><span class="p">(</span><span class="n">extra_debug_option</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">197</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">_eval_ctx</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">198</span>     <span class="c1"># Not in an evaluation context, create one and introspect</span>
-<span class="ne">--&gt; </span><span class="mi">199</span>     <span class="k">return</span> <span class="n">_eval_new_ctx</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">export_graph</span><span class="p">,</span> <span class="n">extra_debug</span><span class="p">,</span> <span class="n">stages</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">200</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">201</span>     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/dds/_api.py:388,</span> in <span class="ni">_eval_new_ctx</span><span class="nt">(fun, path, args, kwargs, export_graph, extra_debug, stages)</span>
-<span class="g g-Whitespace">    </span><span class="mi">382</span> <span class="n">kwargs_repr</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">383</span>     <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">)))</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
-<span class="g g-Whitespace">    </span><span class="mi">384</span> <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">385</span> <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">386</span>     <span class="sa">f</span><span class="s2">&quot;_eval_new_ctx:Evaluating (eval) fun </span><span class="si">{</span><span class="n">fun</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="n">arg_repr</span><span class="si">}</span><span class="s2"> kwargs </span><span class="si">{</span><span class="n">kwargs_repr</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">387</span> <span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">388</span> <span class="n">res</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">389</span> <span class="n">_add_delta</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">ProcessingStage</span><span class="o">.</span><span class="n">EVAL</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">390</span> <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_eval_new_ctx:Evaluating (eval) fun </span><span class="si">{</span><span class="n">fun</span><span class="si">}</span><span class="s2">: completed&quot;</span><span class="p">)</span>
-
-<span class="nn">Cell In[4], line 3,</span> in <span class="ni">load_sources</span><span class="nt">()</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/data_sources&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="k">def</span> <span class="nf">load_sources</span><span class="p">():</span>
-<span class="ne">----&gt; </span><span class="mi">3</span>     <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load_source_compact</span><span class="p">()</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span>     <span class="k">return</span> <span class="n">files</span>
-
-<span class="nn">File ~/work/climate-trace-handbook/src/ctrace/data.py:167,</span> in <span class="ni">load_source_compact</span><span class="nt">(p)</span>
-<span class="g g-Whitespace">    </span><span class="mi">163</span> <span class="n">c_name</span> <span class="o">=</span> <span class="n">sname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">164</span>     <span class="s2">&quot;_emissions_sources.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;_emissions_sources_confidence.csv&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">165</span> <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">166</span> <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;opening </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">sname</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">c_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">167</span> <span class="n">df</span> <span class="o">=</span> <span class="n">_load_source_conf</span><span class="p">(</span><span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">sname</span><span class="p">),</span> <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">c_name</span><span class="p">))</span>
-<span class="g g-Whitespace">    </span><span class="mi">168</span> <span class="c1"># Remove all the empty strings, this provides better statistics and</span>
-<span class="g g-Whitespace">    </span><span class="mi">169</span> <span class="c1"># removes unnecessary string compression.</span>
-<span class="g g-Whitespace">    </span><span class="mi">170</span> <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">171</span>     <span class="p">[</span>
-<span class="g g-Whitespace">    </span><span class="mi">172</span>         <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Utf8</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len_bytes</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">176</span>     <span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">177</span> <span class="p">)</span>
-
-<span class="nn">File ~/work/climate-trace-handbook/src/ctrace/data.py:253,</span> in <span class="ni">_load_source_conf</span><span class="nt">(s_fp, c_fp)</span>
-<span class="g g-Whitespace">    </span><span class="mi">247</span> <span class="c1"># Workaround: some confidence records are duplicated:</span>
-<span class="g g-Whitespace">    </span><span class="mi">248</span> <span class="n">c_df</span> <span class="o">=</span> <span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">249</span>     <span class="n">c_df</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">START_TIME</span><span class="p">,</span> <span class="n">END_TIME</span><span class="p">,</span> <span class="n">ISO3_COUNTRY</span><span class="p">,</span> <span class="n">SOURCE_ID</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">250</span>     <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">))</span>
-<span class="g g-Whitespace">    </span><span class="mi">251</span>     <span class="o">.</span><span class="n">shrink_to_fit</span><span class="p">()</span>
-<span class="g g-Whitespace">    </span><span class="mi">252</span> <span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">253</span> <span class="k">return</span> <span class="n">s_df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">254</span>     <span class="n">c_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;created_date&quot;</span><span class="p">,</span> <span class="s2">&quot;modified_date&quot;</span><span class="p">,</span> <span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">]),</span>
-<span class="g g-Whitespace">    </span><span class="mi">255</span>     <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="n">START_TIME</span><span class="p">,</span> <span class="n">END_TIME</span><span class="p">,</span> <span class="n">ISO3_COUNTRY</span><span class="p">,</span> <span class="n">SOURCE_ID</span><span class="p">,</span> <span class="n">GAS</span><span class="p">],</span>
-<span class="g g-Whitespace">    </span><span class="mi">256</span>     <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">257</span> <span class="p">)</span><span class="o">.</span><span class="n">shrink_to_fit</span><span class="p">()</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/polars/dataframe/frame.py:7144,</span> in <span class="ni">DataFrame.join</span><span class="nt">(self, other, on, how, left_on, right_on, suffix, validate, join_nulls, coalesce)</span>
-<span class="g g-Whitespace">   </span><span class="mi">7140</span>     <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;expected `other` join table to be a DataFrame, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2">&quot;</span>
-<span class="g g-Whitespace">   </span><span class="mi">7141</span>     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">7143</span> <span class="k">return</span> <span class="p">(</span>
-<span class="ne">-&gt; </span><span class="mi">7144</span>     <span class="bp">self</span><span class="o">.</span><span class="n">lazy</span><span class="p">()</span>
-<span class="g g-Whitespace">   </span><span class="mi">7145</span>     <span class="o">.</span><span class="n">join</span><span class="p">(</span>
-<span class="g g-Whitespace">   </span><span class="mi">7146</span>         <span class="n">other</span><span class="o">=</span><span class="n">other</span><span class="o">.</span><span class="n">lazy</span><span class="p">(),</span>
-<span class="g g-Whitespace">   </span><span class="mi">7147</span>         <span class="n">left_on</span><span class="o">=</span><span class="n">left_on</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">7148</span>         <span class="n">right_on</span><span class="o">=</span><span class="n">right_on</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">7149</span>         <span class="n">on</span><span class="o">=</span><span class="n">on</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">7150</span>         <span class="n">how</span><span class="o">=</span><span class="n">how</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">7151</span>         <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">7152</span>         <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">7153</span>         <span class="n">join_nulls</span><span class="o">=</span><span class="n">join_nulls</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">7154</span>         <span class="n">coalesce</span><span class="o">=</span><span class="n">coalesce</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">7155</span>     <span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">7156</span>     <span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">_eager</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">7157</span> <span class="p">)</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/polars/lazyframe/frame.py:2029,</span> in <span class="ni">LazyFrame.collect</span><span class="nt">(self, type_coercion, predicate_pushdown, projection_pushdown, simplify_expression, slice_pushdown, comm_subplan_elim, comm_subexpr_elim, cluster_with_columns, collapse_joins, no_optimization, streaming, engine, background, _eager, **_kwargs)</span>
-<span class="g g-Whitespace">   </span><span class="mi">2027</span> <span class="c1"># Only for testing purposes</span>
-<span class="g g-Whitespace">   </span><span class="mi">2028</span> <span class="n">callback</span> <span class="o">=</span> <span class="n">_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;post_opt_callback&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">2029</span> <span class="k">return</span> <span class="n">wrap_df</span><span class="p">(</span><span class="n">ldf</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
-
-<span class="ne">KeyboardInterrupt</span>: 
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[PosixPath(&#39;/tmp/co2/cropland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/enteric-fermentation-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/manure-management-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/rice-cultivation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/non-residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/forest-land-clearing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/forest-land-degradation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/forest-land-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/net-forest-land_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/net-shrubgrass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/net-wetland_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/removals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/shrubgrass-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/water-reservoirs_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/wetland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/coal-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/oil-and-gas-production_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/oil-and-gas-refining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/oil-and-gas-transport_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/aluminum_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/cement_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/food-beverage-tobacco_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/glass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/iron-and-steel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/lime_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/other-chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/other-manufacturing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/other-metals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/petrochemical-steam-cracking_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/pulp-and-paper_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/textiles-leather-apparel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/bauxite-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/copper-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/iron-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/electricity-generation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/domestic-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/domestic-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/international-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/international-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/road-transportation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/domestic-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/industrial-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/solid-waste-disposal_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/cropland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/rice-cultivation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/net-forest-land_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/net-shrubgrass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/net-wetland_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/water-reservoirs_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/coal-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/oil-and-gas-refining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/aluminum_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/cement_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/other-manufacturing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/pulp-and-paper_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/bauxite-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/copper-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/iron-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/electricity-generation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/domestic-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/domestic-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/international-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/international-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/road-transportation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/solid-waste-disposal_emissions_sources.parquet&#39;)]
 </pre></div>
 </div>
 </div>
@@ -788,90 +727,6 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/co2/cropland-fires_emissions_sources.parquet
-/tmp/co2/enteric-fermentation-cattle-operation_emissions_sources.parquet
-/tmp/co2/enteric-fermentation-cattle-pasture_emissions_sources.parquet
-/tmp/co2/manure-left-on-pasture-cattle_emissions_sources.parquet
-/tmp/co2/manure-management-cattle-operation_emissions_sources.parquet
-/tmp/co2/rice-cultivation_emissions_sources.parquet
-/tmp/co2/synthetic-fertilizer-application_emissions_sources.parquet
-/tmp/co2/non-residential-onsite-fuel-usage_emissions_sources.parquet
-/tmp/co2/residential-onsite-fuel-usage_emissions_sources.parquet
-/tmp/co2/forest-land-clearing_emissions_sources.parquet
-/tmp/co2/forest-land-degradation_emissions_sources.parquet
-/tmp/co2/forest-land-fires_emissions_sources.parquet
-/tmp/co2/net-forest-land_emissions_sources.parquet
-/tmp/co2/net-shrubgrass_emissions_sources.parquet
-/tmp/co2/net-wetland_emissions_sources.parquet
-/tmp/co2/removals_emissions_sources.parquet
-/tmp/co2/shrubgrass-fires_emissions_sources.parquet
-/tmp/co2/water-reservoirs_emissions_sources.parquet
-/tmp/co2/wetland-fires_emissions_sources.parquet
-/tmp/co2/coal-mining_emissions_sources.parquet
-/tmp/co2/oil-and-gas-production_emissions_sources.parquet
-/tmp/co2/oil-and-gas-refining_emissions_sources.parquet
-/tmp/co2/oil-and-gas-transport_emissions_sources.parquet
-/tmp/co2/aluminum_emissions_sources.parquet
-/tmp/co2/cement_emissions_sources.parquet
-/tmp/co2/chemicals_emissions_sources.parquet
-/tmp/co2/food-beverage-tobacco_emissions_sources.parquet
-/tmp/co2/glass_emissions_sources.parquet
-/tmp/co2/iron-and-steel_emissions_sources.parquet
-/tmp/co2/lime_emissions_sources.parquet
-/tmp/co2/other-chemicals_emissions_sources.parquet
-/tmp/co2/other-manufacturing_emissions_sources.parquet
-/tmp/co2/other-metals_emissions_sources.parquet
-/tmp/co2/petrochemical-steam-cracking_emissions_sources.parquet
-/tmp/co2/pulp-and-paper_emissions_sources.parquet
-/tmp/co2/textiles-leather-apparel_emissions_sources.parquet
-/tmp/co2/bauxite-mining_emissions_sources.parquet
-/tmp/co2/copper-mining_emissions_sources.parquet
-/tmp/co2/iron-mining_emissions_sources.parquet
-/tmp/co2/electricity-generation_emissions_sources.parquet
-/tmp/co2/domestic-aviation_emissions_sources.parquet
-/tmp/co2/domestic-shipping_emissions_sources.parquet
-/tmp/co2/international-aviation_emissions_sources.parquet
-/tmp/co2/international-shipping_emissions_sources.parquet
-/tmp/co2/road-transportation_emissions_sources.parquet
-/tmp/co2/domestic-wastewater-treatment-and-discharge_emissions_sources.parquet
-/tmp/co2/industrial-wastewater-treatment-and-discharge_emissions_sources.parquet
-/tmp/co2/solid-waste-disposal_emissions_sources.parquet
-/tmp/co2e_100yr/cropland-fires_emissions_sources.parquet
-/tmp/co2e_100yr/enteric-fermentation-cattle-pasture_emissions_sources.parquet
-/tmp/co2e_100yr/manure-left-on-pasture-cattle_emissions_sources.parquet
-/tmp/co2e_100yr/rice-cultivation_emissions_sources.parquet
-/tmp/co2e_100yr/synthetic-fertilizer-application_emissions_sources.parquet
-/tmp/co2e_100yr/net-forest-land_emissions_sources.parquet
-/tmp/co2e_100yr/net-shrubgrass_emissions_sources.parquet
-/tmp/co2e_100yr/net-wetland_emissions_sources.parquet
-/tmp/co2e_100yr/water-reservoirs_emissions_sources.parquet
-/tmp/co2e_100yr/coal-mining_emissions_sources.parquet
-/tmp/co2e_100yr/oil-and-gas-refining_emissions_sources.parquet
-/tmp/co2e_100yr/aluminum_emissions_sources.parquet
-/tmp/co2e_100yr/cement_emissions_sources.parquet
-/tmp/co2e_100yr/chemicals_emissions_sources.parquet
-/tmp/co2e_100yr/other-manufacturing_emissions_sources.parquet
-/tmp/co2e_100yr/pulp-and-paper_emissions_sources.parquet
-/tmp/co2e_100yr/bauxite-mining_emissions_sources.parquet
-/tmp/co2e_100yr/copper-mining_emissions_sources.parquet
-/tmp/co2e_100yr/iron-mining_emissions_sources.parquet
-/tmp/co2e_100yr/electricity-generation_emissions_sources.parquet
-/tmp/co2e_100yr/domestic-aviation_emissions_sources.parquet
-/tmp/co2e_100yr/domestic-shipping_emissions_sources.parquet
-/tmp/co2e_100yr/international-aviation_emissions_sources.parquet
-/tmp/co2e_100yr/international-shipping_emissions_sources.parquet
-/tmp/co2e_100yr/road-transportation_emissions_sources.parquet
-/tmp/co2e_100yr/solid-waste-disposal_emissions_sources.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2021_co2.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2022_co2.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2023_co2.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2024_co2.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2021_co2e_100yr.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2022_co2e_100yr.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2023_co2e_100yr.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2024_co2e_100yr.parquet
-</pre></div>
-</div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[(&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2021_co2.parquet&#39;,
   &#39;/tmp/climate_trace-sources_v3-2024-ct4_2021_co2.parquet&#39;),
  (&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2022_co2.parquet&#39;,
@@ -911,13 +766,13 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 /tmp/climate_trace-sources_v3-2024-ct4_2021_co2.parquet
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7d8356541b20&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7db5d847eed0&gt;
   created_by: Polars
   num_columns: 54
   num_rows: 15184030
   num_row_groups: 32
   format_version: 1.0
-  serialized_size: 173153
+  serialized_size: 168440
 </pre></div>
 </div>
 </div>
@@ -931,13 +786,13 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7d832cd93d30&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7db5ac4471f0&gt;
   created_by: parquet-cpp-arrow version 15.0.2
   num_columns: 54
   num_rows: 15184030
-  num_row_groups: 48
+  num_row_groups: 47
   format_version: 2.6
-  serialized_size: 273069
+  serialized_size: 266570
 </pre></div>
 </div>
 </div>
@@ -953,10 +808,10 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.Statistics object at 0x7d8356541350&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.Statistics object at 0x7db5ac447060&gt;
   has_min_max: True
-  min: 0.0905689899739461
-  max: 9955196.16948596
+  min: 0.0807364762240872
+  max: 16925822.8550829
   null_count: 0
   distinct_count: None
   num_values: 327680
@@ -970,10 +825,10 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </section>
 <section id="initial-checks">
 <h2>Initial checks<a class="headerlink" href="#initial-checks" title="Link to this heading">#</a></h2>
-<p>We know check that it works correctly. Let’s load the newly created data instead of the default version stored on the internet, for the year 2022.</p>
+<p>We know check that it works correctly. Let’s load the newly created data instead of the default version stored on the internet, for the year 2023.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">CO2</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2024</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">CO2</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
 <span class="n">sdf</span>
 </pre></div>
 </div>
@@ -1011,7 +866,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <g id="node3" class="node">
 <title>p3</title>
 <polygon fill="none" stroke="black" points="2222,-38 1668,-38 1668,0 2222,0 2222,-38"/>
-<text text-anchor="middle" x="1945" y="-22.8" font-family="Times,serif" font-size="14.00">Parquet SCAN [/tmp/climate_trace&#45;sources_v3&#45;2024&#45;ct4_2024_co2.parquet]</text>
+<text text-anchor="middle" x="1945" y="-22.8" font-family="Times,serif" font-size="14.00">Parquet SCAN [/tmp/climate_trace&#45;sources_v3&#45;2024&#45;ct4_2023_co2.parquet]</text>
 <text text-anchor="middle" x="1945" y="-7.8" font-family="Times,serif" font-size="14.00">π */54;</text>
 </g>
 <!-- p2&#45;&#45;p3 -->
@@ -1023,7 +878,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </svg>
 </div></div>
 </div>
-<p>About 6M records for this year. This is spread across multiple gas and also multiple trips in the case of boats or airplanes.</p>
+<p>About 15M records for this year. This is spread across multiple gas and also multiple trips in the case of boats or airplanes.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
@@ -1038,7 +893,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>15183967</td></tr></tbody></table></div></div></div>
+<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>15184014</td></tr></tbody></table></div></div></div>
 </div>
 <p>Check the number of distinct source IDs</p>
 <div class="cell docutils container">
@@ -1051,11 +906,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 </div>
-<p>The number of sources outside FLU:</p>
-<div class="admonition-ctodo admonition">
-<p class="admonition-title">CTODO</p>
-<p>This number does not match the official number on the Climate Trace website (395075 for 2022). Investigate.</p>
-</div>
+<p>The number of sources outside forestry and land use:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">by_sec</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_sector</span> <span class="o">!=</span> <span class="n">FORESTRY_AND_LAND_USE</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
@@ -1070,7 +921,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>748730</td></tr></tbody></table></div></div></div>
+<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>748732</td></tr></tbody></table></div></div></div>
 </div>
 <p>Check: no source is associated with multiple sectors.</p>
 <div class="cell docutils container">
@@ -1115,7 +966,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <p>Check: emissions should always be defined. V2 used to have empty values.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">,</span> <span class="mi">2022</span><span class="p">,</span> <span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">,</span> <span class="mi">2023</span><span class="p">,</span> <span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
 <span class="p">(</span><span class="n">sdf</span>
  <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">is_null</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;null_emissions&quot;</span><span class="p">),</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_iso3_country</span><span class="p">)</span>
  <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_subsector</span><span class="p">,</span> <span class="s2">&quot;null_emissions&quot;</span><span class="p">)</span>
@@ -1134,7 +985,57 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (26, 2)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>false</th></tr><tr><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>&quot;rice-cultivation&quot;</td><td>684408</td></tr><tr><td>&quot;electricity-generation&quot;</td><td>106464</td></tr><tr><td>&quot;net-shrubgrass&quot;</td><td>682260</td></tr><tr><td>&quot;solid-waste-disposal&quot;</td><td>115500</td></tr><tr><td>&quot;domestic-shipping&quot;</td><td>99132</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;water-reservoirs&quot;</td><td>84408</td></tr><tr><td>&quot;net-forest-land&quot;</td><td>679632</td></tr><tr><td>&quot;international-aviation&quot;</td><td>58920</td></tr><tr><td>&quot;cement&quot;</td><td>26892</td></tr><tr><td>&quot;domestic-aviation&quot;</td><td>58920</td></tr></tbody></table></div></div></div>
+<small>shape: (26, 2)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>false</th></tr><tr><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>&quot;cement&quot;</td><td>26892</td></tr><tr><td>&quot;coal-mining&quot;</td><td>45456</td></tr><tr><td>&quot;bauxite-mining&quot;</td><td>3168</td></tr><tr><td>&quot;iron-mining&quot;</td><td>8664</td></tr><tr><td>&quot;domestic-aviation&quot;</td><td>58920</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;chemicals&quot;</td><td>4452</td></tr><tr><td>&quot;net-shrubgrass&quot;</td><td>682260</td></tr><tr><td>&quot;enteric-fermentation-cattle-pa…</td><td>608328</td></tr><tr><td>&quot;domestic-shipping&quot;</td><td>99132</td></tr><tr><td>&quot;net-wetland&quot;</td><td>660288</td></tr></tbody></table></div></div></div>
+</div>
+</section>
+<section id="integrity-checks">
+<h2>Integrity checks<a class="headerlink" href="#integrity-checks" title="Link to this heading">#</a></h2>
+<p>Before uploading and publishing data, it is a good idea to run a number of checks. Frameworks such as <a class="reference external" href="https://pandera.readthedocs.io/en/latest/polars.html">pandera</a> are very helpful to implement these checks. Here we just check that Akrotiri and Dhekelia (country code XAD) is not included, as mentioned in the documentation.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_iso3_country</span> <span class="o">==</span> <span class="s2">&quot;XAD&quot;</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+<span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>0</td></tr></tbody></table></div></div></div>
+</div>
+<p>Here is an example of issue to investigate: one would expect the total CO2e_100yr (total emissions normalized by their CO2 equivalent) to be at least present for each sector in which emissions are reported. This is not the case for FLU, for instance for the <code class="docutils literal notranslate"><span class="pre">removals</span></code> subsector.</p>
+<div class="admonition-ctodo admonition" id="missing-co2e-subsectors">
+<p class="admonition-title">CTODO</p>
+<p>Confirm with CT.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+ <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_emissions_quantity</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">])</span>
+ <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (7, 4)</small><table border="1" class="dataframe"><thead><tr><th>sector</th><th>subsector</th><th>gas</th><th>emissions_quantity</th></tr><tr><td>enum</td><td>enum</td><td>enum</td><td>f64</td></tr></thead><tbody><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-forest-land&quot;</td><td>&quot;co2&quot;</td><td>-8.0434e7</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-forest-land&quot;</td><td>&quot;co2e_100yr&quot;</td><td>-1.2279e7</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-shrubgrass&quot;</td><td>&quot;co2&quot;</td><td>-4.2275e7</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-shrubgrass&quot;</td><td>&quot;co2e_100yr&quot;</td><td>-2.7258e6</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-wetland&quot;</td><td>&quot;co2&quot;</td><td>-2.5857e6</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-wetland&quot;</td><td>&quot;co2e_100yr&quot;</td><td>-823052.5</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;removals&quot;</td><td>&quot;co2&quot;</td><td>-2.8157e8</td></tr></tbody></table></div></div></div>
 </div>
 </section>
 <section id="upload-the-data-to-the-hugging-face-hub">
@@ -1144,20 +1045,22 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">huggingface_hub.utils</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">api</span> <span class="o">=</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">HfApi</span><span class="p">()</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span> <span class="ow">in</span> <span class="n">write_data</span><span class="p">():</span>
-        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
-        <span class="n">api</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
-            <span class="n">path_or_fileobj</span><span class="o">=</span><span class="n">fpath</span><span class="p">,</span>
-            <span class="n">path_in_repo</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span>
-            <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;tjhunter/climate-trace&quot;</span><span class="p">,</span>
-            <span class="n">repo_type</span><span class="o">=</span><span class="s2">&quot;dataset-REMOVE_ME&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-<span class="k">except</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">HfHubHTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="n">upload</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">if</span> <span class="n">upload</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">api</span> <span class="o">=</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">HfApi</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span> <span class="ow">in</span> <span class="n">write_data</span><span class="p">():</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
+            <span class="n">api</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
+                <span class="n">path_or_fileobj</span><span class="o">=</span><span class="n">fpath</span><span class="p">,</span>
+                <span class="n">path_in_repo</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span>
+                <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;tjhunter/climate-trace&quot;</span><span class="p">,</span>
+                <span class="n">repo_type</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">except</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">HfHubHTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1224,6 +1127,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-optimized-parquet-files">Creating optimized parquet files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregating-by-year-and-optimizing-the-output">Aggregating by year and optimizing the output</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-checks">Initial checks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrity-checks">Integrity checks</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-the-data-to-the-hugging-face-hub">Upload the data to the Hugging Face Hub</a></li>
 </ul>
   </nav></div>
