@@ -33,7 +33,7 @@ packages = [
 # TODO: see if we can expand it in the future
 python = ">=3.10,<3.13"
 polars = "^1.0"
-pyarrow = "^15.0.2"
+pyarrow = ">=15.0.2,<20"
 pooch = "^1.8.1"
 
 # Dependencies for the book

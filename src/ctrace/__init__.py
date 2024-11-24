@@ -4,7 +4,7 @@ ctrace: Utilities for working with Climate TRACE data.
 released by the Climate TRACE Consortium.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 # Just importing everything, there are too many imported constants.
 from . import data
