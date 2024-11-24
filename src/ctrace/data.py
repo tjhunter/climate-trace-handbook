@@ -12,6 +12,7 @@ from typing import List, Optional, Tuple, TypeVar, Union
 from zipfile import ZipFile
 
 import huggingface_hub  # type: ignore
+import huggingface_hub.file_download  # type: ignore
 import polars as pl
 import pooch  # type: ignore
 from polars import col as C
@@ -108,7 +109,7 @@ def read_source_emissions(
     fname = "climate_trace-sources_{version}_{year}_{gas}.parquet"
     if p is None:
         local_paths = [
-            huggingface_hub.hf_hub_download(
+            huggingface_hub.file_download.hf_hub_download(
                 repo_id="tjhunter/climate-trace",
                 filename=fname.format(year=year_, version=version, gas=gas),
                 repo_type="dataset",
@@ -142,6 +143,7 @@ def load_source_compact(p: Optional[Path] = None) -> Tuple[pl.LazyFrame, List[Pa
     # TODO: replace by a proper temp directory
     tmp_dir = Path(tempfile.gettempdir())
     data_files: List[Path] = []
+    p = p or True
     for gas in GAS_LIST:
         for fname in _files[gas]:
             _logger.debug(f"Opening path {fname} {gas}")
@@ -232,8 +234,8 @@ def _load_csv(
     return res_df
 
 
-def _get_zip(p: Optional[Path], gas: Gas, name: str) -> Tuple[ZipFile, Path]:
-    if p is None:
+def _get_zip(p: Union[Path, bool, None], gas: Gas, name: str) -> Tuple[ZipFile, Path]:
+    if p == True:
         local_p = _ct_dset(gas).fetch(name)
     else:
         local_p = p / gas / name
@@ -459,26 +461,51 @@ def recast_parquet(df: Frame, conf: bool) -> Frame:
     return df
 
 
-def read_country_emissions(gas: Gas, p: Optional[Path] = None) -> pl.DataFrame:
+def read_country_emissions(
+    gas: Optional[Gas] = GAS_LIST,
+    archive_path: Union[Path, bool, None] = None,
+    parquet_path: Optional[Path] = None,
+) -> pl.DataFrame:
     """Read all the country emissions data from the given path."""
-    # TODO: with V3 there is enough data that a materialized view is useful.
+    # with V3 there is enough data that a materialized view is useful.
     dfs = []
     gases = _check_gas(gas)
-    for gas_ in gases:
-        for fname in _files[gas_]:
-            (zf, local_p) = _get_zip(p, gas_, fname)
-            _logger.debug(f"Opening path {fname} from {local_p}")
-            source_names = [
-                n for n in zf.namelist() if n.endswith("_country_emissions.csv")
-            ]
-            # TODO(V3) There seems to be duplicate entries (but not data) in the zip files.
-            source_names = sorted(set(source_names))
-            _logger.debug(f"sources: {source_names}")
-            for sname in source_names:
-                _logger.debug(f"opening {fname} / {sname}")
-                df = _load_country_emissions(zf.open(sname))
-                df = df.pipe(recast_parquet, conf=False)
-                dfs.append(df)
+
+    def _read_parquet(p: Path) -> pl.DataFrame:
+        return (
+            pl.read_parquet(p)
+            .pipe(recast_parquet, conf=False)
+            .filter(pl.col(GAS).is_in(gases))
+        )
+
+    if parquet_path is not None:
+        return _read_parquet(parquet_path)
+    elif archive_path is not None:
+        for gas_ in gases:
+            for fname in _files[gas_]:
+                (zf, local_p) = _get_zip(archive_path, gas_, fname)
+                _logger.debug(f"Opening path {fname} from {local_p}")
+                source_names = [
+                    n for n in zf.namelist() if n.endswith("_country_emissions.csv")
+                ]
+                # TODO(V3) There seems to be duplicate entries (but not data) in the zip files.
+                source_names = sorted(set(source_names))
+                _logger.debug(f"sources: {source_names}")
+                for sname in source_names:
+                    _logger.debug(f"opening {fname} / {sname}")
+                    df = _load_country_emissions(zf.open(sname))
+                    df = df.pipe(recast_parquet, conf=False)
+                    dfs.append(df)
+    else:
+        # By default, load from from HF.
+        fname = "climate-trace-countries-{version}.parquet"
+        local_path = huggingface_hub.file_download.hf_hub_download(
+            repo_id="tjhunter/climate-trace",
+            filename=fname.format(version=version),
+            repo_type="dataset",
+        )
+        return _read_parquet(local_path)
+
     res_df = pl.concat(dfs)
     return res_df
 
