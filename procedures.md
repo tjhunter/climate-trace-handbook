@@ -29,3 +29,7 @@ ghp-import -n -p -f _build/html
 ## Publish the package
 
 Only do it from main.
+
+```
+poetry publish
+```
