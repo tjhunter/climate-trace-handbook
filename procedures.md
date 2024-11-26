@@ -26,10 +26,12 @@ set -x PYTHONPATH $PWD:$PWD/src/ ; jupyter-book build ct_book
 ghp-import -n -p -f _build/html
 ```
 
-## Publish the package
+## Author new released and publish the package
 
+Check version in pyproject.toml and `ctrace/__init__.py`
 Only do it from main.
 
 ```
+poetry build
 poetry publish
 ```

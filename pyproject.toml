@@ -45,6 +45,11 @@ matplotlib = "^3.8.3"
 plotly = "^5.20.0"
 ghp-import = "^2.1.0"
 scipy = ">=1.10.0,<1.12.0" # Arviz requires scipy 1.11   
+duckdb = ">=1,<1.2"
+lonboard = ">=0.10,<0.11"
+geopandas = "^1.0"
+folium = ">=0.12.1"
+mapclassify = ">=2.4.3"
 
 # Dependencies for the bayesian analysis
 [tool.poetry.group.bayesian.dependencies]
@@ -52,7 +57,6 @@ arviz = "^0.17.1"
 pymc = "^5.12.0"
 dds-py = "^0.13.1"
 pandera = {extras = ["polars"], version = "^0.18.3"}
-duckdb = "^0.10.1"
 huggingface-hub = "^0.23.2"
 
 [tool.poetry.group.dev.dependencies]
