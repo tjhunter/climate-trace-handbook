@@ -16,6 +16,7 @@ import huggingface_hub.file_download  # type: ignore
 import polars as pl
 import pooch  # type: ignore
 from polars import col as C
+import duckdb
 
 from .constants import *
 from .enums import *
@@ -576,3 +577,190 @@ def _parse_date(col_name: str) -> pl.Expr:
         )
         .alias(col_name)
     )
+
+
+# ********* Geometry functions *********
+
+poly_fname = f"climate_trace-polygons_{version}.parquet"
+points_fname = f"climate_trace-points_{version}.parquet"
+c_gadm = pl.col("gadm")
+
+
+def extract_polygons(p: Optional[Path], gases: List[Gas]) -> Path:
+    """Extracts all the polygons from the geometry files.
+
+    NOTE: the geometries are stored in the WKB (Well-Known Binary) format.
+    TODO: store them in geoparquet format (writing not supported by DuckDB yet)
+    """
+    polys = _extract_polygons(p, gases)
+    # Dedup the polygons
+    pdf = (
+        pl.scan_parquet([p_fname for (_, p_fname) in polys])
+        .group_by("geometry_ref")
+        .agg(pl.col("geom").first().alias("geom_wkb"))
+    )
+    # Add GADM information
+    pdf = _enrich_gadm(pdf, col_ref=c_geometry_ref)
+    # Write to temp file. Necessary to interact with DuckDB it seems.
+    tmp_dir = Path(tempfile.gettempdir())
+    pq_fname = tmp_dir / poly_fname
+    _logger.debug(f"writing {pq_fname}")
+    pdf.sink_parquet(pq_fname)
+    return pq_fname
+
+
+def extract_points(p: Optional[Path], polys: Path, gases: List[Gas]) -> Path:
+    """Assumes that the geometries have already been extracted."""
+    pq_points = _extract_points(p, polys, gases)
+    # Dedup the points
+    points_pdf = (
+        pl.scan_parquet(pq_points)
+        .group_by(c_geometry_ref)
+        .agg(
+            c_gadm,
+            pl.col("geom").first().alias("geom_wkb"),
+            pl.col("lat").first(),
+            pl.col("lng").first(),
+        )
+    )
+    # Add GADM information
+    points_pdf = (
+        points_pdf.with_columns(
+            # The GADM information is stored as a list of strings, sort by length
+            c_gadm.map_elements(
+                lambda l: sorted(l, key=len), return_dtype=pl.List(pl.String)
+            )
+        )
+        .with_columns(
+            c_gadm.list.get(0, null_on_oob=True).alias("gadm_0"),
+            c_gadm.list.get(1, null_on_oob=True).alias("gadm_1"),
+            c_gadm.list.get(2, null_on_oob=True).alias("gadm_2"),
+        )
+        .with_columns(
+            c_gadm.list.get(-1, null_on_oob=True).alias("gadm"),
+        )
+        .pipe(_enrich_gadm, col_ref=c_gadm)
+    )
+    # Write the points.
+    # TODO: optimize the groups
+    tmp_dir = Path(tempfile.gettempdir())
+    pq_points = tmp_dir / points_fname
+    _logger.debug(f"writing {pq_points}")
+    # TODO: It cannot write lazily.
+    points_pdf.collect().write_parquet(pq_points)
+    return pq_points
+
+
+def _enrich_subsector(pdf, sector):
+    return pdf.with_columns(
+        pl.col("subsectors")
+        .str.strip_chars_start("{")
+        .str.strip_chars_end("}")
+        .str.split(by=",")
+        .cast(pl.List(subsector_enum))
+        .alias("subsectors"),
+        pl.lit(sector).cast(sector_enum).alias(SECTOR),
+    )
+
+
+def _enrich_gadm(pdf, col_ref):
+    pdf = pdf.with_columns(
+        pl.when(col_ref.str.starts_with("gadm"))
+        .then(col_ref.str.count_matches(".", literal=True))
+        .otherwise(None)
+        .alias("gadm_level")
+    ).with_columns(
+        col_ref.str.strip_prefix("gadm_")
+        .str.head(3)
+        .cast(iso3_enum, strict=False)
+        .alias(ISO3_COUNTRY)
+    )
+    return pdf
+
+
+def _extract_points(p: Optional[Path], polys: Path, gases: List[Gas]) -> List[Path]:
+    import fiona  # type: ignore
+
+    tmp_dir = Path(tempfile.gettempdir())
+    data_files: List[Path] = []
+    p = p or True
+    for gas in gases:
+        (tmp_dir / gas).mkdir(parents=True, exist_ok=True)
+        for fname in list(_files[gas].keys()):
+            sector = fname.replace(".zip", "")  # The sector is the name of the file
+            # Assume that the geometries have already been extracted.
+            gpkg_fname = tmp_dir / gas / "DATA" / f"{sector}_geometries.gpkg"
+            # The file may not exist if there are no geometries.
+            if not gpkg_fname.exists():
+                _logger.info(f"skipping {gas}:{sector}: no geometries")
+                continue
+            # The file may be lacking points layers (ex: buildings)
+            if f"{sector}_points" not in fiona.listlayers(gpkg_fname):
+                _logger.info(
+                    f"skipping {gas}:{sector}: no points. The current layers are: {fiona.listlayers(gpkg_fname)}"
+                )
+                continue
+            pq_fname = tmp_dir / gas / f"{sector}_points.parquet"
+            _logger.debug(f"writing {pq_fname}")
+            _ensure_duckdb()
+            duckdb.sql(
+                f"""
+SET memory_limit = '4GB';
+CREATE OR REPLACE TABLE polys AS SELECT *, ST_GeomFromWKB(geom_wkb) AS geom FROM '{polys}';
+CREATE OR REPLACE TABLE points AS SELECT *, ST_X(geom) as lng, ST_Y(geom) as lat FROM ST_read('{gpkg_fname}', layer='{sector}_points');
+COPY (
+    SELECT 
+        points.geometry_ref,
+        points.subsectors,
+        polys.iso3_country,
+        polys.geometry_ref AS gadm,
+        polys.gadm_level,
+        points.lat,
+        points.lng,
+        points.geom 
+    FROM points
+    JOIN polys ON st_intersects(points.geom, polys.geom)
+) TO '{pq_fname}';
+"""
+            )
+            data_files.append(pq_fname)
+    return data_files
+
+
+def _extract_polygons(p: Optional[Path], gases: List[Gas]) -> List[Tuple[Path, Path]]:
+    tmp_dir = Path(tempfile.gettempdir())
+    data_files: List[Tuple[Path, Path]] = []
+    p = p or True
+    for gas in gases:
+        (tmp_dir / gas).mkdir(parents=True, exist_ok=True)
+        for fname in list(_files[gas].keys()):
+            sector = fname.replace(".zip", "")  # The sector is the name of the file
+            _logger.debug(f"Opening path {fname} {gas}")
+            (zf, _) = _get_zip(p, gas, fname)
+            # Some files (ex: fluorinated_gases) do not have geometries.
+            if not any(["gpkg" in s for s in zf.namelist()]):
+                _logger.info(f"skipping {gas}:{sector}: no geometries")
+                continue
+            gpkg_fname = tmp_dir / gas / "DATA" / f"{sector}_geometries.gpkg"
+            _logger.debug(f"extracting {gpkg_fname}")
+
+            zf.extract(f"DATA/{sector}_geometries.gpkg", (tmp_dir / gas))
+            pq_fname = tmp_dir / gas / f"{sector}_polygons.parquet"
+            _logger.debug(f"writing {pq_fname}")
+            _ensure_duckdb()
+            duckdb.sql(
+                f"""
+COPY(
+    SELECT * FROM ST_read('{gpkg_fname}', layer='{sector}_polygons')
+) TO '{pq_fname}';
+"""
+            )
+            data_files.append((gpkg_fname, pq_fname))
+    return data_files
+
+
+@functools.cache
+def _ensure_duckdb():
+    """Ensures that all the relevant extensions are loaded in DuckDB"""
+    duckdb.execute("INSTALL spatial")
+    duckdb.execute("LOAD spatial")
