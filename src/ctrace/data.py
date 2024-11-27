@@ -688,14 +688,16 @@ def _extract_points(p: Optional[Path], polys: Path, gases: List[Gas]) -> List[Pa
         (tmp_dir / gas).mkdir(parents=True, exist_ok=True)
         for fname in list(_files[gas].keys()):
             sector = fname.replace(".zip", "")  # The sector is the name of the file
+            # Old CT code: underscores are replaced by dashes
+            sector_ct = sector.replace("_", "-")
             # Assume that the geometries have already been extracted.
-            gpkg_fname = tmp_dir / gas / "DATA" / f"{sector}_geometries.gpkg"
+            gpkg_fname = tmp_dir / gas / "DATA" / f"{sector_ct}_geometries.gpkg"
             # The file may not exist if there are no geometries.
             if not gpkg_fname.exists():
                 _logger.info(f"skipping {gas}:{sector}: no geometries")
                 continue
             # The file may be lacking points layers (ex: buildings)
-            if f"{sector}_points" not in fiona.listlayers(gpkg_fname):
+            if f"{sector_ct}_points" not in fiona.listlayers(gpkg_fname):
                 _logger.info(
                     f"skipping {gas}:{sector}: no points. The current layers are: {fiona.listlayers(gpkg_fname)}"
                 )
@@ -707,7 +709,7 @@ def _extract_points(p: Optional[Path], polys: Path, gases: List[Gas]) -> List[Pa
                 f"""
 SET memory_limit = '4GB';
 CREATE OR REPLACE TABLE polys AS SELECT *, ST_GeomFromWKB(geom_wkb) AS geom FROM '{polys}';
-CREATE OR REPLACE TABLE points AS SELECT *, ST_X(geom) as lng, ST_Y(geom) as lat FROM ST_read('{gpkg_fname}', layer='{sector}_points');
+CREATE OR REPLACE TABLE points AS SELECT *, ST_X(geom) as lng, ST_Y(geom) as lat FROM ST_read('{gpkg_fname}', layer='{sector_ct}_points');
 COPY (
     SELECT 
         points.geometry_ref,
@@ -728,12 +730,14 @@ COPY (
 
 
 def _extract_polygons(p: Optional[Path], gases: List[Gas]) -> List[Tuple[Path, Path]]:
+    import fiona  # type: ignore
+
     tmp_dir = Path(tempfile.gettempdir())
     data_files: List[Tuple[Path, Path]] = []
     p = p or True
     for gas in gases:
         (tmp_dir / gas).mkdir(parents=True, exist_ok=True)
-        for fname in list(_files[gas].keys()):
+        for fname in list(_files[gas].keys())[3:]:
             sector = fname.replace(".zip", "")  # The sector is the name of the file
             _logger.debug(f"Opening path {fname} {gas}")
             (zf, _) = _get_zip(p, gas, fname)
@@ -741,17 +745,25 @@ def _extract_polygons(p: Optional[Path], gases: List[Gas]) -> List[Tuple[Path, P
             if not any(["gpkg" in s for s in zf.namelist()]):
                 _logger.info(f"skipping {gas}:{sector}: no geometries")
                 continue
-            gpkg_fname = tmp_dir / gas / "DATA" / f"{sector}_geometries.gpkg"
+            # Old CT code: underscores are replaced by dashes
+            sector_ct = sector.replace("_", "-")
+            gpkg_fname = tmp_dir / gas / "DATA" / f"{sector_ct}_geometries.gpkg"
             _logger.debug(f"extracting {gpkg_fname}")
 
-            zf.extract(f"DATA/{sector}_geometries.gpkg", (tmp_dir / gas))
+            zf.extract(f"DATA/{sector_ct}_geometries.gpkg", (tmp_dir / gas))
+            # The file may be lacking points layers (ex: buildings)
+            if f"{sector_ct}_polygons" not in fiona.listlayers(gpkg_fname):
+                _logger.warning(
+                    f"skipping {gas}:{sector}: no polygons. The current layers are: {fiona.listlayers(gpkg_fname)}"
+                )
+                continue
             pq_fname = tmp_dir / gas / f"{sector}_polygons.parquet"
             _logger.debug(f"writing {pq_fname}")
             _ensure_duckdb()
             duckdb.sql(
                 f"""
 COPY(
-    SELECT * FROM ST_read('{gpkg_fname}', layer='{sector}_polygons')
+    SELECT * FROM ST_read('{gpkg_fname}', layer='{sector_ct}_polygons')
 ) TO '{pq_fname}';
 """
             )
