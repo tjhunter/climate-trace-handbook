@@ -431,7 +431,7 @@ def recast_parquet(df: Frame, conf: bool) -> Frame:
             TEMPORAL_GRANULARITY
         ),
         c_subsector.cast(subsector_enum).alias(SUBSECTOR),
-        c_sector.cast(sector_enum).alias(SECTOR),
+        # c_sector.cast(sector_enum, strict=False).alias(SECTOR),
     )
     if EMISSIONS_QUANTITY_UNITS in df.collect_schema().names():
         # There is no emissions quantity for the sources (it is all defined in metric tonnes).
