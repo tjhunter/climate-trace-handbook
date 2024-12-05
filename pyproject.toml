@@ -36,6 +36,7 @@ polars = "^1.0"
 pyarrow = ">=15.0.2,<20"
 pooch = "^1.8.1"
 duckdb = ">=1,<2"
+huggingface-hub = "^0.23.2"
 
 # Extra dependencies for ingestion
 [tool.poetry.group.ingestion.dependencies]
@@ -71,7 +72,6 @@ ruff = "^0.3.4"
 prettier = "^0.0.7"
 black = "^24.3.0"
 mypy = "^1.9.0"
-huggingface-hub = "^0.23.2"
 
 
 [tool.semantic_release]

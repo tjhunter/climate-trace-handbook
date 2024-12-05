@@ -136,6 +136,8 @@ def load_source_compact(p: Optional[Path] = None) -> Tuple[pl.LazyFrame, List[Pa
     """
     Reads the source emissions data from the given path and creates
     a compacted view in Polars.
+
+    This function is only relevant for ingesting raw Climate TRACE data.
     """
     # Polars still has some issues with memory, especially because we are
     # joining the confidence while scanning the data.
@@ -199,6 +201,44 @@ def load_source_compact(p: Optional[Path] = None) -> Tuple[pl.LazyFrame, List[Pa
         dfs.append(df_)
     res_df: pl.LazyFrame = pl.concat(dfs)
     return res_df, data_files
+
+
+def read_polygons(
+    p: Optional[Path] = None,
+) -> pl.LazyFrame:
+    """Loads all the polygons encoded by the Climate TRACE dataset.
+
+    The polygons are stored in the WKB (Well-Known Binary) format.
+    """
+    fname = "climate_trace-polygons-{version}.parquet"
+    if p is None:
+        local_path = huggingface_hub.file_download.hf_hub_download(
+            repo_id="tjhunter/climate-trace",
+            filename=fname.format(version=version),
+            repo_type="dataset",
+        )
+    else:
+        local_path = Path(p)
+    return pl.scan_parquet(local_path)
+
+
+def read_points(
+    p: Optional[Path] = None,
+) -> pl.LazyFrame:
+    """Loads all the points encoded by the Climate TRACE dataset.
+
+    The points are stored in lat/lon columns.
+    """
+    fname = "climate_trace-points-{version}.parquet"
+    if p is None:
+        local_path = huggingface_hub.file_download.hf_hub_download(
+            repo_id="tjhunter/climate-trace",
+            filename=fname.format(version=version),
+            repo_type="dataset",
+        )
+    else:
+        local_path = Path(p)
+    return pl.scan_parquet(local_path)
 
 
 def _load_csv(
@@ -610,7 +650,10 @@ def extract_polygons(p: Optional[Path], gases: List[Gas]) -> Path:
 
 
 def extract_points(p: Optional[Path], polys: Path, gases: List[Gas]) -> Path:
-    """Assumes that the geometries have already been extracted."""
+    """Extracts the point source information from the Climate TRACE dataset.
+
+    Assumes that the geometry files have already been extracted.
+    """
     pq_points = _extract_points(p, polys, gases)
     # Dedup the points
     points_pdf = (
