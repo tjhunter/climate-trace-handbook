@@ -210,7 +210,7 @@ def read_polygons(
 
     The polygons are stored in the WKB (Well-Known Binary) format.
     """
-    fname = "climate_trace-polygons-{version}.parquet"
+    fname = "climate_trace-polygons_{version}.parquet"
     if p is None:
         local_path = huggingface_hub.file_download.hf_hub_download(
             repo_id="tjhunter/climate-trace",
@@ -229,7 +229,7 @@ def read_points(
 
     The points are stored in lat/lon columns.
     """
-    fname = "climate_trace-points-{version}.parquet"
+    fname = "climate_trace-points_{version}.parquet"
     if p is None:
         local_path = huggingface_hub.file_download.hf_hub_download(
             repo_id="tjhunter/climate-trace",

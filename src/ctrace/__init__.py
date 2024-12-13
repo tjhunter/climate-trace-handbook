@@ -12,5 +12,7 @@ from .data import (
     read_country_emissions,
     read_source_emissions,
     recast_parquet,
+    read_points,
+    read_polygons,
 )
 from .enums import *
