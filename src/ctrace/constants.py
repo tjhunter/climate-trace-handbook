@@ -19,8 +19,8 @@ c_subsector = C("subsector")
 # TODO: currently supporting only CO2E_100YR.
 Gas = Literal[
     "co2",
-    # "ch4",
-    # "n2o",
+    "ch4",
+    "n2o",
     "co2e_100yr",
     # "co2e_20yr"
 ]
