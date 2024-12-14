@@ -91,6 +91,12 @@ years = list(range(2021, 2025))
 
 
 def _create_pooch(gas: Gas) -> pooch.Pooch:
+    # Some files are misnamed by the Climate TRACE project.
+    # TODO: open a ticket to fix the names.
+    _files_gas = _files[gas].copy()
+    for n, s in _files[gas].items():
+        n2 = n.replace("-", "_")
+        _files_gas[n2] = s
     return pooch.create(
         # TODO: eventually allow versioning of the dataset
         path=pooch.os_cache(f"climate_trace_{gas}"),
@@ -98,7 +104,7 @@ def _create_pooch(gas: Gas) -> pooch.Pooch:
         # TODO: open a ticket on how best to handle the different gases.
         base_url=f"https://downloads.climatetrace.org/v3/sector_packages/{gas}/",
         # The registry specifies the files that can be fetched
-        registry=_files[gas],
+        registry=_files_gas,
     )
 
 
@@ -261,7 +267,12 @@ def _load_csv(
 
 def _get_zip(p: Union[Path, bool, None], gas: Gas, name: str) -> Tuple[ZipFile, Path]:
     if p == True:
-        local_p = _ct_dset(gas).fetch(name)
+        # Catch the HTTPError: 404 Client Error from requests:
+        try:
+            local_p = _ct_dset(gas).fetch(name)
+        except Exception as e:
+            _logger.warning(f"Error fetching {name} from {gas}: {e}")
+            local_p = _ct_dset(gas).fetch(name.replace("-", "_"))
     else:
         local_p = p / gas / name
     return (ZipFile(local_p), local_p)
