@@ -33,8 +33,8 @@ _files = {
     "ch4": {
         "agriculture.zip": "sha256:17408922af42ef9c6e662ebfd64752d8559accfe7258b2a72fb99fcb96ecbf63",
         "buildings.zip": "sha256:027cd2cf50ced82d86fbe6fefe4e77894afc23b9ef68cf3d1cb98b0b8a3ee186",
-        "fluorinated-gases.zip": "sha256:ef0b53830e5ed55c590ac07b5e9c8797fec6c371245ca28ed3326d162fdd3b7e",
-        "forestry-and-land-use.zip": "sha256:dda7a055f9ee91bfb1d0ae1689c5a38116d858ff3cc86c96ee621c03f25a72b4",
+        "fluorinated_gases.zip": "sha256:ef0b53830e5ed55c590ac07b5e9c8797fec6c371245ca28ed3326d162fdd3b7e",
+        "forestry-and-land-use.zip": "sha256:76660b3a30a0cee85281895f7bb7ad1b5bf2df51925b1b382d43c84a7ceb08ec",
         "fossil-fuel-operations.zip": "sha256:70d46c8fce9de01f375ab696e35f001fb825482d0a8e87a66b19bd2cf6c4db71",
         "manufacturing.zip": "sha256:2115f3a0bf5206bf3b2a901e30a0668bbb84d1b5db64565fe5b996cf59c80c34",
         "mineral-extraction.zip": "sha256:4cf8245f62828d01868360066d1d20ceb3ec7082bd05e5714c0dd7bb239dc544",
@@ -93,18 +93,21 @@ years = list(range(2021, 2025))
 def _create_pooch(gas: Gas) -> pooch.Pooch:
     # Some files are misnamed by the Climate TRACE project.
     # TODO: open a ticket to fix the names.
-    _files_gas = _files[gas].copy()
-    for n, s in _files[gas].items():
+    urls = {}
+    for n, _ in _files[gas].items():
         n2 = n.replace("-", "_")
-        _files_gas[n2] = s
+        urls[n] = (
+            "https://downloads.climatetrace.org/v3/sector_packages/{gas}/{file}".format(
+                gas=gas, file=n2
+            )
+        )
     return pooch.create(
         # TODO: eventually allow versioning of the dataset
         path=pooch.os_cache(f"climate_trace_{gas}"),
         version="v3-2024",
-        # TODO: open a ticket on how best to handle the different gases.
-        base_url=f"https://downloads.climatetrace.org/v3/sector_packages/{gas}/",
-        # The registry specifies the files that can be fetched
-        registry=_files_gas,
+        urls=urls,
+        registry={n: None for n in _files[gas]},  # TODO
+        base_url="",
     )
 
 
@@ -267,12 +270,7 @@ def _load_csv(
 
 def _get_zip(p: Union[Path, bool, None], gas: Gas, name: str) -> Tuple[ZipFile, Path]:
     if p == True:
-        # Catch the HTTPError: 404 Client Error from requests:
-        try:
-            local_p = _ct_dset(gas).fetch(name)
-        except Exception as e:
-            _logger.warning(f"Error fetching {name} from {gas}: {e}")
-            local_p = _ct_dset(gas).fetch(name.replace("-", "_"))
+        local_p = _ct_dset(gas).fetch(name)
     else:
         local_p = p / gas / name
     return (ZipFile(local_p), local_p)

@@ -35,8 +35,9 @@ CO2E_20YR = "co2e_20yr"
 
 # TODO: currently supporting only CO2E_100YR.
 GAS_LIST: List[Gas] = [
-    # CO2, CH4, N2O,
     CO2,
+    CH4,
+    N2O,
     CO2E_100YR,
     # CO2E_20YR
 ]
