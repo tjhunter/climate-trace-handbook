@@ -11,7 +11,8 @@ set -x PYTHONPATH $PWD:$PWD/src/ ; jupyter notebook
 
 In a memory restricted environment:
 ```fish
-set -x PYTHONPATH $PWD:$PWD/src/ ; systemd-run --scope -p MemoryMax=10G --user jupyter notebook
+set -x PYTHONPATH $PWD:$PWD/src/
+systemd-run --scope -p MemoryMax=10G --user jupyter notebook
 ```
 
 ## Updating the book
