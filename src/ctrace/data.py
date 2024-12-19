@@ -26,55 +26,89 @@ _logger = logging.getLogger(__name__)
 # A union type for the polars dataframes
 Frame = TypeVar("Frame", pl.DataFrame, pl.LazyFrame)
 
+
 # The archive files released by V3 of the Climate TRACE project
 # TODO: this is only CO2E_100YR, add the other gas later.
 # TODO: ask CT to provide the sha256 checksums directly, it is annoying to precalculate myself and less secure.
 _files = {
-    CO2: {
-        "agriculture.zip": "sha256:7bd26e0be0f9aa335c9ff68759003f52047d7a60b3e47335b3f77cd732969774",
-        "buildings.zip": "sha256:aa2a0a7b6864c9f569682b9ff2a086329ea90719a2ecc48150c6fbd83f8c9edc",
-        "fluorinated_gases.zip": "sha256:b1c024513dbca1d427d2d4435718d11c215ec97e4aae10458caf09216ab5acc3",
-        "forestry_and_land_use.zip": "sha256:24a8f808311a35b08bb28c9c4e4adff0cf7e86c905646d4efa1f914ecf73b127",
-        "fossil_fuel_operations.zip": "sha256:91fb66f48dab5ae0824d822c845dbe76caa3375355c769dc335a70fc735e2073",
-        "manufacturing.zip": "sha256:1aaf81c7d9a1932c640d437e12817c4291c6abcb5db95ee12d7b6ac89edf0d7d",
-        "mineral_extraction.zip": "sha256:9ed00f890521ca3aa6985d8be01817427710641363541f32f4a0056b884d1489",
-        "power.zip": "sha256:fabb53b3533d36c401b57ad4c2c70003eefae9e832537aeb6203958983b279e4",
-        "transportation.zip": "sha256:8418ed9c25d4d193f5b64e64efcd7b78ac8ebb1a2373d67b8092377e0ca59322",
-        "waste.zip": "sha256:feb5716e83ac3adfdf71e0728a82c904b28ebe28aa0dc24983ff56f70806907c",
+    "ch4": {
+        "agriculture.zip": "sha256:17408922af42ef9c6e662ebfd64752d8559accfe7258b2a72fb99fcb96ecbf63",
+        "buildings.zip": "sha256:027cd2cf50ced82d86fbe6fefe4e77894afc23b9ef68cf3d1cb98b0b8a3ee186",
+        "fluorinated_gases.zip": "sha256:ef0b53830e5ed55c590ac07b5e9c8797fec6c371245ca28ed3326d162fdd3b7e",
+        "forestry-and-land-use.zip": "sha256:76660b3a30a0cee85281895f7bb7ad1b5bf2df51925b1b382d43c84a7ceb08ec",
+        "fossil-fuel-operations.zip": "sha256:70d46c8fce9de01f375ab696e35f001fb825482d0a8e87a66b19bd2cf6c4db71",
+        "manufacturing.zip": "sha256:2115f3a0bf5206bf3b2a901e30a0668bbb84d1b5db64565fe5b996cf59c80c34",
+        "mineral-extraction.zip": "sha256:4cf8245f62828d01868360066d1d20ceb3ec7082bd05e5714c0dd7bb239dc544",
+        "power.zip": "sha256:b5d1fb94190132866c8f5ccef538cc414233932dcaee046071f453fe58ca2003",
+        "transportation.zip": "sha256:992b525d00d953170fda89d4f381c576da1435a1fec588595da132154507d693",
+        "waste.zip": "sha256:492091e28e8ea8c5a1b3c197c5a1dacdce5391a4ee2b5c934319f852448101a9",
     },
-    CO2E_100YR: {
-        "agriculture.zip": "sha256:34b9f408dd18d9d3dcad695923619fef7d49d7296c3e95c8db11e3769ebae40b",
-        "buildings.zip": "sha256:1399aba2de0a52db502d2a226810a288f5706bde5c11ee982c13bf6e57eea110",
-        "fluorinated_gases.zip": "sha256:58478f4bc81fe7d61e93f915179b873c1199cfdcf12e85bd4f5e3070f99d6988",
-        "forestry_and_land_use.zip": "sha256:40894910c3e36f19c7155e81a6778f4cc01ab8cdefabdb3f1a80dac95ae45dd1",
-        "fossil_fuel_operations.zip": "sha256:b23575c07f5fbf89521dfb4f279c74b7017d5e6269a55c842254b61b8d3ad6d0",
-        "manufacturing.zip": "sha256:0b61b46cbab6827bc702f8013c96e8d726acda632e050c250ae5fa1d7eb71869",
-        "mineral_extraction.zip": "sha256:cefbc918a83794e64dbef7342fc0767c18e9b9011b418dae0a7e6eadb60cce69",
-        "power.zip": "sha256:cb93d664b4d3f07e8d73fbee04db09a337ee0dfd5972d57c399b7ffff89993c2",
-        "transportation.zip": "sha256:4a19ce826056bed9b3a4fc6e09f212087ac4f65ef00c01c48e84f261bc9a7a31",
-        "waste.zip": "sha256:1aa3e32e83af8afebae8c8d56a331b22cd2bad06433d02b5515e8621c2afa5d4",
+    "n2o": {
+        "agriculture.zip": "sha256:0d77cd43d47bfc76f1b7de60f64e7c3b4202ea5d69bd381408d03c8340cabb58",
+        "buildings.zip": "sha256:e9fedcda3ce8f9cf94bc81cf9c7ec04235150799ce39c19107acf67e52c6847c",
+        "fluorinated-gases.zip": "sha256:aadcdcd962355db93784784e91a801533d5ac20da3dfa8daccd5e8e31c7bcbad",
+        "forestry-and-land-use.zip": "sha256:6f76414c0cfd2e17d354c09cf3510cdca8c012cf1a91e2ddc044ff7e5e316c78",
+        "fossil-fuel-operations.zip": "sha256:fd7abb79d747ac408ce96cd81ab73eaaed225bdf5c56fc97f14637abcee922fd",
+        "manufacturing.zip": "sha256:0a4a4fdbbe2f1fe2b757dddee829b2abbe0ebebd331a46e97a9e7e07992ef7fc",
+        "mineral-extraction.zip": "sha256:e30aabe4088581714d59295767bcd3debeb7de43f6c9e5f96632275acc3d2b54",
+        "power.zip": "sha256:d9bbbc0faada288d9b8eca0d2158cdb69ce426c9a341b3fa83c6f5f5eaad7cb9",
+        "transportation.zip": "sha256:3debbfeccb4cee32ecb3225186f65f1ed06cf442fe45f277ec8b71456439c1da",
+        "waste.zip": "sha256:721661d9a8706595116ee1ab7c6ccc6a22c692f105cb9e51be38f4551abe6287",
+    },
+    "co2": {
+        "agriculture.zip": "sha256:fdd01821f1ccee672650c83bbf42e0675d752ec96c0261b5e1963f91b201b32f",
+        "buildings.zip": "sha256:5f1386632116f4e58df96aa6b228870034e3531b976f85616aa6a746d660d425",
+        "fluorinated-gases.zip": "sha256:ca01fa9c4549d46ba101bdbc097d70198c0967dd00e5e17e6fe8ae4505ec12ff",
+        "forestry-and-land-use.zip": "sha256:b1ab80083389c934cae62ea41614233cd55eeca05750d0debb9e4661aa849196",
+        "fossil-fuel-operations.zip": "sha256:cca1ac9adee693e90aa3c0215f8bac14958f995febf2e4a3e8425991d95d7054",
+        "manufacturing.zip": "sha256:0e402700ad9b37b0c51b0c592b42111370e5a5b54dec36f01ac1531f2929b18f",
+        "mineral-extraction.zip": "sha256:a37aa5e5811cf649e2f958da40df2ecb53f156e8516a8d8c6b9575fefbe6a873",
+        "power.zip": "sha256:36d08445199f10402559bea41866d8179eb89818ba380bea12b69e0438b96773",
+        "transportation.zip": "sha256:063954edbf13fb0bc0dd1621ecb28b3238451b8acf0a808534adc39f905a49e2",
+        "waste.zip": "sha256:54b9f9c6a924c3dafefea39848e835d4fb24bb427e352540c0615ba2dc8e4186",
+    },
+    "co2e_100yr": {
+        "agriculture.zip": "sha256:683122af6819687ea2b95277a2615e58577521e0aae449f3c47fbef25ee8c20a",
+        "buildings.zip": "sha256:02728636c1cd13e99cf701e325b1ee0805e3e35fa7f14ea435f71f2f9a394323",
+        "fluorinated-gases.zip": "sha256:16a20b7d4c16d37455170fe95dfeffc256846fb03db7a7d95a171e6bc6476004",
+        "forestry-and-land-use.zip": "sha256:aa318afc41e7cf70497148d64e6b5abcdfd23daad75fca16c40ab4228baf7195",
+        "fossil-fuel-operations.zip": "sha256:eb720e38d990179e6ef2bc1c9949ab368d1c681ee6f65550c71c4e5e9416c70f",
+        "manufacturing.zip": "sha256:a4f28ef3a7def17ec493550289ea00bb3093526f7546d65d51d54973ea5aaacd",
+        "mineral-extraction.zip": "sha256:0d2fe9e61753c60bbc7688b99ed794eac2fe7e808a1829ae07105c7f8371e815",
+        "power.zip": "sha256:aa5189c413a0d9e2c606952ff2271bbb0abafc6a35632612374dc3a44d3417ac",
+        "transportation.zip": "sha256:90117bbce92793b6ea205ff18f50220e709fa5229d0a66789f29ec53f6064ca7",
+        "waste.zip": "sha256:092034816686c1170c269aacf23ccbaf6abeb6f38be7eaf4d07ff24b536cc3cd",
     },
 }
 
 # The version of the dataset
 # The first version "v2" is the official release from Climate TRACE.
-# The second (year) is the release year.
+# The second (year) is the release year, and then the snapshot date.
 # The third (ct) is the version of this dataset as generated by the ctrace package.
-version = "v3-2024-ct4"
+version = "v3-2024-ct5"
 # The years covered by the dataset.
 # The range could be larger but it will be extended based on interest.
 years = list(range(2021, 2025))
 
 
 def _create_pooch(gas: Gas) -> pooch.Pooch:
+    # Some files are misnamed by the Climate TRACE project.
+    # TODO: open a ticket to fix the names.
+    urls = {}
+    for n, _ in _files[gas].items():
+        n2 = n.replace("-", "_")
+        urls[n] = (
+            "https://downloads.climatetrace.org/v3/sector_packages/{gas}/{file}".format(
+                gas=gas, file=n2
+            )
+        )
     return pooch.create(
         # TODO: eventually allow versioning of the dataset
         path=pooch.os_cache(f"climate_trace_{gas}"),
         version="v3-2024",
-        # TODO: open a ticket on how best to handle the different gases.
-        base_url=f"https://downloads.climatetrace.org/v3/sector_packages/{gas}/",
-        # The registry specifies the files that can be fetched
-        registry=_files[gas],
+        urls=urls,
+        registry={n: None for n in _files[gas]},  # TODO
+        base_url="",
     )
 
 
@@ -107,7 +141,7 @@ def read_source_emissions(
     """
     ys = _check_year(year)
     gases = _check_gas(gas)
-    fname = "climate_trace-sources_{version}_{year}_{gas}.parquet"
+    fname = "{version}/climate_trace-sources_{version}_{year}_{gas}.parquet"
     if p is None:
         local_paths = [
             huggingface_hub.file_download.hf_hub_download(
