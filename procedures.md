@@ -30,6 +30,7 @@ systemd-run --scope -p MemoryMax=10G --user jupyter-book build ct_book
 ## Publish the book
 
 ```fish
+cd ct_book
 ghp-import -n -p -f _build/html
 ```
 
