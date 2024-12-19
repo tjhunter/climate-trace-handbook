@@ -9,6 +9,7 @@ logo: climate_trace_logo.jpeg
 # See https://jupyterbook.org/content/execute.html
 execute:
   execute_notebooks: force
+  exclude_patterns: ["_*", "*_rust.*", "local_exploration*", "country_total_emissions*"]
   # Be generous, but the notebooks should be relatively quick to run
   timeout: 100
 # Define the name of the latex output file for PDF builds

@@ -1,0 +1,1227 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Creating optimized parquet files for source data &#8212; The Climate TRACE Data Science Handbook</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ingestion_rust';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/climate_trace_logo.jpeg" class="logo__image only-light" alt="The Climate TRACE Data Science Handbook - Home"/>
+    <img src="_static/climate_trace_logo.jpeg" class="logo__image only-dark pst-js-only" alt="The Climate TRACE Data Science Handbook - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Saving the planet with data: deriving insights from the Climate Trace project.
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="initial_analysis.html">Data exploration of the Climate TRACE dataset</a></li>
+
+
+
+<li class="toctree-l1"><a class="reference internal" href="sce_diffs.html">Comparing source and country inventories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="uncertainty_drilldown.html">Uncertainty drilldown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingestion.html">Data ingestion and formatting</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/tjhunter/climate-trace-handbook" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/tjhunter/climate-trace-handbook/issues/new?title=Issue%20on%20page%20%2Fingestion_rust.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/ingestion_rust.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Creating optimized parquet files for source data</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Creating optimized parquet files for source data</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregating-by-year-and-optimizing-the-output">Aggregating by year and optimizing the output</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-checks">Initial checks</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#integrity-checks">Integrity checks</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#co2e-subsector-data-should-be-a-superset-of-all-sectors">CO2e subsector data should be a superset of all sectors</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#create-parquet-files-for-country-emissions">Create parquet files for country emissions</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contry-emissions-integrity-checks">Contry emissions: integrity checks</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-co2e-data-should-be-a-superset-of-all-country-emissions">Country emissions: CO2e data should be a superset of all country emissions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-some-countries-are-excluded-from-the-dataset">Country emissions: some countries are excluded from the dataset</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#preparing-the-geographical-information">Preparing the geographical information</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-the-data-to-the-hugging-face-hub">Upload the data to the Hugging Face Hub</a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">polars</span> <span class="k">as</span> <span class="nn">pl</span>
+<span class="kn">from</span> <span class="nn">ctrace.constants</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">ctrace</span> <span class="k">as</span> <span class="nn">ct</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span>
+<span class="kn">from</span> <span class="nn">dds</span> <span class="kn">import</span> <span class="n">data_function</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">dds</span>
+<span class="kn">import</span> <span class="nn">huggingface_hub</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;dds&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="n">dds</span><span class="o">.</span><span class="n">accept_module</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="creating-optimized-parquet-files-for-source-data">
+<h1>Creating optimized parquet files for source data<a class="headerlink" href="#creating-optimized-parquet-files-for-source-data" title="Link to this heading">#</a></h1>
+<p>This first section creates files that are the most effective for reading and querying. The general approach is as follows:</p>
+<ol class="arabic simple">
+<li><p>Join the source and source confidence CSV files and writes them as parquet files for each subsector</p></li>
+<li><p>Aggregate by year into a yearly parquet file</p></li>
+<li><p>Optimize this parquet file for reading</p></li>
+</ol>
+<p>This first command creates parquet files that join the source and source confidences for each subsector, and returns a list of all the created files.</p>
+<p>In this notebook, another trick is to define the transformations as <em>data functions</em>. In short, this code will only run if the source code changes. This makes rerunning the notebooks very fast, and only updating when something has changed in the source code.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/data_sources&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_sources</span><span class="p">():</span>
+    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load_source_compact</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">files</span>
+
+<span class="n">load_sources</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[PosixPath(&#39;/tmp/co2/cropland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/enteric-fermentation-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/manure-management-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/rice-cultivation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/non-residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/forest-land-clearing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/forest-land-degradation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/forest-land-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/net-forest-land_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/net-shrubgrass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/net-wetland_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/removals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/shrubgrass-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/water-reservoirs_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/wetland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/coal-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/oil-and-gas-production_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/oil-and-gas-refining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/oil-and-gas-transport_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/aluminum_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/cement_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/food-beverage-tobacco_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/glass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/iron-and-steel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/lime_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/other-chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/other-manufacturing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/other-metals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/petrochemical-steam-cracking_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/pulp-and-paper_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/textiles-leather-apparel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/bauxite-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/copper-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/iron-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/electricity-generation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/domestic-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/domestic-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/international-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/international-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/road-transportation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/domestic-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/industrial-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2/solid-waste-disposal_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/cropland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/rice-cultivation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/net-forest-land_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/net-shrubgrass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/net-wetland_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/water-reservoirs_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/coal-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/oil-and-gas-refining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/aluminum_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/cement_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/other-manufacturing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/pulp-and-paper_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/bauxite-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/copper-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/iron-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/electricity-generation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/domestic-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/domestic-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/international-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/international-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/road-transportation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/tmp/co2e_100yr/solid-waste-disposal_emissions_sources.parquet&#39;)]
+</pre></div>
+</div>
+</div>
+</div>
+<p>To help with the loading, the data is partitioned by year. This is the most relevant for most users: most people are expected to look at specific years and sectors (especially the latest year). This reduces the amount of data to load.</p>
+<p>Let us have a quick peek at the data in one of these files. It looks already pretty good: a lot of the redundant data such as the enumerations has been deduplicated. All the enumeration data is now converted to integers, this is what <code class="docutils literal notranslate"><span class="pre">dictionary&lt;values=string,</span> <span class="pre">indices=int32,</span> <span class="pre">ordered=0&gt;</span></code> means. It is not quite ready for high performance however.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyarrow.parquet</span> <span class="kn">import</span> <span class="n">read_table</span>
+<span class="n">fname</span> <span class="o">=</span> <span class="n">load_sources</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+<span class="n">read_table</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/co2/cropland-fires_emissions_sources.parquet
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>pyarrow.Table
+source_id: uint64
+iso3_country: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+sector: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+subsector: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+original_inventory_sector: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+start_time: timestamp[ms, tz=UTC]
+end_time: timestamp[ms, tz=UTC]
+temporal_granularity: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+gas: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+emissions_quantity: double
+emissions_factor: double
+emissions_factor_units: large_string
+capacity: double
+capacity_units: large_string
+capacity_factor: double
+activity: double
+activity_units: large_string
+created_date: timestamp[ms, tz=UTC]
+modified_date: timestamp[ms, tz=UTC]
+source_name: large_string
+source_type: large_string
+lat: double
+lon: double
+other1: large_string
+other2: large_string
+other3: large_string
+other4: large_string
+other5: large_string
+other6: large_string
+other7: large_string
+other8: large_string
+other9: large_string
+other10: large_string
+other11: large_string
+other12: large_string
+other1_def: large_string
+other2_def: large_string
+other3_def: large_string
+other4_def: large_string
+other5_def: large_string
+other6_def: large_string
+other7_def: large_string
+other8_def: large_string
+other9_def: large_string
+other10_def: large_string
+other11_def: large_string
+other12_def: large_string
+geometry_ref: large_string
+conf_source_type: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+conf_capacity: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+conf_capacity_factor: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+conf_activity: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+conf_emissions_factor: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+conf_emissions_quantity: dictionary&lt;values=string, indices=int32, ordered=0&gt;
+----
+source_id: [[10760226,10760226,10760226,10760226,10760226,...,10792989,10792989,10792989,10792989,10792989],[10792989,10792989,10792989,10792989,10792989,...,10812836,10812836,10812836,10812836,10812836],...,[11298418,11298418,11298418,11298418,11298418,...,11301822,11301822,11301822,11301822,11301822],[11301822,11301822,11301822,11301822,11301822,...,11303229,11303229,11303229,11303229,11303229]]
+iso3_country: [  -- dictionary:
+[&quot;ABW&quot;,&quot;AFG&quot;,&quot;AGO&quot;,&quot;AIA&quot;,&quot;ALA&quot;,...,&quot;ZWE&quot;,&quot;ZNC&quot;,&quot;UNK&quot;,&quot;SCG&quot;,&quot;XAD&quot;]  -- indices:
+[1,1,1,1,1,...,23,23,23,23,23],  -- dictionary:
+[&quot;ABW&quot;,&quot;AFG&quot;,&quot;AGO&quot;,&quot;AIA&quot;,&quot;ALA&quot;,...,&quot;ZWE&quot;,&quot;ZNC&quot;,&quot;UNK&quot;,&quot;SCG&quot;,&quot;XAD&quot;]  -- indices:
+[23,23,23,23,23,...,32,32,32,32,32],...,  -- dictionary:
+[&quot;ABW&quot;,&quot;AFG&quot;,&quot;AGO&quot;,&quot;AIA&quot;,&quot;ALA&quot;,...,&quot;ZWE&quot;,&quot;ZNC&quot;,&quot;UNK&quot;,&quot;SCG&quot;,&quot;XAD&quot;]  -- indices:
+[234,234,234,234,234,...,238,238,238,238,238],  -- dictionary:
+[&quot;ABW&quot;,&quot;AFG&quot;,&quot;AGO&quot;,&quot;AIA&quot;,&quot;ALA&quot;,...,&quot;ZWE&quot;,&quot;ZNC&quot;,&quot;UNK&quot;,&quot;SCG&quot;,&quot;XAD&quot;]  -- indices:
+[238,238,238,238,238,...,249,249,249,249,249]]
+sector: [  -- dictionary:
+[&quot;agriculture&quot;,&quot;buildings&quot;,&quot;fluorinated-gases&quot;,&quot;forestry-and-land-use&quot;,&quot;fossil-fuel-operations&quot;,&quot;manufacturing&quot;,&quot;mineral-extraction&quot;,&quot;power&quot;,&quot;transportation&quot;,&quot;waste&quot;]  -- indices:
+[0,0,0,0,0,...,0,0,0,0,0],  -- dictionary:
+[&quot;agriculture&quot;,&quot;buildings&quot;,&quot;fluorinated-gases&quot;,&quot;forestry-and-land-use&quot;,&quot;fossil-fuel-operations&quot;,&quot;manufacturing&quot;,&quot;mineral-extraction&quot;,&quot;power&quot;,&quot;transportation&quot;,&quot;waste&quot;]  -- indices:
+[0,0,0,0,0,...,0,0,0,0,0],...,  -- dictionary:
+[&quot;agriculture&quot;,&quot;buildings&quot;,&quot;fluorinated-gases&quot;,&quot;forestry-and-land-use&quot;,&quot;fossil-fuel-operations&quot;,&quot;manufacturing&quot;,&quot;mineral-extraction&quot;,&quot;power&quot;,&quot;transportation&quot;,&quot;waste&quot;]  -- indices:
+[0,0,0,0,0,...,0,0,0,0,0],  -- dictionary:
+[&quot;agriculture&quot;,&quot;buildings&quot;,&quot;fluorinated-gases&quot;,&quot;forestry-and-land-use&quot;,&quot;fossil-fuel-operations&quot;,&quot;manufacturing&quot;,&quot;mineral-extraction&quot;,&quot;power&quot;,&quot;transportation&quot;,&quot;waste&quot;]  -- indices:
+[0,0,0,0,0,...,0,0,0,0,0]]
+subsector: [  -- dictionary:
+[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;synthetic-fertilizer-application&quot;,&quot;textiles-leather-apparel&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;,&quot;wood-and-wood-products&quot;]  -- indices:
+[8,8,8,8,8,...,8,8,8,8,8],  -- dictionary:
+[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;synthetic-fertilizer-application&quot;,&quot;textiles-leather-apparel&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;,&quot;wood-and-wood-products&quot;]  -- indices:
+[8,8,8,8,8,...,8,8,8,8,8],...,  -- dictionary:
+[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;synthetic-fertilizer-application&quot;,&quot;textiles-leather-apparel&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;,&quot;wood-and-wood-products&quot;]  -- indices:
+[8,8,8,8,8,...,8,8,8,8,8],  -- dictionary:
+[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;synthetic-fertilizer-application&quot;,&quot;textiles-leather-apparel&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;,&quot;wood-and-wood-products&quot;]  -- indices:
+[8,8,8,8,8,...,8,8,8,8,8]]
+original_inventory_sector: [  -- dictionary:
+[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;steel&quot;,&quot;synthetic-fertilizer-application&quot;,&quot;wastewater-treatment-and-discharge&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;]  -- indices:
+[null,null,null,null,null,...,null,null,null,null,null],  -- dictionary:
+[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;steel&quot;,&quot;synthetic-fertilizer-application&quot;,&quot;wastewater-treatment-and-discharge&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;]  -- indices:
+[null,null,null,null,null,...,null,null,null,null,null],...,  -- dictionary:
+[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;steel&quot;,&quot;synthetic-fertilizer-application&quot;,&quot;wastewater-treatment-and-discharge&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;]  -- indices:
+[null,null,null,null,null,...,null,null,null,null,null],  -- dictionary:
+[&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;steel&quot;,&quot;synthetic-fertilizer-application&quot;,&quot;wastewater-treatment-and-discharge&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;]  -- indices:
+[null,null,null,null,null,...,null,null,null,null,null]]
+start_time: [[2021-01-01 00:00:00.000Z,2021-02-01 00:00:00.000Z,2021-03-01 00:00:00.000Z,2021-04-01 00:00:00.000Z,2021-05-01 00:00:00.000Z,...,2023-04-01 00:00:00.000Z,2023-05-01 00:00:00.000Z,2023-06-01 00:00:00.000Z,2023-07-01 00:00:00.000Z,2023-08-01 00:00:00.000Z],[2023-09-01 00:00:00.000Z,2023-10-01 00:00:00.000Z,2023-11-01 00:00:00.000Z,2023-12-01 00:00:00.000Z,2024-01-01 00:00:00.000Z,...,2021-12-01 00:00:00.000Z,2022-01-01 00:00:00.000Z,2022-02-01 00:00:00.000Z,2022-03-01 00:00:00.000Z,2022-04-01 00:00:00.000Z],...,[2023-09-01 00:00:00.000Z,2023-10-01 00:00:00.000Z,2023-11-01 00:00:00.000Z,2023-12-01 00:00:00.000Z,2024-01-01 00:00:00.000Z,...,2021-12-01 00:00:00.000Z,2022-01-01 00:00:00.000Z,2022-02-01 00:00:00.000Z,2022-03-01 00:00:00.000Z,2022-04-01 00:00:00.000Z],[2022-05-01 00:00:00.000Z,2022-06-01 00:00:00.000Z,2022-07-01 00:00:00.000Z,2022-08-01 00:00:00.000Z,2022-09-01 00:00:00.000Z,...,2024-08-01 00:00:00.000Z,2024-09-01 00:00:00.000Z,2024-10-01 00:00:00.000Z,2024-11-01 00:00:00.000Z,2024-12-01 00:00:00.000Z]]
+end_time: [[2021-01-31 00:00:00.000Z,2021-02-28 00:00:00.000Z,2021-03-31 00:00:00.000Z,2021-04-30 00:00:00.000Z,2021-05-31 00:00:00.000Z,...,2023-04-30 00:00:00.000Z,2023-05-31 00:00:00.000Z,2023-06-30 00:00:00.000Z,2023-07-31 00:00:00.000Z,2023-08-31 00:00:00.000Z],[2023-09-30 00:00:00.000Z,2023-10-31 00:00:00.000Z,2023-11-30 00:00:00.000Z,2023-12-31 00:00:00.000Z,2024-01-31 00:00:00.000Z,...,2021-12-31 00:00:00.000Z,2022-01-31 00:00:00.000Z,2022-02-28 00:00:00.000Z,2022-03-31 00:00:00.000Z,2022-04-30 00:00:00.000Z],...,[2023-09-30 00:00:00.000Z,2023-10-31 00:00:00.000Z,2023-11-30 00:00:00.000Z,2023-12-31 00:00:00.000Z,2024-01-31 00:00:00.000Z,...,2021-12-31 00:00:00.000Z,2022-01-31 00:00:00.000Z,2022-02-28 00:00:00.000Z,2022-03-31 00:00:00.000Z,2022-04-30 00:00:00.000Z],[2022-05-31 00:00:00.000Z,2022-06-30 00:00:00.000Z,2022-07-31 00:00:00.000Z,2022-08-31 00:00:00.000Z,2022-09-30 00:00:00.000Z,...,2024-08-31 00:00:00.000Z,2024-09-30 00:00:00.000Z,2024-10-31 00:00:00.000Z,2024-11-30 00:00:00.000Z,2024-12-31 00:00:00.000Z]]
+temporal_granularity: [  -- dictionary:
+[&quot;annual&quot;,&quot;other&quot;,&quot;month&quot;,&quot;week&quot;,&quot;day&quot;,&quot;hour&quot;]  -- indices:
+[2,2,2,2,2,...,2,2,2,2,2],  -- dictionary:
+[&quot;annual&quot;,&quot;other&quot;,&quot;month&quot;,&quot;week&quot;,&quot;day&quot;,&quot;hour&quot;]  -- indices:
+[2,2,2,2,2,...,2,2,2,2,2],...,  -- dictionary:
+[&quot;annual&quot;,&quot;other&quot;,&quot;month&quot;,&quot;week&quot;,&quot;day&quot;,&quot;hour&quot;]  -- indices:
+[2,2,2,2,2,...,2,2,2,2,2],  -- dictionary:
+[&quot;annual&quot;,&quot;other&quot;,&quot;month&quot;,&quot;week&quot;,&quot;day&quot;,&quot;hour&quot;]  -- indices:
+[2,2,2,2,2,...,2,2,2,2,2]]
+gas: [  -- dictionary:
+[&quot;co2&quot;,&quot;co2e_100yr&quot;]  -- indices:
+[0,0,0,0,0,...,0,0,0,0,0],  -- dictionary:
+[&quot;co2&quot;,&quot;co2e_100yr&quot;]  -- indices:
+[0,0,0,0,0,...,0,0,0,0,0],...,  -- dictionary:
+[&quot;co2&quot;,&quot;co2e_100yr&quot;]  -- indices:
+[0,0,0,0,0,...,0,0,0,0,0],  -- dictionary:
+[&quot;co2&quot;,&quot;co2e_100yr&quot;]  -- indices:
+[0,0,0,0,0,...,0,0,0,0,0]]
+emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.32296197461828,38.16818200021535,...,269.018757173264,175.31207076887267,91.39990500605398,58.724632699989535,80.81230569281288],[211.330903793614,292.1079909047341,194.5476801860844,84.82207853739389,43.68382457080989,...,220.01629117534543,128.19921825691085,181.80045288320784,525.6198997919303,724.2735952297198],...,[351.46495384672033,485.80552914236375,323.5527327530167,141.067810638062,72.65067773344693,...,11.962179491648724,6.242534827676018,8.85259422203629,25.59454398540237,35.26779027565498],[23.17575451210868,11.306731373197133,6.734582157427812,9.41144820628891,26.04592086520223,...,23.05403759079097,65.16548236458307,89.85554183215632,59.229313787334775,28.22216552802012]]
+...
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="aggregating-by-year-and-optimizing-the-output">
+<h1>Aggregating by year and optimizing the output<a class="headerlink" href="#aggregating-by-year-and-optimizing-the-output" title="Link to this heading">#</a></h1>
+<p>The following block takes all the sector files and aggregates them by year. This is based on the expectation that most users will work on the latest year, and that some users will want to look into the trends across the years.</p>
+<p>Since these files will be read many times (every time we want to do a graph), it pays off to optimize them. The Parquet format is designed for fast reads of the relevant data. We will do two main optimizations: optimal compression, optimizing the row groups and adding statistics.</p>
+<p><em>Compression</em> Parquet allows some data to be compressed by columns. The first intuition is that, looking at each column of data separately, there will be more patterns and thus more opportunities to compress the data. The second intuition is that, in data-intensive application, reading the data is the bottleneck. It is then faster to read smaller compressed data in memory and then decompress it (losing a bit of time in compute), rather than reading larger, uncompressed data. Modern compression algorithms such as ZStandard or LZ4 are designed to be very effective at using a processor. Using them is essentially a pure gain in terms of processing speed.</p>
+<div class="admonition-ctodo admonition">
+<p class="admonition-title">CTODO</p>
+<p>The year of a data record is defined by its start time. This may be different than the convention used by Climate Trace. To check.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># write_directory = &quot;/tmp&quot;</span>
+<span class="c1"># years = ct.data.years</span>
+<span class="c1"># version = ct.data.version</span>
+<span class="c1"># gases = ct.constants.GAS_LIST</span>
+
+<span class="c1"># data_files = load_sources()</span>
+<span class="c1"># dfs = []</span>
+<span class="c1"># for tmp_name in data_files[:1]:</span>
+<span class="c1">#     print(tmp_name)</span>
+<span class="c1">#     df = (pl.scan_parquet(tmp_name)</span>
+<span class="c1">#                         .with_columns(c_gas.cast(pl.Categorical(ordering=&quot;lexical&quot;)),</span>
+<span class="c1">#                          c_sector.cast(pl.Categorical(ordering=&quot;lexical&quot;)))</span>
+<span class="c1"># )</span>
+<span class="c1">#     # df = df.pipe(ct.data.recast_parquet, conf=True)</span>
+<span class="c1">#     dfs.append(df)</span>
+<span class="c1"># ldf = pl.concat(dfs)</span>
+<span class="c1"># fnames = []</span>
+<span class="c1"># for gas in gases:</span>
+<span class="c1">#     for year in years[:1]:</span>
+<span class="c1">#         fname1 = f&quot;{write_directory}/pre_climate_trace-sources_{version}_{year}_{gas}.parquet&quot;</span>
+<span class="c1">#         print(fname1)</span>
+<span class="c1">#         (</span>
+<span class="c1">#             ldf.filter(c_start_time.dt.year() == int(year))</span>
+<span class="c1">#                .filter(c_gas == gas)</span>
+<span class="c1">#                .with_columns(c_gas.cast(pl.UInt32()).alias(&quot;gas2&quot;),</span>
+<span class="c1">#                          c_sector.cast(pl.String()).alias(&quot;sector2&quot;))</span>
+<span class="c1">#                # .with_columns(c_gas.cast(pl.Categorical(ordering=&quot;physical&quot;)),</span>
+<span class="c1">#                #           c_sector.cast(pl.Categorical(ordering=&quot;physical&quot;)))</span>
+<span class="c1">#                .sort(by=[&quot;gas2&quot;, &quot;sector2&quot;,</span>
+<span class="c1">#                          # SUBSECTOR, ISO3_COUNTRY,</span>
+<span class="c1">#                          SOURCE_ID])</span>
+<span class="c1">#                # .sort(by=[SOURCE_ID])</span>
+<span class="c1">#                .drop([&quot;gas2&quot;, &quot;sector2&quot;])</span>
+<span class="c1">#                # .collect()</span>
+<span class="c1">#                .sink_parquet(</span>
+<span class="c1">#                 fname1,</span>
+<span class="c1">#                 #compression=&quot;zstd&quot;,</span>
+<span class="c1">#                 #maintain_order=True,</span>
+<span class="c1">#                 #statistics=True,</span>
+<span class="c1">#             )</span>
+<span class="c1">#         )</span>
+<span class="c1"># assert False</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/co2/cropland-fires_emissions_sources.parquet
+/tmp/pre_climate_trace-sources_v3-2024-ct4_2021_co2.parquet
+/tmp/pre_climate_trace-sources_v3-2024-ct4_2021_co2e_100yr.parquet
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">AssertionError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">line</span> <span class="mi">42</span>
+<span class="g g-Whitespace">     </span><span class="mi">21</span>         <span class="nb">print</span><span class="p">(</span><span class="n">fname1</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">22</span>         <span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">23</span>             <span class="n">ldf</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_start_time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
+<span class="g g-Whitespace">     </span><span class="mi">24</span>                <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_gas</span> <span class="o">==</span> <span class="n">gas</span><span class="p">)</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">40</span>             <span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">41</span>         <span class="p">)</span>
+<span class="ne">---&gt; </span><span class="mi">42</span> <span class="k">assert</span> <span class="kc">False</span>
+
+<span class="ne">AssertionError</span>: 
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#read_table(&quot;/tmp/pre_climate_trace-sources_v3-2024-ct4_2021_co2.parquet&quot;)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">write_directory</span> <span class="o">=</span> <span class="s2">&quot;/tmp&quot;</span>
+<span class="n">years</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">years</span>
+<span class="n">version</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">version</span>
+<span class="n">gases</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">GAS_LIST</span>
+
+<span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/write_data&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">write_data</span><span class="p">():</span>
+    <span class="n">sort_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">GAS</span><span class="p">,</span> <span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">,</span> <span class="n">ISO3_COUNTRY</span><span class="p">,</span> <span class="n">SOURCE_ID</span><span class="p">]</span>
+    <span class="n">data_files</span> <span class="o">=</span> <span class="n">load_sources</span><span class="p">()</span>
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">tmp_name</span> <span class="ow">in</span> <span class="n">data_files</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">tmp_name</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span><span class="n">tmp_name</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">recast_parquet</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">ldf</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span>
+    <span class="n">fnames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sort_keys2</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">+</span><span class="s2">&quot;2&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sort_keys</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">gas</span> <span class="ow">in</span> <span class="n">gases</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">years</span><span class="p">:</span>
+            <span class="n">fname1</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">write_directory</span><span class="si">}</span><span class="s2">/pre_climate_trace-sources_</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">gas</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+            <span class="p">(</span>
+                <span class="n">ldf</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_start_time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
+                   <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_gas</span> <span class="o">==</span> <span class="n">gas</span><span class="p">)</span>
+                   <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">UInt32</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">c</span> <span class="o">+</span><span class="s2">&quot;2&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sort_keys</span><span class="p">])</span>
+                   <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">sort_keys2</span><span class="p">)</span>
+                   <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">sort_keys2</span><span class="p">)</span>
+                   <span class="o">.</span><span class="n">sink_parquet</span><span class="p">(</span>
+                    <span class="n">fname1</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;zstd&quot;</span><span class="p">,</span>
+                    <span class="n">maintain_order</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">statistics</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">write_directory</span><span class="si">}</span><span class="s2">/climate_trace-sources_</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">gas</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="c1"># Polars does not allow yet finetuning the sizes of the groups.</span>
+            <span class="c1"># Creating them manually for the time being.</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span><span class="n">fname1</span><span class="p">)</span>
+            <span class="n">pyarrow</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">write_dataset</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">,</span>
+                <span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
+                <span class="n">basename_template</span><span class="o">=</span><span class="s2">&quot;ds_</span><span class="si">{i}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+                <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+                <span class="n">partitioning</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">min_rows_per_group</span><span class="o">=</span><span class="mi">300_000</span><span class="p">,</span>
+                <span class="n">max_rows_per_group</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="s2">&quot;/tmp/ds_0.parquet&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+            <span class="n">fnames</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fname1</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">fnames</span>
+
+<span class="n">write_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><em>Optimizing row groups</em> A parquet file is a collection of groups of rows, and these rows are organized column-wise along with some statistics. We can choose how many groups to create: the minimum is one group (all the data into a single group), which is the most standard. This is not optimal however: reading can only be done by one processor core at a time. If we have more, they will sit idle. This is why it is better to choose the number of groups to be close to the expected number of processor cores (10-100). When reading, each core will process a different chunk of the file in parallel.</p>
+<p>Polars cannot do this yet, so the code below directly calls the <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code> package to restructure the final file, calling the function <code class="docutils literal notranslate"><span class="pre">pyarrow.dataset.write_dataset</span></code>.</p>
+<p>Here is the parquet files produced directly by Polars. It is the result of joining datasets which themselves are the result of reading many files (each by subsector). It is very fragmented (see the <code class="docutils literal notranslate"><span class="pre">num_row_groups</span></code> statistics below).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">fname_pre</span><span class="p">,</span> <span class="n">fname_post</span><span class="p">)</span> <span class="o">=</span> <span class="n">write_data</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fname_pre</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fname_post</span><span class="p">)</span>
+<span class="n">parquet_file</span> <span class="o">=</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">parquet</span><span class="o">.</span><span class="n">ParquetFile</span><span class="p">(</span><span class="n">fname_pre</span><span class="p">)</span>
+<span class="c1"># print(parquet_file.metadata.row_group(0).column(2).statistics)</span>
+<span class="n">parquet_file</span><span class="o">.</span><span class="n">metadata</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The final file is more compact: only 58 row groups. It will be much faster to read (up to 50 times faster on my computer) because the readers do not need to gather information from each of the row groups.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parquet_file</span> <span class="o">=</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">parquet</span><span class="o">.</span><span class="n">ParquetFile</span><span class="p">(</span><span class="n">fname_post</span><span class="p">)</span>
+<span class="n">parquet_file</span><span class="o">.</span><span class="n">metadata</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><em>Statistics</em> Each row group in a parquet file has statistics. These statistics contain for each columns basic information such as minimum, maximum, etc. as you can see below. During a query, a data system first reads these statistics to check what blocks of data it should read.</p>
+<p>For example, the first row group only contains agriculture data (which you can infer from <code class="docutils literal notranslate"><span class="pre">min:</span> <span class="pre">agriculture</span></code> and <code class="docutils literal notranslate"><span class="pre">max:</span> <span class="pre">agriculture</span></code>). As the result, if a query is looking for waste data, it can safely skip this full block.</p>
+<p>Grouping the rows and creating statistics can dramatically reduce the amount of data being read and processed. Finding the right number of groups is a tradeoff between using more cores to read the data in parallel, and not having to read too many statistics descriptions. In the extreme case of the file created by Polars (5000 row groups), the statistics make up 40% of the file and can take up to 90% of the processing time! If your parquet file reads slowly, it is probably due to its internal layout.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parquet_file</span> <span class="o">=</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">parquet</span><span class="o">.</span><span class="n">ParquetFile</span><span class="p">(</span><span class="n">fname_post</span><span class="p">)</span>
+<span class="n">parquet_file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">row_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="initial-checks">
+<h1>Initial checks<a class="headerlink" href="#initial-checks" title="Link to this heading">#</a></h1>
+<p>We know check that it works correctly. Let’s load the newly created data instead of the default version stored on the internet, for the year 2023.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">CO2</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<span class="n">sdf</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>About 15M records for this year. This is spread across multiple gas and also multiple trips in the case of boats or airplanes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Check the number of distinct source IDs</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">by_sec</span> <span class="o">=</span> <span class="p">(</span><span class="n">sdf</span>
+<span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">SOURCE_ID</span><span class="p">,</span> <span class="n">SECTOR</span><span class="p">)</span>
+<span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+<span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The number of sources outside forestry and land use:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">by_sec</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_sector</span> <span class="o">!=</span> <span class="n">FORESTRY_AND_LAND_USE</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Check: no source is associated with multiple sectors.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">by_sec</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">SOURCE_ID</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">c_sector</span><span class="o">.</span><span class="n">n_unique</span><span class="p">())</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">SECTOR</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Check: no annual source should be duplicated by gas. It used to be the case with V2 release.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">sdf</span>
+<span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_temporal_granularity</span> <span class="o">==</span><span class="s2">&quot;annual&quot;</span><span class="p">)</span>
+<span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">SOURCE_ID</span><span class="p">,</span> <span class="n">GAS</span><span class="p">)</span>
+<span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+<span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;len&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+<span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;len&quot;</span><span class="p">)</span>
+<span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Check: emissions should always be defined. V2 used to have empty values.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">,</span> <span class="mi">2023</span><span class="p">,</span> <span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="n">sdf</span>
+ <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">is_null</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;null_emissions&quot;</span><span class="p">),</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_iso3_country</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_subsector</span><span class="p">,</span> <span class="s2">&quot;null_emissions&quot;</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+ <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+ <span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">SUBSECTOR</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;null_emissions&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;len&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="integrity-checks">
+<h1>Integrity checks<a class="headerlink" href="#integrity-checks" title="Link to this heading">#</a></h1>
+<p>Before uploading and publishing data, it is a good idea to run a number of checks. Frameworks such as <a class="reference external" href="https://pandera.readthedocs.io/en/latest/polars.html">pandera</a> are very helpful to implement these checks. Here we just check that Akrotiri and Dhekelia (country code XAD) is not included, as mentioned in the documentation.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_iso3_country</span> <span class="o">==</span> <span class="s2">&quot;XAD&quot;</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
+<span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="co2e-subsector-data-should-be-a-superset-of-all-sectors">
+<h2>CO2e subsector data should be a superset of all sectors<a class="headerlink" href="#co2e-subsector-data-should-be-a-superset-of-all-sectors" title="Link to this heading">#</a></h2>
+<p>Here is an example of issue to investigate: one would expect the total CO2e_100yr (total emissions normalized by their CO2 equivalent) to be at least present for each sector in which emissions are reported. This is not the case for FLU, for instance for the <code class="docutils literal notranslate"><span class="pre">removals</span></code> subsector.</p>
+<div class="admonition-ctodo admonition" id="missing-co2e-subsectors">
+<p class="admonition-title">CTODO</p>
+<p>Confirm with CT.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pl</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">tbl_rows</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+     <span class="c1">#.filter(c_emissions_quantity &lt; 0)</span>
+     <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">])</span>
+     <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+     <span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">GAS</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">])</span>
+     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
+     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CO2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="create-parquet-files-for-country-emissions">
+<h1>Create parquet files for country emissions<a class="headerlink" href="#create-parquet-files-for-country-emissions" title="Link to this heading">#</a></h1>
+<p>As of V3, country emission data is also large enough that it should be compacted in parquet files. Note the dramatic difference:</p>
+<ul class="simple">
+<li><p>uncompressed CSV file: 106MB</p></li>
+<li><p>compressed CSV file: 6MB</p></li>
+<li><p>parquet: 1MB !!</p></li>
+</ul>
+<p>As highlighted, the parquet file also has the advantage of being very efficient at extracting only the relevant information.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Starting from the official archives, read all the gases.</span>
+
+<span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/read_country&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">read_country</span><span class="p">():</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;climate-trace-countries-</span><span class="si">{</span><span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_country_emissions</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">archive_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Optimizing to read by time and then gas.</span>
+    <span class="c1"># The logic being that country-specific files are already available from CT.</span>
+    <span class="p">(</span><span class="n">cdf</span>
+     <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">c_start_time</span><span class="p">,</span><span class="n">c_gas</span><span class="p">,</span><span class="n">c_iso3_country</span><span class="p">])</span>
+      <span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="c1"># Not taking precautions, the file is so small.</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">read_country</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="contry-emissions-integrity-checks">
+<h1>Contry emissions: integrity checks<a class="headerlink" href="#contry-emissions-integrity-checks" title="Link to this heading">#</a></h1>
+<p>In a production pipeline, before uploading the final data, we would run a number of checks again on the country emissions. Here are a few checks that we can run (and which are currently failing).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_country_emissions</span><span class="p">(</span><span class="n">parquet_path</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
+<span class="n">cdf</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="country-emissions-co2e-data-should-be-a-superset-of-all-country-emissions">
+<h2>Country emissions: CO2e data should be a superset of all country emissions<a class="headerlink" href="#country-emissions-co2e-data-should-be-a-superset-of-all-country-emissions" title="Link to this heading">#</a></h2>
+<p>We see that some subsectors are present in CO2 emissions but are missing in the aggregated CO2e emissions</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pl</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">tbl_rows</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cdf</span>
+     <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+     <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">])</span>
+     <span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">GAS</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">])</span>
+     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
+     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CO2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="country-emissions-some-countries-are-excluded-from-the-dataset">
+<h2>Country emissions: some countries are excluded from the dataset<a class="headerlink" href="#country-emissions-some-countries-are-excluded-from-the-dataset" title="Link to this heading">#</a></h2>
+<p>The Climate TRACE documentation excludes certain countries from the final release, but they are still present in the dataset:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">excluded_isos</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;XAD&quot;</span><span class="p">,</span> <span class="s2">&quot;XCL&quot;</span><span class="p">,</span> <span class="s2">&quot;XPI&quot;</span><span class="p">,</span> <span class="s2">&quot;XSP&quot;</span><span class="p">]</span>
+<span class="p">(</span><span class="n">cdf</span>
+ <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_iso3_country</span><span class="o">.</span><span class="n">is_in</span><span class="p">(</span><span class="n">excluded_isos</span><span class="p">))</span>
+ <span class="o">.</span><span class="n">group_by</span><span class="p">([</span><span class="n">ISO3_COUNTRY</span><span class="p">,</span> <span class="n">c_start_time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">(),</span> <span class="n">GAS</span><span class="p">,</span> <span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">])</span>
+ <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="preparing-the-geographical-information">
+<h1>Preparing the geographical information<a class="headerlink" href="#preparing-the-geographical-information" title="Link to this heading">#</a></h1>
+<p>The Climate TRACE dataset also includes geographical information about the location of emissions:</p>
+<ul class="simple">
+<li><p>point locations for <em>point sources</em> (factories, power plants, …)</p></li>
+<li><p>polygons for <em>area sources</em> (forests, transportation, …)</p></li>
+</ul>
+<p>This comes with a few remarks:</p>
+<ul class="simple">
+<li><p>all the area sources are split and aggregated at the level of the county or city. You will not be able to get sources for city block or road level. You will not see either each fire in Canada, it is all aggregated at county level.</p></li>
+<li><p>the ports (seaports, airports) gather the emissions from ships and airplanes emitting at sea. It is normal then to see airports having an enormous impact on a city</p></li>
+</ul>
+<p>We are going to prepare two files: one with all the points, and one with all the polygons. We do a little bit of preprocessing work:</p>
+<ul class="simple">
+<li><p>we deduplicate the points and the polygons, they are shared between emission sources</p></li>
+<li><p>for the points, we also add administrative information: which country, region, county/city are they located in?</p></li>
+</ul>
+<p>Again, all the geographical data will be converted to the Parquet format. A new specfication for geographical features called GeoParquet provides a universal way to represent simple geographical shapes in a very compact representation. We will eventually leverage it.</p>
+<p>The following function does all the processing and returns the path to newly created Parquet files. We will later upload them to HuggingFace Hub.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/poly_paths&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_polys_path</span><span class="p">():</span>
+    <span class="n">gases</span> <span class="o">=</span> <span class="n">GAS_LIST</span>
+    <span class="n">polys_path</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">extract_polygons</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gases</span><span class="o">=</span><span class="n">gases</span><span class="p">)</span>
+    <span class="n">points_path</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">extract_points</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gases</span><span class="o">=</span><span class="n">gases</span><span class="p">,</span> <span class="n">polys</span><span class="o">=</span><span class="n">polys_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">polys_path</span><span class="p">,</span> <span class="n">points_path</span><span class="p">)</span>
+
+<span class="p">(</span><span class="n">polys_path</span><span class="p">,</span> <span class="n">points_path</span><span class="p">)</span> <span class="o">=</span> <span class="n">get_polys_path</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="upload-the-data-to-the-hugging-face-hub">
+<h1>Upload the data to the Hugging Face Hub<a class="headerlink" href="#upload-the-data-to-the-hugging-face-hub" title="Link to this heading">#</a></h1>
+<p>As a final step, we make the datasets available on Hugging Face as a downloadable dataset.</p>
+<p>This step will only work if you have the credentials to upload the dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">huggingface_hub.utils</span>
+<span class="n">upload</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">if</span> <span class="n">upload</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">api</span> <span class="o">=</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">HfApi</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span> <span class="ow">in</span> <span class="n">write_data</span><span class="p">():</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
+            <span class="n">api</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
+                <span class="n">path_or_fileobj</span><span class="o">=</span><span class="n">fpath</span><span class="p">,</span>
+                <span class="n">path_in_repo</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span>
+                <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;tjhunter/climate-trace&quot;</span><span class="p">,</span>
+                <span class="n">repo_type</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="n">read_country</span><span class="p">()</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
+            <span class="n">path_or_fileobj</span><span class="o">=</span><span class="n">fpath</span><span class="p">,</span>
+            <span class="n">path_in_repo</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span>
+            <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;tjhunter/climate-trace&quot;</span><span class="p">,</span>
+            <span class="n">repo_type</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">HfHubHTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Creating optimized parquet files for source data</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregating-by-year-and-optimizing-the-output">Aggregating by year and optimizing the output</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-checks">Initial checks</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#integrity-checks">Integrity checks</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#co2e-subsector-data-should-be-a-superset-of-all-sectors">CO2e subsector data should be a superset of all sectors</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#create-parquet-files-for-country-emissions">Create parquet files for country emissions</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contry-emissions-integrity-checks">Contry emissions: integrity checks</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-co2e-data-should-be-a-superset-of-all-country-emissions">Country emissions: CO2e data should be a superset of all country emissions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-some-countries-are-excluded-from-the-dataset">Country emissions: some countries are excluded from the dataset</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#preparing-the-geographical-information">Preparing the geographical information</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-the-data-to-the-hugging-face-hub">Upload the data to the Hugging Face Hub</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tim Hunter
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

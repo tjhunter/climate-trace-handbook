@@ -21,6 +21,12 @@ systemd-run --scope -p MemoryMax=10G --user jupyter notebook
 set -x PYTHONPATH $PWD:$PWD/src/ ; jupyter-book build ct_book
 ```
 
+or with limited memory:
+
+```fish
+systemd-run --scope -p MemoryMax=10G --user jupyter-book build ct_book
+```
+
 ## Publish the book
 
 ```fish
