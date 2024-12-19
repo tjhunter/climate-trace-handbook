@@ -34,9 +34,9 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
@@ -55,7 +55,7 @@
     <script>let toggleOpenOnPrint = 'true';</script>
     <script src="_static/togglebutton.js?v=4a39c7ea"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
-    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
@@ -170,6 +170,7 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="initial_analysis.html">Data exploration of the Climate TRACE dataset</a></li>
+
 
 
 <li class="toctree-l1"><a class="reference internal" href="sce_diffs.html">Comparing source and country inventories</a></li>
@@ -362,10 +363,19 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-optimized-parquet-files">Creating optimized parquet files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-optimized-parquet-files-for-source-data">Creating optimized parquet files for source data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregating-by-year-and-optimizing-the-output">Aggregating by year and optimizing the output</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-checks">Initial checks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrity-checks">Integrity checks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrity-checks">Integrity checks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#co2e-subsector-data-should-be-a-superset-of-all-sectors">CO2e subsector data should be a superset of all sectors</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-parquet-files-for-country-emissions">Create parquet files for country emissions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-integrity-checks">Country emissions: integrity checks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-co2e-data-should-be-a-superset-of-all-country-emissions">Country emissions: CO2e data should be a superset of all country emissions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-some-countries-are-excluded-from-the-dataset">Country emissions: some countries are excluded from the dataset</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-the-data-to-the-hugging-face-hub">Upload the data to the Hugging Face Hub</a></li>
 </ul>
             </nav>
@@ -386,12 +396,16 @@
 <p>This section is relevant for data engineers, or data scientists who want to understand how the data
 has been prepared. Skip if you just want to access the final, prepared data.</p>
 </div>
-<p>The original data from Climate TRACE is offered as a series of CSV files bundled in ZIP archives. That format is universally understood, but it is not the most effective for effective analysis with data science tools. In particular, it is large: the source data, uncompressed, is about 20GB. This is the size at which most people would consider this project to be “big data” or at least “medium data”. With the proper choice of data storage, we will bring it down to a breezy “small data” without losing information along the way.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This notebook requires significant resources (300GB disk and 10GB memory for all gases).</p>
+</div>
+<p>The original data from Climate TRACE is offered as a series of CSV files bundled in ZIP archives. That format is universally understood, but it is not the most effective for effective analysis with data science tools. In particular, it is large: the source data, uncompressed, is about 100GB for each gas! This is the size at which most people would consider this project to be “big data” or at least “medium data”. With the proper choice of data storage, we will bring it down to a breezy “small data” without losing information along the way.</p>
 <p>Instead, we are going to use the Parquet format. This format has a number of advantages:</p>
 <ul class="simple">
 <li><p>it is <em>column-based</em> : data systems can process big chunks of data at once, rather than line by line. Also, depending on the information requested, systems will read only the relevant columns and skip the rest very effectively</p></li>
-<li><p>it is <em>universal</em> : most modern data systems will be able to read it</p></li>
-<li><p>it is <em>structured</em> : basic information about numbers, categories, … are preserved. It</p></li>
+<li><p>it is <em>universal</em> : most modern data systems will be able to read it.</p></li>
+<li><p>it is <em>structured</em> : basic information about numbers, categories, … are preserved.</p></li>
 </ul>
 <p>Looking at the code, we are performing a few tricks:</p>
 <p><em>Compacting the data</em> We minimize the size of the files by taking advantage of its structures. In particular, we know in many cases that values are part of known enumerations (sectors, …). We replace all these by <code class="docutils literal notranslate"><span class="pre">polars.Enumeration</span></code>s. Not only this makes files smaller, but it also allows data systems to make clever optimization for complex operations such as joining.</p>
@@ -419,19 +433,44 @@ has been prepared. Skip if you just want to access the final, prepared data.</p>
 <span class="kn">import</span> <span class="nn">polars</span> <span class="k">as</span> <span class="nn">pl</span>
 <span class="kn">from</span> <span class="nn">ctrace.constants</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">ctrace</span> <span class="k">as</span> <span class="nn">ct</span>
-<span class="kn">import</span> <span class="nn">pyarrow</span>
+<span class="kn">import</span> <span class="nn">pyarrow.parquet</span>
 <span class="kn">from</span> <span class="nn">dds</span> <span class="kn">import</span> <span class="n">data_function</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">duckdb</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">dds</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">huggingface_hub</span>
+<span class="kn">import</span> <span class="nn">huggingface_hub.utils</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;dds&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 <span class="n">dds</span><span class="o">.</span><span class="n">accept_module</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
-<section id="creating-optimized-parquet-files">
-<h2>Creating optimized parquet files<a class="headerlink" href="#creating-optimized-parquet-files" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;POLARS_TEMP_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;polars&quot;</span><span class="p">)</span>
+<span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;SET temp_directory = &#39;</span><span class="si">{d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;duckdb&quot;</span><span class="p">)))</span>
+<span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;SET memory_limit = &#39;8GB&#39;&quot;</span><span class="p">)</span>
+<span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;SELECT current_setting(&#39;temp_directory&#39;)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>┌───────────────────────────────────┐
+│ current_setting(&#39;temp_directory&#39;) │
+│              varchar              │
+├───────────────────────────────────┤
+│ /media/tjhunter/DATA/temp/duckdb  │
+└───────────────────────────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+<section id="creating-optimized-parquet-files-for-source-data">
+<h2>Creating optimized parquet files for source data<a class="headerlink" href="#creating-optimized-parquet-files-for-source-data" title="Link to this heading">#</a></h2>
 <p>This first section creates files that are the most effective for reading and querying. The general approach is as follows:</p>
 <ol class="arabic simple">
 <li><p>Join the source and source confidence CSV files and writes them as parquet files for each subsector</p></li>
@@ -452,80 +491,198 @@ has been prepared. Skip if you just want to access the final, prepared data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[PosixPath(&#39;/tmp/co2/cropland-fires_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/enteric-fermentation-cattle-operation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/manure-management-cattle-operation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/rice-cultivation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/non-residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/forest-land-clearing_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/forest-land-degradation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/forest-land-fires_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/net-forest-land_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/net-shrubgrass_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/net-wetland_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/removals_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/shrubgrass-fires_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/water-reservoirs_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/wetland-fires_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/coal-mining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/oil-and-gas-production_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/oil-and-gas-refining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/oil-and-gas-transport_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/aluminum_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/cement_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/chemicals_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/food-beverage-tobacco_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/glass_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/iron-and-steel_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/lime_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/other-chemicals_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/other-manufacturing_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/other-metals_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/petrochemical-steam-cracking_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/pulp-and-paper_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/textiles-leather-apparel_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/bauxite-mining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/copper-mining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/iron-mining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/electricity-generation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/domestic-aviation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/domestic-shipping_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/international-aviation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/international-shipping_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/road-transportation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/domestic-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/industrial-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2/solid-waste-disposal_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/cropland-fires_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/rice-cultivation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/net-forest-land_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/net-shrubgrass_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/net-wetland_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/water-reservoirs_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/coal-mining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/oil-and-gas-refining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/aluminum_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/cement_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/chemicals_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/other-manufacturing_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/pulp-and-paper_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/bauxite-mining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/copper-mining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/iron-mining_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/electricity-generation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/domestic-aviation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/domestic-shipping_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/international-aviation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/international-shipping_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/road-transportation_emissions_sources.parquet&#39;),
- PosixPath(&#39;/tmp/co2e_100yr/solid-waste-disposal_emissions_sources.parquet&#39;)]
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[PosixPath(&#39;/media/tjhunter/DATA/temp/co2/cropland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/enteric-fermentation-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/manure-management-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/rice-cultivation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/non-residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/forest-land-clearing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/forest-land-degradation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/forest-land-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/net-forest-land_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/net-shrubgrass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/net-wetland_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/removals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/shrubgrass-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/water-reservoirs_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/wetland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/coal-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/oil-and-gas-production_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/oil-and-gas-refining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/oil-and-gas-transport_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/aluminum_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/cement_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/food-beverage-tobacco_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/glass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/iron-and-steel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/lime_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/other-chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/other-manufacturing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/other-metals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/petrochemical-steam-cracking_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/pulp-and-paper_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/textiles-leather-apparel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/bauxite-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/copper-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/iron-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/electricity-generation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/domestic-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/domestic-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/international-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/international-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/road-transportation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/domestic-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/industrial-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2/solid-waste-disposal_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/cropland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/enteric-fermentation-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/manure-management-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/rice-cultivation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/non-residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/forest-land-clearing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/forest-land-degradation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/forest-land-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/net-forest-land_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/net-shrubgrass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/net-wetland_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/removals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/shrubgrass-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/water-reservoirs_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/wetland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/coal-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/oil-and-gas-production_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/oil-and-gas-refining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/oil-and-gas-transport_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/aluminum_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/cement_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/food-beverage-tobacco_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/glass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/iron-and-steel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/lime_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/other-chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/other-manufacturing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/other-metals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/petrochemical-steam-cracking_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/pulp-and-paper_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/textiles-leather-apparel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/bauxite-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/copper-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/iron-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/electricity-generation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/domestic-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/domestic-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/international-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/international-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/road-transportation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/domestic-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/industrial-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/ch4/solid-waste-disposal_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/cropland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/enteric-fermentation-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/manure-management-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/rice-cultivation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/non-residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/forest-land-clearing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/forest-land-degradation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/forest-land-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/net-forest-land_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/net-shrubgrass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/net-wetland_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/removals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/shrubgrass-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/water-reservoirs_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/wetland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/coal-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/oil-and-gas-production_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/oil-and-gas-refining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/oil-and-gas-transport_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/aluminum_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/cement_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/food-beverage-tobacco_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/glass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/iron-and-steel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/lime_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/other-chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/other-manufacturing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/other-metals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/petrochemical-steam-cracking_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/pulp-and-paper_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/textiles-leather-apparel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/bauxite-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/copper-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/iron-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/electricity-generation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/domestic-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/domestic-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/international-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/international-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/road-transportation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/domestic-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/industrial-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/n2o/solid-waste-disposal_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/cropland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/enteric-fermentation-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/enteric-fermentation-cattle-pasture_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/manure-left-on-pasture-cattle_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/manure-management-cattle-operation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/rice-cultivation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/synthetic-fertilizer-application_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/non-residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/residential-onsite-fuel-usage_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/forest-land-clearing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/forest-land-degradation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/forest-land-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/net-forest-land_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/net-shrubgrass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/net-wetland_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/removals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/shrubgrass-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/water-reservoirs_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/wetland-fires_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/coal-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/oil-and-gas-production_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/oil-and-gas-refining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/oil-and-gas-transport_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/aluminum_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/cement_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/food-beverage-tobacco_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/glass_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/iron-and-steel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/lime_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/other-chemicals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/other-manufacturing_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/other-metals_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/petrochemical-steam-cracking_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/pulp-and-paper_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/textiles-leather-apparel_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/bauxite-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/copper-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/iron-mining_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/electricity-generation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/domestic-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/domestic-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/international-aviation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/international-shipping_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/road-transportation_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/domestic-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/industrial-wastewater-treatment-and-discharge_emissions_sources.parquet&#39;),
+ PosixPath(&#39;/media/tjhunter/DATA/temp/co2e_100yr/solid-waste-disposal_emissions_sources.parquet&#39;)]
 </pre></div>
 </div>
 </div>
@@ -542,7 +699,7 @@ has been prepared. Skip if you just want to access the final, prepared data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/co2/cropland-fires_emissions_sources.parquet
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/media/tjhunter/DATA/temp/co2/cropland-fires_emissions_sources.parquet
 </pre></div>
 </div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>pyarrow.Table
@@ -601,7 +758,7 @@ conf_activity: dictionary&lt;values=string, indices=int32, ordered=0&gt;
 conf_emissions_factor: dictionary&lt;values=string, indices=int32, ordered=0&gt;
 conf_emissions_quantity: dictionary&lt;values=string, indices=int32, ordered=0&gt;
 ----
-source_id: [[10760226,10760226,10760226,10760226,10760226,...,10792989,10792989,10792989,10792989,10792989],[10792989,10792989,10792989,10792989,10792989,...,10812836,10812836,10812836,10812836,10812836],...,[11298418,11298418,11298418,11298418,11298418,...,11301822,11301822,11301822,11301822,11301822],[11301822,11301822,11301822,11301822,11301822,...,11303229,11303229,11303229,11303229,11303229]]
+source_id: [[10760226,10760226,10760226,10760226,10760226,...,10792989,10792989,10792989,10792989,10792989],[10792989,10792989,10792989,10792989,10792989,...,10812836,10812836,10812836,10812836,10812836],...,[11298418,11298418,11298418,11298418,11298418,...,11301759,11301759,11301759,11301759,11301759],[11301822,11301822,11301822,11301822,11301822,...,11303229,11303229,11303229,11303229,11303229]]
 iso3_country: [  -- dictionary:
 [&quot;ABW&quot;,&quot;AFG&quot;,&quot;AGO&quot;,&quot;AIA&quot;,&quot;ALA&quot;,...,&quot;ZWE&quot;,&quot;ZNC&quot;,&quot;UNK&quot;,&quot;SCG&quot;,&quot;XAD&quot;]  -- indices:
 [1,1,1,1,1,...,23,23,23,23,23],  -- dictionary:
@@ -638,8 +795,8 @@ original_inventory_sector: [  -- dictionary:
 [null,null,null,null,null,...,null,null,null,null,null],  -- dictionary:
 [&quot;aluminum&quot;,&quot;bauxite-mining&quot;,&quot;biological-treatment-of-solid-waste-and-biogenic&quot;,&quot;cement&quot;,&quot;chemicals&quot;,...,&quot;steel&quot;,&quot;synthetic-fertilizer-application&quot;,&quot;wastewater-treatment-and-discharge&quot;,&quot;water-reservoirs&quot;,&quot;wetland-fires&quot;]  -- indices:
 [null,null,null,null,null,...,null,null,null,null,null]]
-start_time: [[2021-01-01 00:00:00.000Z,2021-02-01 00:00:00.000Z,2021-03-01 00:00:00.000Z,2021-04-01 00:00:00.000Z,2021-05-01 00:00:00.000Z,...,2023-04-01 00:00:00.000Z,2023-05-01 00:00:00.000Z,2023-06-01 00:00:00.000Z,2023-07-01 00:00:00.000Z,2023-08-01 00:00:00.000Z],[2023-09-01 00:00:00.000Z,2023-10-01 00:00:00.000Z,2023-11-01 00:00:00.000Z,2023-12-01 00:00:00.000Z,2024-01-01 00:00:00.000Z,...,2021-12-01 00:00:00.000Z,2022-01-01 00:00:00.000Z,2022-02-01 00:00:00.000Z,2022-03-01 00:00:00.000Z,2022-04-01 00:00:00.000Z],...,[2023-09-01 00:00:00.000Z,2023-10-01 00:00:00.000Z,2023-11-01 00:00:00.000Z,2023-12-01 00:00:00.000Z,2024-01-01 00:00:00.000Z,...,2021-12-01 00:00:00.000Z,2022-01-01 00:00:00.000Z,2022-02-01 00:00:00.000Z,2022-03-01 00:00:00.000Z,2022-04-01 00:00:00.000Z],[2022-05-01 00:00:00.000Z,2022-06-01 00:00:00.000Z,2022-07-01 00:00:00.000Z,2022-08-01 00:00:00.000Z,2022-09-01 00:00:00.000Z,...,2024-08-01 00:00:00.000Z,2024-09-01 00:00:00.000Z,2024-10-01 00:00:00.000Z,2024-11-01 00:00:00.000Z,2024-12-01 00:00:00.000Z]]
-end_time: [[2021-01-31 00:00:00.000Z,2021-02-28 00:00:00.000Z,2021-03-31 00:00:00.000Z,2021-04-30 00:00:00.000Z,2021-05-31 00:00:00.000Z,...,2023-04-30 00:00:00.000Z,2023-05-31 00:00:00.000Z,2023-06-30 00:00:00.000Z,2023-07-31 00:00:00.000Z,2023-08-31 00:00:00.000Z],[2023-09-30 00:00:00.000Z,2023-10-31 00:00:00.000Z,2023-11-30 00:00:00.000Z,2023-12-31 00:00:00.000Z,2024-01-31 00:00:00.000Z,...,2021-12-31 00:00:00.000Z,2022-01-31 00:00:00.000Z,2022-02-28 00:00:00.000Z,2022-03-31 00:00:00.000Z,2022-04-30 00:00:00.000Z],...,[2023-09-30 00:00:00.000Z,2023-10-31 00:00:00.000Z,2023-11-30 00:00:00.000Z,2023-12-31 00:00:00.000Z,2024-01-31 00:00:00.000Z,...,2021-12-31 00:00:00.000Z,2022-01-31 00:00:00.000Z,2022-02-28 00:00:00.000Z,2022-03-31 00:00:00.000Z,2022-04-30 00:00:00.000Z],[2022-05-31 00:00:00.000Z,2022-06-30 00:00:00.000Z,2022-07-31 00:00:00.000Z,2022-08-31 00:00:00.000Z,2022-09-30 00:00:00.000Z,...,2024-08-31 00:00:00.000Z,2024-09-30 00:00:00.000Z,2024-10-31 00:00:00.000Z,2024-11-30 00:00:00.000Z,2024-12-31 00:00:00.000Z]]
+start_time: [[2021-01-01 00:00:00.000Z,2021-02-01 00:00:00.000Z,2021-03-01 00:00:00.000Z,2021-04-01 00:00:00.000Z,2021-05-01 00:00:00.000Z,...,2023-04-01 00:00:00.000Z,2023-05-01 00:00:00.000Z,2023-06-01 00:00:00.000Z,2023-07-01 00:00:00.000Z,2023-08-01 00:00:00.000Z],[2023-09-01 00:00:00.000Z,2023-10-01 00:00:00.000Z,2023-11-01 00:00:00.000Z,2023-12-01 00:00:00.000Z,2024-01-01 00:00:00.000Z,...,2021-12-01 00:00:00.000Z,2022-01-01 00:00:00.000Z,2022-02-01 00:00:00.000Z,2022-03-01 00:00:00.000Z,2022-04-01 00:00:00.000Z],...,[2022-05-01 00:00:00.000Z,2022-06-01 00:00:00.000Z,2022-07-01 00:00:00.000Z,2022-08-01 00:00:00.000Z,2022-09-01 00:00:00.000Z,...,2024-08-01 00:00:00.000Z,2024-09-01 00:00:00.000Z,2024-10-01 00:00:00.000Z,2024-11-01 00:00:00.000Z,2024-12-01 00:00:00.000Z],[2021-01-01 00:00:00.000Z,2021-02-01 00:00:00.000Z,2021-03-01 00:00:00.000Z,2021-04-01 00:00:00.000Z,2021-05-01 00:00:00.000Z,...,2024-08-01 00:00:00.000Z,2024-09-01 00:00:00.000Z,2024-10-01 00:00:00.000Z,2024-11-01 00:00:00.000Z,2024-12-01 00:00:00.000Z]]
+end_time: [[2021-01-31 00:00:00.000Z,2021-02-28 00:00:00.000Z,2021-03-31 00:00:00.000Z,2021-04-30 00:00:00.000Z,2021-05-31 00:00:00.000Z,...,2023-04-30 00:00:00.000Z,2023-05-31 00:00:00.000Z,2023-06-30 00:00:00.000Z,2023-07-31 00:00:00.000Z,2023-08-31 00:00:00.000Z],[2023-09-30 00:00:00.000Z,2023-10-31 00:00:00.000Z,2023-11-30 00:00:00.000Z,2023-12-31 00:00:00.000Z,2024-01-31 00:00:00.000Z,...,2021-12-31 00:00:00.000Z,2022-01-31 00:00:00.000Z,2022-02-28 00:00:00.000Z,2022-03-31 00:00:00.000Z,2022-04-30 00:00:00.000Z],...,[2022-05-31 00:00:00.000Z,2022-06-30 00:00:00.000Z,2022-07-31 00:00:00.000Z,2022-08-31 00:00:00.000Z,2022-09-30 00:00:00.000Z,...,2024-08-31 00:00:00.000Z,2024-09-30 00:00:00.000Z,2024-10-31 00:00:00.000Z,2024-11-30 00:00:00.000Z,2024-12-31 00:00:00.000Z],[2021-01-31 00:00:00.000Z,2021-02-28 00:00:00.000Z,2021-03-31 00:00:00.000Z,2021-04-30 00:00:00.000Z,2021-05-31 00:00:00.000Z,...,2024-08-31 00:00:00.000Z,2024-09-30 00:00:00.000Z,2024-10-31 00:00:00.000Z,2024-11-30 00:00:00.000Z,2024-12-31 00:00:00.000Z]]
 temporal_granularity: [  -- dictionary:
 [&quot;annual&quot;,&quot;other&quot;,&quot;month&quot;,&quot;week&quot;,&quot;day&quot;,&quot;hour&quot;]  -- indices:
 [2,2,2,2,2,...,2,2,2,2,2],  -- dictionary:
@@ -650,15 +807,15 @@ temporal_granularity: [  -- dictionary:
 [&quot;annual&quot;,&quot;other&quot;,&quot;month&quot;,&quot;week&quot;,&quot;day&quot;,&quot;hour&quot;]  -- indices:
 [2,2,2,2,2,...,2,2,2,2,2]]
 gas: [  -- dictionary:
-[&quot;co2&quot;,&quot;co2e_100yr&quot;]  -- indices:
+[&quot;co2&quot;,&quot;ch4&quot;,&quot;n2o&quot;,&quot;co2e_100yr&quot;]  -- indices:
 [0,0,0,0,0,...,0,0,0,0,0],  -- dictionary:
-[&quot;co2&quot;,&quot;co2e_100yr&quot;]  -- indices:
+[&quot;co2&quot;,&quot;ch4&quot;,&quot;n2o&quot;,&quot;co2e_100yr&quot;]  -- indices:
 [0,0,0,0,0,...,0,0,0,0,0],...,  -- dictionary:
-[&quot;co2&quot;,&quot;co2e_100yr&quot;]  -- indices:
+[&quot;co2&quot;,&quot;ch4&quot;,&quot;n2o&quot;,&quot;co2e_100yr&quot;]  -- indices:
 [0,0,0,0,0,...,0,0,0,0,0],  -- dictionary:
-[&quot;co2&quot;,&quot;co2e_100yr&quot;]  -- indices:
+[&quot;co2&quot;,&quot;ch4&quot;,&quot;n2o&quot;,&quot;co2e_100yr&quot;]  -- indices:
 [0,0,0,0,0,...,0,0,0,0,0]]
-emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.32296197461828,38.16818200021535,...,269.018757173264,175.31207076887267,91.39990500605398,58.724632699989535,80.81230569281288],[211.330903793614,292.1079909047341,194.5476801860844,84.82207853739389,43.68382457080989,...,220.01629117534543,128.19921825691085,181.80045288320784,525.6198997919303,724.2735952297198],...,[351.46495384672033,485.80552914236375,323.5527327530167,141.067810638062,72.65067773344693,...,11.962179491648724,6.242534827676018,8.85259422203629,25.59454398540237,35.26779027565498],[23.17575451210868,11.306731373197133,6.734582157427812,9.41144820628891,26.04592086520223,...,23.05403759079097,65.16548236458307,89.85554183215632,59.229313787334775,28.22216552802012]]
+emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.32296197461828,38.16818200021535,...,269.018757173264,175.31207076887267,91.39990500605398,58.724632699989535,80.81230569281288],[211.330903793614,292.1079909047341,194.5476801860844,84.82207853739389,43.68382457080989,...,220.01629117534543,128.19921825691085,181.80045288320784,525.6198997919303,724.2735952297198],...,[291.56194269499326,152.00741026461324,97.66508329384772,134.39914740680638,351.46495384672033,...,215.13185767180696,595.3714261275535,821.5498971286825,543.2347171654031,253.0259260929403],[6.746127367423337,9.566743286589825,27.659285595195147,38.112883906122526,25.0453695639254,...,23.05403759079097,65.16548236458307,89.85554183215632,59.229313787334775,28.22216552802012]]
 ...
 </pre></div>
 </div>
@@ -676,103 +833,132 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">write_directory</span> <span class="o">=</span> <span class="s2">&quot;/tmp&quot;</span>
-<span class="n">years</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">years</span>
-<span class="n">version</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">version</span>
-<span class="n">gases</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">GAS_LIST</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/ct_pre&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ct_pre</span><span class="p">():</span>
+    <span class="n">write_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;ct_pre&quot;</span><span class="p">)</span>
+    <span class="n">data_files</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">load_sources</span><span class="p">()]</span>
+    <span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    COPY</span>
+<span class="s2">          (SELECT *,date_part(&#39;year&#39;, start_time) AS year FROM read_parquet(</span><span class="si">{data_files}</span><span class="s2">))</span>
+<span class="s2">    TO &#39;</span><span class="si">{tmp_dir}</span><span class="s2">&#39; (FORMAT PARQUET, PARTITION_BY (gas,year), CODEC &#39;zstd&#39;, OVERWRITE_OR_IGNORE)</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_files</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">data_files</span><span class="p">),</span> <span class="n">tmp_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">write_directory</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">write_directory</span>
 
-<span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/write_data&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">write_data</span><span class="p">():</span>
-    <span class="n">data_files</span> <span class="o">=</span> <span class="n">load_sources</span><span class="p">()</span>
-    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">tmp_name</span> <span class="ow">in</span> <span class="n">data_files</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">tmp_name</span><span class="p">)</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span><span class="n">tmp_name</span><span class="p">)</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">recast_parquet</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-    <span class="n">ldf</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span>
-    <span class="n">fnames</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">gas</span> <span class="ow">in</span> <span class="n">gases</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">years</span><span class="p">:</span>
-            <span class="n">fname1</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">write_directory</span><span class="si">}</span><span class="s2">/pre_climate_trace-sources_</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">gas</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
-            <span class="p">(</span>
-                <span class="n">ldf</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_start_time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
-                   <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_gas</span> <span class="o">==</span> <span class="n">gas</span><span class="p">)</span>
-                   <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">GAS</span><span class="p">,</span> <span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">,</span> <span class="n">ISO3_COUNTRY</span><span class="p">,</span> <span class="n">SOURCE_ID</span><span class="p">])</span>
-                   <span class="o">.</span><span class="n">sink_parquet</span><span class="p">(</span>
-                    <span class="n">fname1</span><span class="p">,</span>
-                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;zstd&quot;</span><span class="p">,</span>
-                    <span class="n">maintain_order</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">statistics</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">write_directory</span><span class="si">}</span><span class="s2">/climate_trace-sources_</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">gas</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span><span class="n">fname1</span><span class="p">)</span>
-            <span class="n">pyarrow</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">write_dataset</span><span class="p">(</span>
-                <span class="n">ds</span><span class="p">,</span>
-                <span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
-                <span class="n">basename_template</span><span class="o">=</span><span class="s2">&quot;ds_</span><span class="si">{i}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
-                <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
-                <span class="n">partitioning</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">min_rows_per_group</span><span class="o">=</span><span class="mi">300_000</span><span class="p">,</span>
-                <span class="n">max_rows_per_group</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="s2">&quot;/tmp/ds_0.parquet&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
-            <span class="n">fnames</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fname1</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">fnames</span>
-
-<span class="n">write_data</span><span class="p">()</span>
+<span class="n">ct_pre</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[(&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2021_co2.parquet&#39;,
-  &#39;/tmp/climate_trace-sources_v3-2024-ct4_2021_co2.parquet&#39;),
- (&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2022_co2.parquet&#39;,
-  &#39;/tmp/climate_trace-sources_v3-2024-ct4_2022_co2.parquet&#39;),
- (&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2023_co2.parquet&#39;,
-  &#39;/tmp/climate_trace-sources_v3-2024-ct4_2023_co2.parquet&#39;),
- (&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2024_co2.parquet&#39;,
-  &#39;/tmp/climate_trace-sources_v3-2024-ct4_2024_co2.parquet&#39;),
- (&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2021_co2e_100yr.parquet&#39;,
-  &#39;/tmp/climate_trace-sources_v3-2024-ct4_2021_co2e_100yr.parquet&#39;),
- (&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2022_co2e_100yr.parquet&#39;,
-  &#39;/tmp/climate_trace-sources_v3-2024-ct4_2022_co2e_100yr.parquet&#39;),
- (&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2023_co2e_100yr.parquet&#39;,
-  &#39;/tmp/climate_trace-sources_v3-2024-ct4_2023_co2e_100yr.parquet&#39;),
- (&#39;/tmp/pre_climate_trace-sources_v3-2024-ct4_2024_co2e_100yr.parquet&#39;,
-  &#39;/tmp/climate_trace-sources_v3-2024-ct4_2024_co2e_100yr.parquet&#39;)]
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;/media/tjhunter/DATA/temp/ct_pre&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_write_source_file</span><span class="p">(</span><span class="n">gas</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">ct_pre_fname</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">()</span>
+    <span class="n">ct_pre_pq</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ct_pre_fname</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;gas=</span><span class="si">{</span><span class="n">gas</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;year=</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">local_pq</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">&quot;temp.parquet&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;writing source file for year=</span><span class="si">%s</span><span class="s2"> gas=</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">gas</span><span class="p">,</span> <span class="n">local_pq</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span><span class="n">ct_pre_pq</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">recast_parquet</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">SUBSECTOR</span><span class="p">])</span>
+     <span class="o">.</span><span class="n">sink_parquet</span><span class="p">(</span><span class="n">local_pq</span><span class="p">,</span>
+        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;zstd&quot;</span><span class="p">,</span>
+        <span class="n">maintain_order</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">statistics</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">compression_level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">row_group_size</span><span class="o">=</span><span class="mi">300_000</span><span class="p">,</span>
+        <span class="n">data_page_size</span><span class="o">=</span><span class="mi">10_000_000</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">version</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span>
+                         <span class="s2">&quot;climate_trace_sources&quot;</span><span class="p">,</span>
+                         <span class="sa">f</span><span class="s2">&quot;climate_trace-sources_</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">gas</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">)</span> 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;final source file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span><span class="n">local_pq</span><span class="p">)</span>
+    <span class="n">arrow_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">&quot;arrow_tmp&quot;</span><span class="p">)</span>
+    <span class="n">pyarrow</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">write_dataset</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">,</span>
+        <span class="n">base_dir</span><span class="o">=</span><span class="n">arrow_path</span><span class="p">,</span>
+        <span class="n">basename_template</span><span class="o">=</span><span class="s2">&quot;ds_</span><span class="si">{i}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+        <span class="n">partitioning</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_rows_per_group</span><span class="o">=</span><span class="mi">300_000</span><span class="p">,</span>
+        <span class="n">max_rows_per_group</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
+        <span class="n">existing_data_behavior</span><span class="o">=</span><span class="s1">&#39;overwrite_or_ignore&#39;</span>
+    <span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">arrow_path</span><span class="p">,</span> <span class="s2">&quot;ds_0.parquet&quot;</span><span class="p">),</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fname</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">years</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">years</span>
+<span class="n">gases</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">GAS_LIST</span>
+
+<span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/write_sources&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">write_sources</span><span class="p">():</span>
+    <span class="n">ct_pre_fname</span> <span class="o">=</span> <span class="n">ct_pre</span><span class="p">()</span>
+    <span class="n">fnames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">gas</span> <span class="ow">in</span> <span class="n">gases</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">years</span><span class="p">:</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">_write_source_file</span><span class="p">(</span><span class="n">gas</span><span class="p">,</span><span class="n">year</span><span class="p">,</span> <span class="n">ct_pre_fname</span><span class="p">)</span>
+            <span class="n">fnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fnames</span>
+
+<span class="n">write_sources</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2021_co2.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2022_co2.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2023_co2.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2024_co2.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2021_ch4.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2022_ch4.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2023_ch4.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2024_ch4.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2021_n2o.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2022_n2o.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2023_n2o.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2024_n2o.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2021_co2e_100yr.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2022_co2e_100yr.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2023_co2e_100yr.parquet&#39;,
+ &#39;/media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2024_co2e_100yr.parquet&#39;]
 </pre></div>
 </div>
 </div>
 </div>
 <p><em>Optimizing row groups</em> A parquet file is a collection of groups of rows, and these rows are organized column-wise along with some statistics. We can choose how many groups to create: the minimum is one group (all the data into a single group), which is the most standard. This is not optimal however: reading can only be done by one processor core at a time. If we have more, they will sit idle. This is why it is better to choose the number of groups to be close to the expected number of processor cores (10-100). When reading, each core will process a different chunk of the file in parallel.</p>
-<p>Polars cannot do this yet, so the code below directly calls the <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code> package to restructure the final file, calling the function <code class="docutils literal notranslate"><span class="pre">pyarrow.dataset.write_dataset</span></code>.</p>
+<p>Polars is more limited as of December 2024, so the code below directly calls the <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code> package to restructure the final file, calling the function <code class="docutils literal notranslate"><span class="pre">pyarrow.dataset.write_dataset</span></code>.</p>
 <p>Here is the parquet files produced directly by Polars. It is the result of joining datasets which themselves are the result of reading many files (each by subsector). It is very fragmented (see the <code class="docutils literal notranslate"><span class="pre">num_row_groups</span></code> statistics below).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">fname_pre</span><span class="p">,</span> <span class="n">fname_post</span><span class="p">)</span> <span class="o">=</span> <span class="n">write_data</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">fname_pre</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">fname_post</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fname_pre</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;temp.parquet&quot;</span><span class="p">)</span>
+<span class="n">fname_post</span> <span class="o">=</span> <span class="n">write_sources</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">parquet_file</span> <span class="o">=</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">parquet</span><span class="o">.</span><span class="n">ParquetFile</span><span class="p">(</span><span class="n">fname_pre</span><span class="p">)</span>
-<span class="c1"># print(parquet_file.metadata.row_group(0).column(2).statistics)</span>
 <span class="n">parquet_file</span><span class="o">.</span><span class="n">metadata</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/pre_climate_trace-sources_v3-2024-ct4_2021_co2.parquet
-/tmp/climate_trace-sources_v3-2024-ct4_2021_co2.parquet
-</pre></div>
-</div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7db5d847eed0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7d34c40918a0&gt;
   created_by: Polars
-  num_columns: 54
-  num_rows: 15184030
+  num_columns: 55
+  num_rows: 15184500
   num_row_groups: 32
   format_version: 1.0
-  serialized_size: 168440
+  serialized_size: 182217
 </pre></div>
 </div>
 </div>
@@ -786,13 +972,13 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7db5ac4471f0&gt;
-  created_by: parquet-cpp-arrow version 15.0.2
-  num_columns: 54
-  num_rows: 15184030
-  num_row_groups: 47
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7d34ac15e160&gt;
+  created_by: parquet-cpp-arrow version 18.1.0
+  num_columns: 55
+  num_rows: 15184500
+  num_row_groups: 48
   format_version: 2.6
-  serialized_size: 266570
+  serialized_size: 275828
 </pre></div>
 </div>
 </div>
@@ -803,21 +989,21 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parquet_file</span> <span class="o">=</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">parquet</span><span class="o">.</span><span class="n">ParquetFile</span><span class="p">(</span><span class="n">fname_post</span><span class="p">)</span>
-<span class="n">parquet_file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">row_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span>
+<span class="n">parquet_file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">row_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.Statistics object at 0x7db5ac447060&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.Statistics object at 0x7d34ac15f6f0&gt;
   has_min_max: True
-  min: 0.0807364762240872
-  max: 16925822.8550829
+  min: agriculture
+  max: mineral-extraction
   null_count: 0
   distinct_count: None
   num_values: 327680
-  physical_type: DOUBLE
-  logical_type: None
-  converted_type (legacy): NONE
+  physical_type: BYTE_ARRAY
+  logical_type: String
+  converted_type (legacy): UTF8
 </pre></div>
 </div>
 </div>
@@ -828,7 +1014,8 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <p>We know check that it works correctly. Let’s load the newly created data instead of the default version stored on the internet, for the year 2023.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">CO2</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">source_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">()</span>
+<span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">CO2</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">source_path</span><span class="p">)</span>
 <span class="n">sdf</span>
 </pre></div>
 </div>
@@ -865,9 +1052,9 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <!-- p3 -->
 <g id="node3" class="node">
 <title>p3</title>
-<polygon fill="none" stroke="black" points="2222,-38 1668,-38 1668,0 2222,0 2222,-38"/>
-<text text-anchor="middle" x="1945" y="-22.8" font-family="Times,serif" font-size="14.00">Parquet SCAN [/tmp/climate_trace&#45;sources_v3&#45;2024&#45;ct4_2023_co2.parquet]</text>
-<text text-anchor="middle" x="1945" y="-7.8" font-family="Times,serif" font-size="14.00">π */54;</text>
+<polygon fill="none" stroke="black" points="2347.5,-38 1542.5,-38 1542.5,0 2347.5,0 2347.5,-38"/>
+<text text-anchor="middle" x="1945" y="-22.8" font-family="Times,serif" font-size="14.00">Parquet SCAN [/media/tjhunter/DATA/temp/v3&#45;2024&#45;ct5/climate_trace&#45;sources_v3&#45;2024&#45;ct5_2023_co2.parquet]</text>
+<text text-anchor="middle" x="1945" y="-7.8" font-family="Times,serif" font-size="14.00">π */55;</text>
 </g>
 <!-- p2&#45;&#45;p3 -->
 <g id="edge2" class="edge">
@@ -893,7 +1080,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>15184014</td></tr></tbody></table></div></div></div>
+<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>15184500</td></tr></tbody></table></div></div></div>
 </div>
 <p>Check the number of distinct source IDs</p>
 <div class="cell docutils container">
@@ -921,7 +1108,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>748732</td></tr></tbody></table></div></div></div>
+<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>749594</td></tr></tbody></table></div></div></div>
 </div>
 <p>Check: no source is associated with multiple sectors.</p>
 <div class="cell docutils container">
@@ -966,7 +1153,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <p>Check: emissions should always be defined. V2 used to have empty values.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">,</span> <span class="mi">2023</span><span class="p">,</span> <span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">,</span> <span class="mi">2023</span><span class="p">,</span> <span class="n">source_path</span><span class="p">)</span>
 <span class="p">(</span><span class="n">sdf</span>
  <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">is_null</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;null_emissions&quot;</span><span class="p">),</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_iso3_country</span><span class="p">)</span>
  <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_subsector</span><span class="p">,</span> <span class="s2">&quot;null_emissions&quot;</span><span class="p">)</span>
@@ -985,15 +1172,15 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (26, 2)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>false</th></tr><tr><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>&quot;cement&quot;</td><td>26892</td></tr><tr><td>&quot;coal-mining&quot;</td><td>45456</td></tr><tr><td>&quot;bauxite-mining&quot;</td><td>3168</td></tr><tr><td>&quot;iron-mining&quot;</td><td>8664</td></tr><tr><td>&quot;domestic-aviation&quot;</td><td>58920</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;chemicals&quot;</td><td>4452</td></tr><tr><td>&quot;net-shrubgrass&quot;</td><td>682260</td></tr><tr><td>&quot;enteric-fermentation-cattle-pa…</td><td>608328</td></tr><tr><td>&quot;domestic-shipping&quot;</td><td>99132</td></tr><tr><td>&quot;net-wetland&quot;</td><td>660288</td></tr></tbody></table></div></div></div>
+<small>shape: (48, 2)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>false</th></tr><tr><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>&quot;removals&quot;</td><td>721668</td></tr><tr><td>&quot;cropland-fires&quot;</td><td>688584</td></tr><tr><td>&quot;other-manufacturing&quot;</td><td>4776</td></tr><tr><td>&quot;bauxite-mining&quot;</td><td>3168</td></tr><tr><td>&quot;iron-and-steel&quot;</td><td>10728</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;water-reservoirs&quot;</td><td>84408</td></tr><tr><td>&quot;iron-mining&quot;</td><td>8664</td></tr><tr><td>&quot;forest-land-fires&quot;</td><td>647772</td></tr><tr><td>&quot;manure-management-cattle-opera…</td><td>932736</td></tr><tr><td>&quot;international-shipping&quot;</td><td>86256</td></tr></tbody></table></div></div></div>
 </div>
 </section>
 <section id="integrity-checks">
 <h2>Integrity checks<a class="headerlink" href="#integrity-checks" title="Link to this heading">#</a></h2>
-<p>Before uploading and publishing data, it is a good idea to run a number of checks. Frameworks such as <a class="reference external" href="https://pandera.readthedocs.io/en/latest/polars.html">pandera</a> are very helpful to implement these checks. Here we just check that Akrotiri and Dhekelia (country code XAD) is not included, as mentioned in the documentation.</p>
+<p>Before uploading and publishing data, it is a good idea to run a number of checks. Frameworks such as <a class="reference external" href="https://pandera.readthedocs.io/en/latest/polars.html">pandera</a> are very helpful to implement these checks. Here we just check that Akrotiri and Dhekelia (country code XAD) is not included, as mentioned in the documentation. It used to be included in older data releases.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">years</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">source_path</span><span class="p">)</span>
  <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_iso3_country</span> <span class="o">==</span> <span class="s2">&quot;XAD&quot;</span><span class="p">)</span>
  <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span>
 <span class="o">.</span><span class="n">collect</span><span class="p">())</span>
@@ -1010,20 +1197,76 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </style>
 <small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>len</th></tr><tr><td>u32</td></tr></thead><tbody><tr><td>0</td></tr></tbody></table></div></div></div>
 </div>
-<p>Here is an example of issue to investigate: one would expect the total CO2e_100yr (total emissions normalized by their CO2 equivalent) to be at least present for each sector in which emissions are reported. This is not the case for FLU, for instance for the <code class="docutils literal notranslate"><span class="pre">removals</span></code> subsector.</p>
-<div class="admonition-ctodo admonition" id="missing-co2e-subsectors">
-<p class="admonition-title">CTODO</p>
-<p>Confirm with CT.</p>
-</div>
+<section id="co2e-subsector-data-should-be-a-superset-of-all-sectors">
+<h3>CO2e subsector data should be a superset of all sectors<a class="headerlink" href="#co2e-subsector-data-should-be-a-superset-of-all-sectors" title="Link to this heading">#</a></h3>
+<p>Here is a normalized check that is worth checking for any data release: one would expect the total CO2e_100yr (total emissions normalized by their CO2 equivalent) to be at least present for each sector in which emissions are reported. This was not the case until 2024-12-01 and has been fixed since then.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
- <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">)</span>
- <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
- <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_emissions_quantity</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
- <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">])</span>
- <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
-<span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pl</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">tbl_rows</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">years</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">source_path</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+     <span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">streaming</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">GAS</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">])</span>
+     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
+     <span class="o">.</span><span class="n">filter</span><span class="p">((</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">N2O</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CH4</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CO2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>shape: (0, 6)
+┌────────┬───────────┬─────┬─────┬────────────┬─────┐
+│ sector ┆ subsector ┆ co2 ┆ ch4 ┆ co2e_100yr ┆ n2o │
+│ ---    ┆ ---       ┆ --- ┆ --- ┆ ---        ┆ --- │
+│ enum   ┆ enum      ┆ f64 ┆ f64 ┆ f64        ┆ f64 │
+╞════════╪═══════════╪═════╪═════╪════════════╪═════╡
+└────────┴───────────┴─────┴─────┴────────────┴─────┘
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="create-parquet-files-for-country-emissions">
+<h2>Create parquet files for country emissions<a class="headerlink" href="#create-parquet-files-for-country-emissions" title="Link to this heading">#</a></h2>
+<p>As of V3, country emission data is also large enough that it should be compacted in parquet files. Note the dramatic difference:</p>
+<ul class="simple">
+<li><p>uncompressed CSV file: 106MB</p></li>
+<li><p>compressed CSV file: 6MB</p></li>
+<li><p>parquet: 2MB !!</p></li>
+</ul>
+<p>As highlighted, the parquet file also has the advantage of being very efficient at extracting only the relevant information.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Starting from the official archives, read all the gases.</span>
+
+<span class="nd">@data_function</span><span class="p">(</span><span class="s2">&quot;/read_country&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">read_country</span><span class="p">():</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;climate-trace-countries-</span><span class="si">{</span><span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_country_emissions</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">GAS_LIST</span><span class="p">,</span> <span class="n">archive_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Optimizing to read by time and then gas.</span>
+    <span class="c1"># The logic being that country-specific files are already available from CT.</span>
+    <span class="p">(</span><span class="n">cdf</span>
+     <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">c_start_time</span><span class="p">,</span><span class="n">c_gas</span><span class="p">,</span><span class="n">c_iso3_country</span><span class="p">])</span>
+      <span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="c1"># Not taking precautions, the file is so small.</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">read_country</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="country-emissions-integrity-checks">
+<h2>Country emissions: integrity checks<a class="headerlink" href="#country-emissions-integrity-checks" title="Link to this heading">#</a></h2>
+<p>In a production pipeline, before uploading the final data, we would run a number of checks again on the country emissions. Here are a few checks that we can run (and which are currently failing).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_country_emissions</span><span class="p">(</span><span class="n">parquet_path</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
+<span class="n">cdf</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1035,8 +1278,62 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (7, 4)</small><table border="1" class="dataframe"><thead><tr><th>sector</th><th>subsector</th><th>gas</th><th>emissions_quantity</th></tr><tr><td>enum</td><td>enum</td><td>enum</td><td>f64</td></tr></thead><tbody><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-forest-land&quot;</td><td>&quot;co2&quot;</td><td>-8.0434e7</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-forest-land&quot;</td><td>&quot;co2e_100yr&quot;</td><td>-1.2279e7</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-shrubgrass&quot;</td><td>&quot;co2&quot;</td><td>-4.2275e7</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-shrubgrass&quot;</td><td>&quot;co2e_100yr&quot;</td><td>-2.7258e6</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-wetland&quot;</td><td>&quot;co2&quot;</td><td>-2.5857e6</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;net-wetland&quot;</td><td>&quot;co2e_100yr&quot;</td><td>-823052.5</td></tr><tr><td>&quot;forestry-and-land-use&quot;</td><td>&quot;removals&quot;</td><td>&quot;co2&quot;</td><td>-2.8157e8</td></tr></tbody></table></div></div></div>
+<small>shape: (2, 11)</small><table border="1" class="dataframe"><thead><tr><th>iso3_country</th><th>start_time</th><th>end_time</th><th>gas</th><th>sector</th><th>subsector</th><th>emissions_quantity</th><th>emissions_quantity_units</th><th>temporal_granularity</th><th>created_date</th><th>modified_date</th></tr><tr><td>enum</td><td>datetime[ms, UTC]</td><td>datetime[ms, UTC]</td><td>enum</td><td>enum</td><td>enum</td><td>f64</td><td>cat</td><td>enum</td><td>datetime[ms, UTC]</td><td>datetime[ms, UTC]</td></tr></thead><tbody><tr><td>&quot;ABW&quot;</td><td>2015-01-01 00:00:00 UTC</td><td>2015-12-31 00:00:00 UTC</td><td>&quot;co2&quot;</td><td>&quot;fossil-fuel-operations&quot;</td><td>&quot;other-fossil-fuel-operations&quot;</td><td>0.0</td><td>null</td><td>&quot;annual&quot;</td><td>null</td><td>null</td></tr><tr><td>&quot;ABW&quot;</td><td>2015-01-01 00:00:00 UTC</td><td>2015-12-31 00:00:00 UTC</td><td>&quot;co2&quot;</td><td>&quot;mineral-extraction&quot;</td><td>&quot;bauxite-mining&quot;</td><td>0.0</td><td>null</td><td>&quot;annual&quot;</td><td>null</td><td>null</td></tr></tbody></table></div></div></div>
 </div>
+<section id="country-emissions-co2e-data-should-be-a-superset-of-all-country-emissions">
+<h3>Country emissions: CO2e data should be a superset of all country emissions<a class="headerlink" href="#country-emissions-co2e-data-should-be-a-superset-of-all-country-emissions" title="Link to this heading">#</a></h3>
+<p>This was an issue as of 2024-12 and has been fixed since then.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pl</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">tbl_rows</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cdf</span>
+     <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">)</span>
+     <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">c_emissions_quantity</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+     <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">c_sector</span><span class="p">,</span> <span class="n">c_subsector</span><span class="p">,</span> <span class="n">c_gas</span><span class="p">])</span>
+     <span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">GAS</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">])</span>
+     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CO2E_100YR</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
+     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">CO2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>shape: (0, 6)
+┌────────┬───────────┬─────┬─────┬─────┬────────────┐
+│ sector ┆ subsector ┆ co2 ┆ ch4 ┆ n2o ┆ co2e_100yr │
+│ ---    ┆ ---       ┆ --- ┆ --- ┆ --- ┆ ---        │
+│ enum   ┆ enum      ┆ f64 ┆ f64 ┆ f64 ┆ f64        │
+╞════════╪═══════════╪═════╪═════╪═════╪════════════╡
+└────────┴───────────┴─────┴─────┴─────┴────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="country-emissions-some-countries-are-excluded-from-the-dataset">
+<h3>Country emissions: some countries are excluded from the dataset<a class="headerlink" href="#country-emissions-some-countries-are-excluded-from-the-dataset" title="Link to this heading">#</a></h3>
+<p>The Climate TRACE documentation excludes certain countries from the final release. They used to be present as of 2024-12.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">excluded_isos</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;XAD&quot;</span><span class="p">,</span> <span class="s2">&quot;XCL&quot;</span><span class="p">,</span> <span class="s2">&quot;XPI&quot;</span><span class="p">,</span> <span class="s2">&quot;XSP&quot;</span><span class="p">]</span>
+<span class="p">(</span><span class="n">cdf</span>
+ <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c_iso3_country</span><span class="o">.</span><span class="n">is_in</span><span class="p">(</span><span class="n">excluded_isos</span><span class="p">))</span>
+ <span class="o">.</span><span class="n">group_by</span><span class="p">([</span><span class="n">ISO3_COUNTRY</span><span class="p">,</span> <span class="n">c_start_time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">(),</span> <span class="n">GAS</span><span class="p">,</span> <span class="n">SECTOR</span><span class="p">,</span> <span class="n">SUBSECTOR</span><span class="p">])</span>
+ <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (0, 6)</small><table border="1" class="dataframe"><thead><tr><th>iso3_country</th><th>start_time</th><th>gas</th><th>sector</th><th>subsector</th><th>len</th></tr><tr><td>enum</td><td>i32</td><td>enum</td><td>enum</td><td>enum</td><td>u32</td></tr></thead><tbody></tbody></table></div></div></div>
+</div>
+</section>
 </section>
 <section id="upload-the-data-to-the-hugging-face-hub">
 <h2>Upload the data to the Hugging Face Hub<a class="headerlink" href="#upload-the-data-to-the-hugging-face-hub" title="Link to this heading">#</a></h2>
@@ -1044,13 +1341,12 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <p>This step will only work if you have the credentials to upload the dataset.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">huggingface_hub.utils</span>
-<span class="n">upload</span> <span class="o">=</span> <span class="kc">False</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">upload</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="k">if</span> <span class="n">upload</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">api</span> <span class="o">=</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">HfApi</span><span class="p">()</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span> <span class="ow">in</span> <span class="n">write_data</span><span class="p">():</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">write_sources</span><span class="p">():</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ct</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
             <span class="n">api</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
                 <span class="n">path_or_fileobj</span><span class="o">=</span><span class="n">fpath</span><span class="p">,</span>
@@ -1058,6 +1354,15 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
                 <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;tjhunter/climate-trace&quot;</span><span class="p">,</span>
                 <span class="n">repo_type</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="n">read_country</span><span class="p">()</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
+            <span class="n">path_or_fileobj</span><span class="o">=</span><span class="n">fpath</span><span class="p">,</span>
+            <span class="n">path_in_repo</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span>
+            <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;tjhunter/climate-trace&quot;</span><span class="p">,</span>
+            <span class="n">repo_type</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">except</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">HfHubHTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
@@ -1124,10 +1429,19 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-optimized-parquet-files">Creating optimized parquet files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-optimized-parquet-files-for-source-data">Creating optimized parquet files for source data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregating-by-year-and-optimizing-the-output">Aggregating by year and optimizing the output</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-checks">Initial checks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrity-checks">Integrity checks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrity-checks">Integrity checks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#co2e-subsector-data-should-be-a-superset-of-all-sectors">CO2e subsector data should be a superset of all sectors</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-parquet-files-for-country-emissions">Create parquet files for country emissions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-integrity-checks">Country emissions: integrity checks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-co2e-data-should-be-a-superset-of-all-country-emissions">Country emissions: CO2e data should be a superset of all country emissions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#country-emissions-some-countries-are-excluded-from-the-dataset">Country emissions: some countries are excluded from the dataset</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-the-data-to-the-hugging-face-hub">Upload the data to the Hugging Face Hub</a></li>
 </ul>
   </nav></div>
