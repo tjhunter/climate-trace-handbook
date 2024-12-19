@@ -244,7 +244,7 @@ def read_polygons(
 
     The polygons are stored in the WKB (Well-Known Binary) format.
     """
-    fname = "climate_trace-polygons_{version}.parquet"
+    fname = "{version}/climate_trace-polygons_{version}.parquet"
     if p is None:
         local_path = huggingface_hub.file_download.hf_hub_download(
             repo_id="tjhunter/climate-trace",
@@ -263,7 +263,7 @@ def read_points(
 
     The points are stored in lat/lon columns.
     """
-    fname = "climate_trace-points_{version}.parquet"
+    fname = "{version}/climate_trace-points_{version}.parquet"
     if p is None:
         local_path = huggingface_hub.file_download.hf_hub_download(
             repo_id="tjhunter/climate-trace",
@@ -671,7 +671,7 @@ def extract_polygons(p: Optional[Path], gases: List[Gas]) -> Path:
     pdf = (
         pl.scan_parquet([p_fname for (_, p_fname) in polys])
         .group_by("geometry_ref")
-        .agg(pl.col("geom").first().alias("geom_wkb"))
+        .agg(pl.col("geom_wkb").first().alias("geom_wkb"))
     )
     # Add GADM information
     pdf = _enrich_gadm(pdf, col_ref=c_geometry_ref)
@@ -679,7 +679,7 @@ def extract_polygons(p: Optional[Path], gases: List[Gas]) -> Path:
     tmp_dir = Path(tempfile.gettempdir())
     pq_fname = tmp_dir / poly_fname
     _logger.debug(f"writing {pq_fname}")
-    pdf.sink_parquet(pq_fname)
+    pdf.sink_parquet(pq_fname, row_group_size=1_000)
     return pq_fname
 
 
@@ -695,7 +695,7 @@ def extract_points(p: Optional[Path], polys: Path, gases: List[Gas]) -> Path:
         .group_by(c_geometry_ref)
         .agg(
             c_gadm,
-            pl.col("geom").first().alias("geom_wkb"),
+            pl.col("geom_wkb").first().alias("geom_wkb"),
             pl.col("lat").first(),
             pl.col("lng").first(),
         )
@@ -784,8 +784,8 @@ def _extract_points(p: Optional[Path], polys: Path, gases: List[Gas]) -> List[Pa
             _ensure_duckdb()
             duckdb.sql(
                 f"""
-SET memory_limit = '4GB';
-CREATE OR REPLACE TABLE polys AS SELECT *, ST_GeomFromWKB(geom_wkb) AS geom FROM '{polys}';
+SET memory_limit = '10GB';
+CREATE OR REPLACE TABLE polys AS SELECT geometry_ref, gadm_level, iso3_country, ST_GeomFromWKB(geom_wkb) AS geom FROM '{polys}';
 CREATE OR REPLACE TABLE points AS SELECT *, ST_X(geom) as lng, ST_Y(geom) as lat FROM ST_read('{gpkg_fname}', layer='{sector_ct}_points');
 COPY (
     SELECT 
@@ -796,7 +796,7 @@ COPY (
         polys.gadm_level,
         points.lat,
         points.lng,
-        points.geom 
+        ST_AsWKB(points.geom) as geom_wkb
     FROM points
     JOIN polys ON st_intersects(points.geom, polys.geom)
 ) TO '{pq_fname}';
@@ -814,7 +814,7 @@ def _extract_polygons(p: Optional[Path], gases: List[Gas]) -> List[Tuple[Path, P
     p = p or True
     for gas in gases:
         (tmp_dir / gas).mkdir(parents=True, exist_ok=True)
-        for fname in list(_files[gas].keys())[3:]:
+        for fname in list(_files[gas].keys()):
             sector = fname.replace(".zip", "")  # The sector is the name of the file
             _logger.debug(f"Opening path {fname} {gas}")
             (zf, _) = _get_zip(p, gas, fname)
@@ -825,7 +825,9 @@ def _extract_polygons(p: Optional[Path], gases: List[Gas]) -> List[Tuple[Path, P
             # Old CT code: underscores are replaced by dashes
             sector_ct = sector.replace("_", "-")
             gpkg_fname = tmp_dir / gas / "DATA" / f"{sector_ct}_geometries.gpkg"
-            _logger.debug(f"extracting {gpkg_fname}")
+            _logger.debug(
+                f"extracting DATA/{sector_ct}_geometries.gpkg to {(tmp_dir / gas)}"
+            )
 
             zf.extract(f"DATA/{sector_ct}_geometries.gpkg", (tmp_dir / gas))
             # The file may be lacking points layers (ex: buildings)
@@ -840,7 +842,7 @@ def _extract_polygons(p: Optional[Path], gases: List[Gas]) -> List[Tuple[Path, P
             duckdb.sql(
                 f"""
 COPY(
-    SELECT * FROM ST_read('{gpkg_fname}', layer='{sector_ct}_polygons')
+    SELECT geometry_ref, subsectors, ST_AsWKB(geom) as geom_wkb FROM ST_read('{gpkg_fname}', layer='{sector_ct}_polygons') WHERE geom_wkb IS NOT NULL
 ) TO '{pq_fname}';
 """
             )
