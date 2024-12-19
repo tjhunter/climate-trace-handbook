@@ -34,9 +34,9 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
@@ -55,7 +55,7 @@
     <script>let toggleOpenOnPrint = 'true';</script>
     <script src="_static/togglebutton.js?v=4a39c7ea"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
-    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
@@ -952,7 +952,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7ebda4ddc1d0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7d34c40918a0&gt;
   created_by: Polars
   num_columns: 55
   num_rows: 15184500
@@ -972,7 +972,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7ebd81f954e0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.FileMetaData object at 0x7d34ac15e160&gt;
   created_by: parquet-cpp-arrow version 18.1.0
   num_columns: 55
   num_rows: 15184500
@@ -994,7 +994,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.Statistics object at 0x7ebd81f97790&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;pyarrow._parquet.Statistics object at 0x7d34ac15f6f0&gt;
   has_min_max: True
   min: agriculture
   max: mineral-extraction
@@ -1021,97 +1021,49 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">FileNotFoundError</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">line</span> <span class="mi">2</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="n">source_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">()</span>
-<span class="ne">----&gt; </span><span class="mi">2</span> <span class="n">sdf</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">read_source_emissions</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">CO2</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">source_path</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="n">sdf</span>
-
-<span class="nn">File ~/work/climate-trace-handbook/src/ctrace/data.py:161,</span> in <span class="ni">read_source_emissions</span><span class="nt">(gas, year, p)</span>
-<span class="g g-Whitespace">    </span><span class="mi">154</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">155</span>     <span class="n">local_paths</span> <span class="o">=</span> <span class="p">[</span>
-<span class="g g-Whitespace">    </span><span class="mi">156</span>         <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="n">fname</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">gas</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">year_</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">157</span>         <span class="k">for</span> <span class="n">year_</span> <span class="ow">in</span> <span class="n">ys</span>
-<span class="g g-Whitespace">    </span><span class="mi">158</span>         <span class="k">for</span> <span class="n">gas</span> <span class="ow">in</span> <span class="n">gases</span>
-<span class="g g-Whitespace">    </span><span class="mi">159</span>     <span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">160</span> <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-<span class="ne">--&gt; </span><span class="mi">161</span>     <span class="p">[</span>
-<span class="g g-Whitespace">    </span><span class="mi">162</span>         <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span><span class="n">local_p</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">recast_parquet</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">163</span>         <span class="k">for</span> <span class="n">local_p</span> <span class="ow">in</span> <span class="n">local_paths</span>
-<span class="g g-Whitespace">    </span><span class="mi">164</span>     <span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">165</span> <span class="p">)</span>
-
-<span class="nn">File ~/work/climate-trace-handbook/src/ctrace/data.py:162,</span> in <span class="ni">&lt;listcomp&gt;</span><span class="nt">(.0)</span>
-<span class="g g-Whitespace">    </span><span class="mi">154</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">155</span>     <span class="n">local_paths</span> <span class="o">=</span> <span class="p">[</span>
-<span class="g g-Whitespace">    </span><span class="mi">156</span>         <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="n">fname</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gas</span><span class="o">=</span><span class="n">gas</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">year_</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">157</span>         <span class="k">for</span> <span class="n">year_</span> <span class="ow">in</span> <span class="n">ys</span>
-<span class="g g-Whitespace">    </span><span class="mi">158</span>         <span class="k">for</span> <span class="n">gas</span> <span class="ow">in</span> <span class="n">gases</span>
-<span class="g g-Whitespace">    </span><span class="mi">159</span>     <span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">160</span> <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">161</span>     <span class="p">[</span>
-<span class="ne">--&gt; </span><span class="mi">162</span>         <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span><span class="n">local_p</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">recast_parquet</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">163</span>         <span class="k">for</span> <span class="n">local_p</span> <span class="ow">in</span> <span class="n">local_paths</span>
-<span class="g g-Whitespace">    </span><span class="mi">164</span>     <span class="p">]</span>
-<span class="g g-Whitespace">    </span><span class="mi">165</span> <span class="p">)</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/polars/lazyframe/frame.py:801,</span> in <span class="ni">LazyFrame.pipe</span><span class="nt">(self, function, *args, **kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">732</span> <span class="k">def</span> <span class="nf">pipe</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">733</span>     <span class="bp">self</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">734</span>     <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">Concatenate</span><span class="p">[</span><span class="n">LazyFrame</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span>
-<span class="g g-Whitespace">    </span><span class="mi">735</span>     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">736</span>     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">737</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">738</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">739</span><span class="sd">     Offers a structured way to apply a sequence of user-defined functions (UDFs).</span>
-<span class="g g-Whitespace">    </span><span class="mi">740</span><span class="sd"> </span>
-<span class="sd">   (...)</span>
-<span class="g g-Whitespace">    </span><span class="mi">799</span><span class="sd">     └─────┴─────┘</span>
-<span class="g g-Whitespace">    </span><span class="mi">800</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">801</span>     <span class="k">return</span> <span class="n">function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<span class="nn">File ~/work/climate-trace-handbook/src/ctrace/data.py:469,</span> in <span class="ni">recast_parquet</span><span class="nt">(df, conf)</span>
-<span class="g g-Whitespace">    </span><span class="mi">452</span><span class="w"> </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">453</span><span class="sd"> Takes a loaded polars dataframe and recasts the columns to the appropriate types.</span>
-<span class="g g-Whitespace">    </span><span class="mi">454</span><span class="sd"> </span>
-<span class="g g-Whitespace">    </span><span class="mi">455</span><span class="sd"> This information gets lost in the parquet format.</span>
-<span class="g g-Whitespace">    </span><span class="mi">456</span><span class="sd"> &quot;&quot;&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">457</span> <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">458</span>     <span class="n">c_iso3_country</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">iso3_enum</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">ISO3_COUNTRY</span><span class="p">),</span>
-<span class="g g-Whitespace">    </span><span class="mi">459</span>     <span class="n">c_gas</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">gas_enum</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">GAS</span><span class="p">),</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">467</span>     <span class="n">c_sector</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sector_enum</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">SECTOR</span><span class="p">),</span>
-<span class="g g-Whitespace">    </span><span class="mi">468</span> <span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">469</span> <span class="k">if</span> <span class="n">EMISSIONS_QUANTITY_UNITS</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">collect_schema</span><span class="p">()</span><span class="o">.</span><span class="n">names</span><span class="p">():</span>
-<span class="g g-Whitespace">    </span><span class="mi">470</span>     <span class="c1"># There is no emissions quantity for the sources (it is all defined in metric tonnes).</span>
-<span class="g g-Whitespace">    </span><span class="mi">471</span>     <span class="c1"># This applies to the country emissions.</span>
-<span class="g g-Whitespace">    </span><span class="mi">472</span>     <span class="c1"># TODO: make it an enum? it as always tonnes it seems for countries</span>
-<span class="g g-Whitespace">    </span><span class="mi">473</span>     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">474</span>         <span class="n">c_emissions_quantity_units</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Categorical</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">475</span>             <span class="n">EMISSIONS_QUANTITY_UNITS</span>
-<span class="g g-Whitespace">    </span><span class="mi">476</span>         <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">477</span>     <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">478</span> <span class="k">if</span> <span class="n">conf</span><span class="p">:</span>
-
-<span class="nn">File ~/.cache/pypoetry/virtualenvs/climate-trace-nO4nxH9g-py3.10/lib/python3.10/site-packages/polars/lazyframe/frame.py:2244,</span> in <span class="ni">LazyFrame.collect_schema</span><span class="nt">(self)</span>
-<span class="g g-Whitespace">   </span><span class="mi">2214</span> <span class="k">def</span> <span class="nf">collect_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Schema</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">2215</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="g g-Whitespace">   </span><span class="mi">2216</span><span class="sd">     Resolve the schema of this LazyFrame.</span>
-<span class="g g-Whitespace">   </span><span class="mi">2217</span><span class="sd"> </span>
-<span class="sd">   (...)</span>
-<span class="g g-Whitespace">   </span><span class="mi">2242</span><span class="sd">     3</span>
-<span class="g g-Whitespace">   </span><span class="mi">2243</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">-&gt; </span><span class="mi">2244</span>     <span class="k">return</span> <span class="n">Schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ldf</span><span class="o">.</span><span class="n">collect_schema</span><span class="p">(),</span> <span class="n">check_dtypes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-<span class="ne">FileNotFoundError</span>: No such file or directory (os error 2): /media/tjhunter/DATA/temp/v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2023_co2.parquet
-
-<span class="n">This</span> <span class="n">error</span> <span class="n">occurred</span> <span class="k">with</span> <span class="n">the</span> <span class="n">following</span> <span class="n">context</span> <span class="n">stack</span><span class="p">:</span>
-	<span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="s1">&#39;parquet scan&#39;</span>
-	<span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="s1">&#39;with_columns&#39;</span>
-</pre></div>
-</div>
-</div>
+<div class="output text_html"><h4>NAIVE QUERY PLAN</h4><p>run <b>LazyFrame.show_graph()</b> to see the optimized version</p><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: polars_query Pages: 1 -->
+<svg width="3898pt" height="190pt"
+ viewBox="0.00 0.00 3898.00 190.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 186)">
+<title>polars_query</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-186 3894,-186 3894,4 -4,4"/>
+<!-- p1 -->
+<g id="node1" class="node">
+<title>p1</title>
+<polygon fill="none" stroke="black" points="3890,-182 0,-182 0,-146 3890,-146 3890,-182"/>
+<text text-anchor="middle" x="1945" y="-160.3" font-family="Times,serif" font-size="14.00">WITH COLUMNS [col(&quot;conf_source_type&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_source_type&quot;), col(&quot;conf_capacity&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_capacity&quot;), col(&quot;conf_capacity_factor&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_capacity_factor&quot;), col(&quot;conf_activity&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_activity&quot;), col(&quot;conf_emissions_factor&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_emissions_factor&quot;), col(&quot;conf_emissions_quantity&quot;).cast(Enum(Some(local), Physical)).alias(&quot;conf_emissions_quantity&quot;)]</text>
+</g>
+<!-- p2 -->
+<g id="node2" class="node">
+<title>p2</title>
+<polygon fill="none" stroke="black" points="3396.5,-110 493.5,-110 493.5,-74 3396.5,-74 3396.5,-110"/>
+<text text-anchor="middle" x="1945" y="-88.3" font-family="Times,serif" font-size="14.00">WITH COLUMNS [col(&quot;iso3_country&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;iso3_country&quot;), col(&quot;gas&quot;).cast(Enum(Some(local), Physical)).alias(&quot;gas&quot;), col(&quot;temporal_granularity&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;temporal_granularity&quot;), col(&quot;subsector&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;subsector&quot;), col(&quot;sector&quot;).strict_cast(Enum(Some(local), Physical)).alias(&quot;sector&quot;)]</text>
+</g>
+<!-- p1&#45;&#45;p2 -->
+<g id="edge1" class="edge">
+<title>p1&#45;&#45;p2</title>
+<path fill="none" stroke="black" d="M1945,-145.7C1945,-134.85 1945,-120.92 1945,-110.1"/>
+</g>
+<!-- p3 -->
+<g id="node3" class="node">
+<title>p3</title>
+<polygon fill="none" stroke="black" points="2347.5,-38 1542.5,-38 1542.5,0 2347.5,0 2347.5,-38"/>
+<text text-anchor="middle" x="1945" y="-22.8" font-family="Times,serif" font-size="14.00">Parquet SCAN [/media/tjhunter/DATA/temp/v3&#45;2024&#45;ct5/climate_trace&#45;sources_v3&#45;2024&#45;ct5_2023_co2.parquet]</text>
+<text text-anchor="middle" x="1945" y="-7.8" font-family="Times,serif" font-size="14.00">π */55;</text>
+</g>
+<!-- p2&#45;&#45;p3 -->
+<g id="edge2" class="edge">
+<title>p2&#45;&#45;p3</title>
+<path fill="none" stroke="black" d="M1945,-73.81C1945,-62.98 1945,-49.01 1945,-38.02"/>
+</g>
+</g>
+</svg>
+</div></div>
 </div>
 <p>About 15M records for this year. This is spread across multiple gas and also multiple trips in the case of boats or airplanes.</p>
 <div class="cell docutils container">
@@ -1220,7 +1172,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (48, 2)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>false</th></tr><tr><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>&quot;electricity-generation&quot;</td><td>106440</td></tr><tr><td>&quot;manure-management-cattle-opera…</td><td>932736</td></tr><tr><td>&quot;enteric-fermentation-cattle-pa…</td><td>642888</td></tr><tr><td>&quot;copper-mining&quot;</td><td>8076</td></tr><tr><td>&quot;domestic-aviation&quot;</td><td>58920</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;cement&quot;</td><td>26892</td></tr><tr><td>&quot;international-aviation&quot;</td><td>58920</td></tr><tr><td>&quot;net-wetland&quot;</td><td>697776</td></tr><tr><td>&quot;removals&quot;</td><td>721668</td></tr><tr><td>&quot;coal-mining&quot;</td><td>45456</td></tr></tbody></table></div></div></div>
+<small>shape: (48, 2)</small><table border="1" class="dataframe"><thead><tr><th>subsector</th><th>false</th></tr><tr><td>enum</td><td>u32</td></tr></thead><tbody><tr><td>&quot;removals&quot;</td><td>721668</td></tr><tr><td>&quot;cropland-fires&quot;</td><td>688584</td></tr><tr><td>&quot;other-manufacturing&quot;</td><td>4776</td></tr><tr><td>&quot;bauxite-mining&quot;</td><td>3168</td></tr><tr><td>&quot;iron-and-steel&quot;</td><td>10728</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>&quot;water-reservoirs&quot;</td><td>84408</td></tr><tr><td>&quot;iron-mining&quot;</td><td>8664</td></tr><tr><td>&quot;forest-land-fires&quot;</td><td>647772</td></tr><tr><td>&quot;manure-management-cattle-opera…</td><td>932736</td></tr><tr><td>&quot;international-shipping&quot;</td><td>86256</td></tr></tbody></table></div></div></div>
 </div>
 </section>
 <section id="integrity-checks">
@@ -1264,12 +1216,12 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>shape: (0, 6)
-┌────────┬───────────┬─────┬─────┬─────┬────────────┐
-│ sector ┆ subsector ┆ co2 ┆ n2o ┆ ch4 ┆ co2e_100yr │
-│ ---    ┆ ---       ┆ --- ┆ --- ┆ --- ┆ ---        │
-│ enum   ┆ enum      ┆ f64 ┆ f64 ┆ f64 ┆ f64        │
-╞════════╪═══════════╪═════╪═════╪═════╪════════════╡
-└────────┴───────────┴─────┴─────┴─────┴────────────┘
+┌────────┬───────────┬─────┬─────┬────────────┬─────┐
+│ sector ┆ subsector ┆ co2 ┆ ch4 ┆ co2e_100yr ┆ n2o │
+│ ---    ┆ ---       ┆ --- ┆ --- ┆ ---        ┆ --- │
+│ enum   ┆ enum      ┆ f64 ┆ f64 ┆ f64        ┆ f64 │
+╞════════╪═══════════╪═════╪═════╪════════════╪═════╡
+└────────┴───────────┴─────┴─────┴────────────┴─────┘
 </pre></div>
 </div>
 </div>
@@ -1282,7 +1234,7 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 <ul class="simple">
 <li><p>uncompressed CSV file: 106MB</p></li>
 <li><p>compressed CSV file: 6MB</p></li>
-<li><p>parquet: 1MB !!</p></li>
+<li><p>parquet: 2MB !!</p></li>
 </ul>
 <p>As highlighted, the parquet file also has the advantage of being very efficient at extracting only the relevant information.</p>
 <div class="cell docutils container">
@@ -1417,59 +1369,6 @@ emissions_quantity: [[4.8278737861685945,9.035360329705544,45.38064148636446,61.
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2021_co2.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2021_co2.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "32db50d9771d405c9ba7525c870a49f0", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2022_co2.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2022_co2.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0afa3cea3a8a468395193285b9de620f", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2023_co2.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2023_co2.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "bff19c9e01e04170abe683c24bc1d90c", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2024_co2.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2024_co2.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "08272cd0e28e42ff91d209f6691dac66", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2021_ch4.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2021_ch4.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "01e8cb4857be4fbf944df7e8ec2ead4f", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2022_ch4.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2022_ch4.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "87e2b2b6bf9146108ed7277c00d5df7a", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2023_ch4.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2023_ch4.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ead18920795a44f589c8beb7c30d9911", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2024_ch4.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2024_ch4.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "03ae9ee3c1074183b933a863a756185f", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2021_n2o.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2021_n2o.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "54e2d5b411234453a08e3a2725bf2b53", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2022_n2o.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2022_n2o.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "975eebc3703d410685faf74dbd8682ce", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2023_n2o.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2023_n2o.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "442a292afc9e41d69c3143f35b459452", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2024_n2o.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2024_n2o.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "293e7ee8f45d42d9922758debef2e908", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2021_co2e_100yr.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2021_co2e_100yr.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "326a180e223e4d9db032b52fa51b13c6", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2022_co2e_100yr.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2022_co2e_100yr.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "33a28ad74dc644eebbb8d08d8bea60b3", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2023_co2e_100yr.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2023_co2e_100yr.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4eac264cf7494371b9c3883f6acd1f5c", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>v3-2024-ct5/climate_trace-sources_v3-2024-ct5_2024_co2e_100yr.parquet /media/tjhunter/DATA/temp/climate_trace_sources/climate_trace-sources_v3-2024-ct5_2024_co2e_100yr.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "23f4432e51014095ac7780479caf6769", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>climate-trace-countries-v3-2024-ct5.parquet /media/tjhunter/DATA/temp/climate-trace-countries-v3-2024-ct5.parquet
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ebe235b9e4f744ebbf8a987549c2d162", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>
 </section>
