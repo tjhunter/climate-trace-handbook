@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "climate-trace"
-version = "0.3.0"
+version = "0.4.0"
 description = "A package for loading and analyzing data from the Climate TRACE consortium."
 authors = ["Tim Hunter <tjhunter@cs.stanford.edu>"]
 license = "CC BY-SA 4.0 Deed"

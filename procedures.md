@@ -37,6 +37,9 @@ ghp-import -n -p -f _build/html
 
 Only do it from main.
 
+- update version in `pyproject.toml`
+- update version in `src/trace/__init__.py`
+
 ```
 poetry publish
 ```
